@@ -56,6 +56,7 @@
 				<value>com.rns.web.erp.service.dao.domain.ERPLoginDetails</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeFinancials</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPSalaryStructure</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

@@ -32,6 +32,7 @@ public class ERPCompanyDetails {
 	private Date createdDate;
 	private ERPLoginDetails createdBy;
 	private Set<ERPCompanyLeavePolicy> policy = new HashSet<ERPCompanyLeavePolicy>(0);
+	private Set<ERPSalaryStructure> salaryInfo = new HashSet<ERPSalaryStructure>(0);
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -100,6 +101,14 @@ public class ERPCompanyDetails {
 	
 	public void setPolicy(Set<ERPCompanyLeavePolicy> policy) {
 		this.policy = policy;
+	}
+	
+	@OneToMany(mappedBy = "company",fetch = FetchType.LAZY)
+	public Set<ERPSalaryStructure> getSalaryInfo() {
+		return salaryInfo;
+	}
+	public void setSalaryInfo(Set<ERPSalaryStructure> salaryInfo) {
+		this.salaryInfo = salaryInfo;
 	}
 	
 }

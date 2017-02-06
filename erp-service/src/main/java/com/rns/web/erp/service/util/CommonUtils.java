@@ -2,6 +2,7 @@ package com.rns.web.erp.service.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -91,5 +92,12 @@ public class CommonUtils {
 		return user.getEmail().substring(0, 1)  + new Random().nextInt(10000);
 	}
 	
+	
+	public static boolean isAmountPresent(BigDecimal amount) {
+		if(amount != null && amount.compareTo(BigDecimal.ZERO) > 0) {
+			return true;
+		}
+		return false;
+	}
 	
 }

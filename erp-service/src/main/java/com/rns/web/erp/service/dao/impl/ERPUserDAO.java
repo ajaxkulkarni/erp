@@ -7,12 +7,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
 import com.rns.web.erp.service.util.ERPConstants;
 
 public class ERPUserDAO {
@@ -108,6 +110,28 @@ public class ERPUserDAO {
 		query.setInteger("id", id);
 		query.setDate("to_date", to);
 		return query.list();
+	}
+
+	public ERPSalaryStructure getSalaryStructure(Integer id, Session session) {
+		Query query = session.createQuery("from ERPSalaryStructure where id=:id order by id");
+		query.setInteger("id", id);
+		List<ERPSalaryStructure> list = query.list();
+		if(CollectionUtils.isNotEmpty(list)) {
+			return list.get(0);
+		}
+		return null;
+	}
+	
+	public List<ERPSalaryStructure> getCompanySalaryStructure(Integer companyId, Session session) {
+		Query query = session.createQuery("from ERPSalaryStructure where company.id=:companyId order by id");
+		query.setInteger("companyId", companyId);
+		return query.list();
+	}
+
+	public void removeAllSalaryStructure(Integer id, Session session) {
+		Query query = session.createQuery("delete from ERPSalaryStructure where company.id=:companyId");
+		query.setInteger("companyId", id);
+		query.executeUpdate();
 	}
 
 }

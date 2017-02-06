@@ -22,4 +22,6 @@ public interface ERPUserBo {
 	ERPUser getEmployeeLeaveData(ERPUser user);
 	String addLeavePolicy(ERPCompany company);
 	String changePassword(ERPUser erpUser);
+	String addSalaryStructure(ERPCompany salaryInfo);
+	List<ERPSalaryInfo> getSalaryInfo(ERPCompany company);
 }

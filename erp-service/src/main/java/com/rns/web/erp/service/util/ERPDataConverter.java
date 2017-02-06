@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
@@ -20,6 +21,7 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeFinancials;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
 
 public class ERPDataConverter {
 
@@ -126,6 +128,20 @@ public class ERPDataConverter {
 		lv.setFromString(sdf.format(leave.getFromDate()));
 		lv.setToString(sdf.format(leave.getToDate()));
 		return lv;
+	}
+
+	public static ERPSalaryInfo getSalaryInfo(ERPSalaryStructure structure) {
+		if(structure == null) {
+			return null;
+		}
+		ERPSalaryInfo salaryInfo = new ERPSalaryInfo();
+		salaryInfo.setId(structure.getId());
+		salaryInfo.setAmount(structure.getAmount());
+		salaryInfo.setPercentage(structure.getPercentage());
+		salaryInfo.setRule(structure.getRule());
+		salaryInfo.setType(structure.getType());
+		salaryInfo.setDescription(structure.getDescription());
+		return salaryInfo;
 	}
 	
 }

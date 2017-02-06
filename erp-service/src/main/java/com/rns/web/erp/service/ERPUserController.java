@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPUser;
@@ -283,5 +284,42 @@ public class ERPUserController {
 		return response;
 	}
 	
+	@POST
+	@Path("/addSalaryStructure")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse addSalaryStructure(ERPServiceRequest request) {
+		LoggingUtil.logObject("add salary structure Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			 CommonUtils.setResponse(response, userBo.addSalaryStructure(request.getUser().getCompany()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("add salary structure Response :", response);
+		return response;
+	}
+	
+	@POST
+	@Path("/getSalaryStructure")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse getSalaryStructure(ERPServiceRequest request) {
+		LoggingUtil.logObject("Get salary structure Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			ERPCompany company = request.getUser().getCompany();
+			company.setSalaryInfo(userBo.getSalaryInfo(company));
+			response.setCompany(company);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Get salary structure Response :", response);
+		return response;
+	}
 	
 }

@@ -1,5 +1,6 @@
 package com.rns.web.erp.service.bo.impl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
@@ -23,6 +25,7 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
 import com.rns.web.erp.service.dao.impl.ERPUserDAO;
 import com.rns.web.erp.service.util.CommonUtils;
 import com.rns.web.erp.service.util.ERPBusinessConverter;
@@ -453,6 +456,67 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			CommonUtils.closeSession(session);
 		}
 		return result;
+	}
+	
+	public String addSalaryStructure(ERPCompany company) {
+		if(company == null || company.getId() == null || CollectionUtils.isEmpty(company.getSalaryInfo())) {
+			return ERROR_INVALID_COMPANY_DETAILS;
+		}
+		String result = RESPONSE_OK;
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPUserDAO erpUserDAO = new ERPUserDAO();
+			erpUserDAO.removeAllSalaryStructure(company.getId(), session);
+			company.getBasic().setRule("Basic");
+			company.getBasic().setCompany(company);
+			session.persist(ERPBusinessConverter.getSalaryStructure(company.getBasic()));
+			for(ERPSalaryInfo salaryInfo: company.getSalaryInfo()) {
+				salaryInfo.setCompany(company);
+				ERPSalaryStructure structure = ERPBusinessConverter.getSalaryStructure(salaryInfo);
+				session.persist(structure);
+			}
+			tx.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			result = e.getMessage();
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return result;
+	}
+
+	
+	public List<ERPSalaryInfo> getSalaryInfo(ERPCompany company) {
+		if(company == null || company.getId() == null) {
+			return null;
+		}
+		List<ERPSalaryInfo> salaryInfos = new ArrayList<ERPSalaryInfo>();
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			ERPUserDAO dao = new ERPUserDAO();
+			List<ERPSalaryStructure> structures = dao.getCompanySalaryStructure(company.getId(),session);
+			for(ERPSalaryStructure structure: structures) {
+				ERPSalaryInfo salaryInfo = ERPDataConverter.getSalaryInfo(structure);
+				if(salaryInfo == null) {
+					continue;
+				}
+				if("Basic".equalsIgnoreCase(salaryInfo.getRule())) {
+					company.setBasic(salaryInfo);
+					continue;
+				}
+				salaryInfos.add(salaryInfo);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return salaryInfos;
 	}
 	
 }

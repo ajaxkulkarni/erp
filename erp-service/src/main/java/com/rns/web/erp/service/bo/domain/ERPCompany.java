@@ -2,6 +2,8 @@ package com.rns.web.erp.service.bo.domain;
 
 import java.util.List;
 
+import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
+
 public class ERPCompany {
 
 	private Integer id;
@@ -13,6 +15,8 @@ public class ERPCompany {
 	private List<ERPUser> employees;
 	private List<ERPLeaveCategory> leaveTypes;
 	private List<ERPLeavePolicy> leavePolicy;
+	private List<ERPSalaryInfo> salaryInfo;
+	private ERPSalaryInfo basic;
 	
 	public Integer getId() {
 		return id;
@@ -67,6 +71,18 @@ public class ERPCompany {
 	}
 	public void setLeavePolicy(List<ERPLeavePolicy> leavePolicy) {
 		this.leavePolicy = leavePolicy;
+	}
+	public List<ERPSalaryInfo> getSalaryInfo() {
+		return salaryInfo;
+	}
+	public void setSalaryInfo(List<ERPSalaryInfo> salaryInfo) {
+		this.salaryInfo = salaryInfo;
+	}
+	public ERPSalaryInfo getBasic() {
+		return basic;
+	}
+	public void setBasic(ERPSalaryInfo basic) {
+		this.basic = basic;
 	}
 	
 }
