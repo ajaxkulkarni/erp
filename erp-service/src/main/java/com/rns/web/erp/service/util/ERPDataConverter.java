@@ -94,6 +94,7 @@ public class ERPDataConverter {
 		financial.setBankName(financials.getBankName());
 		financial.setPan(financials.getPanNo());
 		financial.setPfNumber(financials.getPfNo());
+		financial.setSalary(financials.getSalary());
 		return financial;
 	}
 

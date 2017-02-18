@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+
+<body>
+
+
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-2 levcard">
+
+
+                <h3><span><strong>{companyName}</strong><h4><strong>Salary Slip</strong></h4></span></h3>
+                <h4><span><strong> Month & Year : </strong>{month} {year}</span></h4>
+                
+
+                <h4><span><strong>Employee number : </strong>{employeeId}</span></h4>
+                <h4><span><strong>Name : </strong>{name}</span></h4>
+
+                <h4><span><strong> Designation:  </strong> {designation}</span></h4>
+
+
+                <h4><span><strong>PF a/c number : </strong>{pfNumber}</span></h4>
+                <h4><span><strong>Mode of Payment : </strong>Bank</span></h4>
+
+				<hr/>
+
+                <div class="table-responsive">
+                    <table>
+                            <tr>
+                                <th>#</th>
+                                <th>Earnings</th>
+                                <th>Payable</th>
+
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Basic Salary</td>
+                                <td>{basicSalary}</td>
+
+                            </tr>
+                            {benefits}
+                            <tr>
+                                <td></td>
+
+                                <td><strong>Total Earnings</strong></td>
+                                <td><strong>1250000</strong></td>
+                                <td><strong>210000</strong></td>
+                             </tr>
+
+
+                    </table>
+
+
+                    <table class="table distabl table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Deductions</th>
+                                <th></th>
+                                <th>Amount </th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {deductions}
+                        </tbody>
+                    </table>
+
+                </div>
+
+
+                <h4><span><strong>Previous Advance : </strong> -- </span></h4>
+                <h4><span><strong>Current Advance : </strong> -- </span></h4>
+                <h4><span><strong> Advance Balance : </strong> -- </span></h4>
+
+
+                <h4><span><strong>Net Salary : 34000 /- </strong></span></h4>
+                <h4><span><strong>Rounded salary : 29000 /- </strong></span></h4>
+                <br/>
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-2 ">
+                <button type="button" class="btn btn-secondary btn-lg btn-block " data-toggle="modal" data-target="#myModal">Print</button>
+            </div>
+        </div>
+
+
+    </div>
+
+
+</body>
+
+
+
+</html>

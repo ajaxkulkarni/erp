@@ -17,6 +17,8 @@ public class ERPCompany {
 	private List<ERPLeavePolicy> leavePolicy;
 	private List<ERPSalaryInfo> salaryInfo;
 	private ERPSalaryInfo basic;
+	private ERPFilter filter;
+	
 	
 	public Integer getId() {
 		return id;
@@ -83,6 +85,12 @@ public class ERPCompany {
 	}
 	public void setBasic(ERPSalaryInfo basic) {
 		this.basic = basic;
+	}
+	public ERPFilter getFilter() {
+		return filter;
+	}
+	public void setFilter(ERPFilter filter) {
+		this.filter = filter;
 	}
 	
 }

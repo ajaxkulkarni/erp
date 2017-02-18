@@ -56,5 +56,17 @@ public class ERPSalaryInfo {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	public BigDecimal getPayable(ERPSalaryInfo basic) {
+		if(this.amount != null) {
+			return this.amount;
+		}
+		if(basic == null || basic.getAmount() == null) {
+			return BigDecimal.ZERO;
+		}
+		if(this.percentage != null) {
+			this.percentage.divide(new BigDecimal(100)).multiply(basic.getAmount());
+		}
+		return BigDecimal.ZERO;
+	}
 	
 }

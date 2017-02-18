@@ -25,6 +25,7 @@ public class ERPUser {
 	private Integer totalLeaves;
 	private List<ERPLeaveCategory> categories;
 	private List<ERPLeave> leaves;
+	private Integer withoutPayLeaves;
 	
 	public Integer getId() {
 		return id;
@@ -145,6 +146,15 @@ public class ERPUser {
 	}
 	public void setTotalLeaves(Integer totalLeaves) {
 		this.totalLeaves = totalLeaves;
+	}
+	public Integer getWithoutPayLeaves() {
+		if(withoutPayLeaves == null){
+			return 0;
+		}
+		return withoutPayLeaves;
+	}
+	public void setWithoutPayLeaves(Integer withoutPayLeaves) {
+		this.withoutPayLeaves = withoutPayLeaves;
 	}
 
 }

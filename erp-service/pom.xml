@@ -125,8 +125,16 @@
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
-			<version>5.0.6</version>
+			<version>5.5.10</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.itextpdf.tool/xmlworker -->
+		<dependency>
+			<groupId>com.itextpdf.tool</groupId>
+			<artifactId>xmlworker</artifactId>
+			<version>5.5.10</version>
+		</dependency>
+
 
 
 		<!-- Jersey + Spring -->

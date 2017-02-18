@@ -63,10 +63,18 @@ public class ERPUserDAO {
 		return query.list();
 	}
 
-	public int getEmployeeLeaveCount(Session session, Integer id, Integer type) {
-		Query query = session.createQuery("select sum(noOfDays) from ERPEmployeeLeave where employee.id=:id AND type.id=:type");
+	public int getEmployeeLeaveCount(Session session, Integer id, Integer type, Date date1, Date date2) {
+		String queryString = "select sum(noOfDays) from ERPEmployeeLeave where employee.id=:id AND type.id=:type";
+		if(date1 !=null && date2!= null) {
+			queryString = queryString + " AND (fromDate>=:date1 AND fromDate<=:date2 OR toDate>=:date1 AND toDate<=:date2)";
+		}
+		Query query = session.createQuery(queryString);
 		query.setInteger("id", id);
 		query.setInteger("type", type);
+		if(date1 !=null && date2!= null) {
+			query.setDate("date1", date1);
+			query.setDate("date2", date2);
+		}
 		List list = query.list();
 		if(CollectionUtils.isNotEmpty(list)) {
 			Number number = (Number) list.get(0);

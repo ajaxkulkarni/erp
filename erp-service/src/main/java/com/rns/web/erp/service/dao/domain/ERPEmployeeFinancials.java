@@ -2,6 +2,8 @@ package com.rns.web.erp.service.dao.domain;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.math.BigDecimal;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,6 +28,7 @@ public class ERPEmployeeFinancials {
 	private String bankName;
 	private String pfNo;
 	private ERPEmployeeDetails employee;
+	private BigDecimal salary;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -77,6 +80,14 @@ public class ERPEmployeeFinancials {
 	}
 	public void setEmployee(ERPEmployeeDetails employee) {
 		this.employee = employee;
+	}
+	
+	@Column(name = "salary")
+	public BigDecimal getSalary() {
+		return salary;
+	}
+	public void setSalary(BigDecimal salary) {
+		this.salary = salary;
 	}
 	
 }

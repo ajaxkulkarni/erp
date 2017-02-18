@@ -2,6 +2,7 @@ package com.rns.web.erp.service.dao.domain;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -36,7 +37,6 @@ public class ERPEmployeeDetails {
 	private String qualification;
 	private ERPEmployeeFinancials financials;
 	private String status;
-	
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)

@@ -1,21 +1,25 @@
 package com.rns.web.erp.service;
 
+import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.bo.domain.ERPFilter;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.domain.ERPServiceRequest;
 import com.rns.web.erp.service.domain.ERPServiceResponse;
@@ -321,5 +325,72 @@ public class ERPUserController {
 		LoggingUtil.logObject("Get salary structure Response :", response);
 		return response;
 	}
+	
+	@POST
+	@Path("/addSalary")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse addSalary(ERPServiceRequest request) {
+		LoggingUtil.logObject("Add Salary Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			CommonUtils.setResponse(response, userBo.updateSalary(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Add salary Response :", response);
+		return response;
+	}
+	
+	@POST
+	@Path("/getAllEmployeeSalaryInfo")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse getAllSalaryInfo(ERPServiceRequest request) {
+		LoggingUtil.logObject("Get all salary info Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			ERPCompany company = request.getUser().getCompany();
+			company.setEmployees(userBo.getAllEmployeeSalarySlips(company));
+			response.setCompany(company);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Get all salary info Response :", response);
+		return response;
+	}
+	
+	@GET
+	@Path("/download/{companyId}/{employeeId}/{year}/{month}")
+	//@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.MULTIPART_FORM_DATA)
+	public Response downloadSalarySlip(@PathParam("companyId") Integer companyId, @PathParam("employeeId") Integer employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
+		LoggingUtil.logMessage("Download Salary slip request for :" + employeeId);
+		try {
+			ERPUser employee = new ERPUser();
+			employee.setId(employeeId);
+			ERPCompany company = new ERPCompany();
+			ERPFilter filter = new ERPFilter();
+			filter.setYear(year);
+			filter.setMonth(month);
+			company.setFilter(filter);
+			company.setId(companyId);
+			employee.setCompany(company);
+			InputStream is = userBo.downloadSalarySlip(employee);
+			ResponseBuilder response = Response.ok(is);
+			response.header("Content-Disposition","attachment; filename=salary.pdf");  
+			return response.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//LoggingUtil.logObject("Download resume Response :", response);
+		return Response.serverError().build();
+
+	}
+	
 	
 }

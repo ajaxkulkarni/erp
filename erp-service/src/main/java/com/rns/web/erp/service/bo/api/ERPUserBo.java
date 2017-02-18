@@ -1,5 +1,7 @@
 package com.rns.web.erp.service.bo.api;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import com.rns.web.erp.service.bo.domain.ERPCompany;
@@ -24,4 +26,7 @@ public interface ERPUserBo {
 	String changePassword(ERPUser erpUser);
 	String addSalaryStructure(ERPCompany salaryInfo);
 	List<ERPSalaryInfo> getSalaryInfo(ERPCompany company);
+	String updateSalary(ERPUser employee);
+	List<ERPUser> getAllEmployeeSalarySlips(ERPCompany company);
+	InputStream downloadSalarySlip(ERPUser employee);
 }

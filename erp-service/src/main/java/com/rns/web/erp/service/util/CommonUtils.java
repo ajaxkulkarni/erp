@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
@@ -98,6 +99,42 @@ public class CommonUtils {
 			return true;
 		}
 		return false;
+	}
+
+	public static Date getFirstDate(Integer year, Integer month) {
+		if(year == null || month == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.set(year, month, 1);
+		return cal.getTime();
+	}
+	
+	public static Date getLastDate(Integer year, Integer month) {
+		if(year == null || month == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.YEAR, year);
+		cal.set(Calendar.MONTH, month);
+		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+		return cal.getTime();
+	}
+
+	public static Integer getCalendarValue(Date date1, int value) {
+		if(date1 == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date1);
+		return cal.get(value);
+	}
+
+	public static String getStringValue(Integer value) {
+		if(value == null) {
+			return "";
+		}
+		return value.toString();
 	}
 	
 }
