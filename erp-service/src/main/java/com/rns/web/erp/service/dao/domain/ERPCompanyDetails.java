@@ -33,6 +33,11 @@ public class ERPCompanyDetails {
 	private ERPLoginDetails createdBy;
 	private Set<ERPCompanyLeavePolicy> policy = new HashSet<ERPCompanyLeavePolicy>(0);
 	private Set<ERPSalaryStructure> salaryInfo = new HashSet<ERPSalaryStructure>(0);
+	private String bankName;
+	private String accountNumber;
+	private String companyPan;
+	private String branchName;
+	private String ifscCode;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -109,6 +114,46 @@ public class ERPCompanyDetails {
 	}
 	public void setSalaryInfo(Set<ERPSalaryStructure> salaryInfo) {
 		this.salaryInfo = salaryInfo;
+	}
+	
+	@Column(name = "bank_name")
+	public String getBankName() {
+		return bankName;
+	}
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+	
+	@Column(name = "account_no")
+	public String getAccountNumber() {
+		return accountNumber;
+	}
+	public void setAccountNumber(String accountNumber) {
+		this.accountNumber = accountNumber;
+	}
+	
+	@Column(name = "pan")
+	public String getCompanyPan() {
+		return companyPan;
+	}
+	public void setCompanyPan(String companyPan) {
+		this.companyPan = companyPan;
+	}
+	
+	@Column(name = "branch_name")
+	public String getBranchName() {
+		return branchName;
+	}
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
+	}
+	
+	@Column(name = "ifsc_code")
+	public String getIfscCode() {
+		return ifscCode;
+	}
+	public void setIfscCode(String ifscCode) {
+		this.ifscCode = ifscCode;
 	}
 	
 }

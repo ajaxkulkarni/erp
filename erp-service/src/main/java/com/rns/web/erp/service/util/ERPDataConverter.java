@@ -45,9 +45,19 @@ public class ERPDataConverter {
 		}
 		ERPCompany company = new ERPCompany();
 		company.setId(companyDetails.getId());
+		setCompany(companyDetails, company);
+		return company;
+	}
+
+	public static void setCompany(ERPCompanyDetails companyDetails, ERPCompany company) {
 		company.setName(companyDetails.getName());
 		company.setLeavePolicy(getLeavePolicy(companyDetails.getPolicy()));
-		return company;
+		ERPFinancial financial = new ERPFinancial();
+		financial.setAccountNumber(companyDetails.getAccountNumber());
+		financial.setBankName(companyDetails.getBankName());
+		financial.setBranchName(companyDetails.getBranchName());
+		financial.setIfscCode(companyDetails.getIfscCode());
+		company.setFinancial(financial);
 	}
 
 	public static List<ERPLeavePolicy> getLeavePolicy(Set<ERPCompanyLeavePolicy> policy) {
@@ -121,13 +131,20 @@ public class ERPDataConverter {
 		lv.setId(leave.getId());
 		lv.setFrom(leave.getFromDate());
 		lv.setTo(leave.getToDate());
-		lv.setType(ERPDataConverter.getLeaveCategory(leave));
+		lv.setWithoutPay(leave.getWithoutPay());
+		ERPLeaveCategory leaveCategory = ERPDataConverter.getLeaveCategory(leave);
+		if(leaveCategory == null && lv.getWithoutPay() > 0) {
+			leaveCategory = new ERPLeaveCategory();
+			leaveCategory.setName(ERPConstants.LEAVE_TYPE_LOP);
+		}
+		lv.setType(leaveCategory);
 		lv.setAppliedBy(ERPDataConverter.getERPUser(leave.getAppliedBy()));
 		lv.setUser(ERPDataConverter.getEmployee(leave.getEmployee()));
 		lv.setNoOfDays(leave.getNoOfDays());
 		SimpleDateFormat sdf = new SimpleDateFormat(ERPConstants.DATE_FORMAT);
 		lv.setFromString(sdf.format(leave.getFromDate()));
 		lv.setToString(sdf.format(leave.getToDate()));
+		lv.setReason(leave.getComments());
 		return lv;
 	}
 
@@ -142,6 +159,12 @@ public class ERPDataConverter {
 		salaryInfo.setRule(structure.getRule());
 		salaryInfo.setType(structure.getType());
 		salaryInfo.setDescription(structure.getDescription());
+		salaryInfo.setAmountType(ERPConstants.AMOUNT_TYPE_AMOUNT);
+		if(salaryInfo.getPercentage() != null) {
+			salaryInfo.setAmountType(ERPConstants.AMOUNT_TYPE_PERCENTAGE);
+		} else {
+			salaryInfo.setPercentage(salaryInfo.getAmount());
+		}
 		return salaryInfo;
 	}
 	

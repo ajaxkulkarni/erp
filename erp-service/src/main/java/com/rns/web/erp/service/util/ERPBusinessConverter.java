@@ -84,13 +84,27 @@ public class ERPBusinessConverter {
 	}
 
 	public static ERPCompanyDetails  getCompanyDetails(ERPCompany company) {
+		if(company == null || StringUtils.isEmpty(company.getName())) {
+			return null;
+		}
 		ERPCompanyDetails cmp = new ERPCompanyDetails();
 		cmp.setCreatedDate(new Date());
 		cmp.setName(company.getName());
+		setCompanyDetails(company, cmp);
+		return cmp;
+	}
+
+	public static void setCompanyDetails(ERPCompany company, ERPCompanyDetails cmp) {
 		cmp.setAddress(company.getAddress());
 		cmp.setEmail(company.getEmail());
 		cmp.setPhone(company.getPhone());
-		return cmp;
+		if(company.getFinancial() != null) {
+			cmp.setAccountNumber(company.getFinancial().getAccountNumber());
+			cmp.setBankName(company.getFinancial().getBankName());
+			cmp.setCompanyPan(company.getFinancial().getPan());
+			cmp.setBranchName(company.getFinancial().getBranchName());
+			cmp.setIfscCode(company.getFinancial().getIfscCode());
+		}
 	}
 
 	public static ERPEmployeeLeave getLeaveDetails(ERPLeave leave) {
@@ -110,7 +124,7 @@ public class ERPBusinessConverter {
 		/*if(StringUtils.isNotBlank(leave.getStatus())) {
 			empLeave.setStatus(leave.getStatus());
 		}*/
-		if(leave.getType() != null) {
+		if(leave.getType() != null && leave.getType().getId() != null) {
 			ERPLeaveType type = new ERPLeaveType();
 			type.setId(leave.getType().getId());
 			empLeave.setType(type);
@@ -171,8 +185,11 @@ public class ERPBusinessConverter {
 	}
 
 	public static void setSalaryStructure(ERPSalaryInfo salaryInfo, ERPSalaryStructure structure) {
-		structure.setAmount(salaryInfo.getAmount());
-		structure.setPercentage(salaryInfo.getPercentage());
+		if(StringUtils.equals(ERPConstants.AMOUNT_TYPE_PERCENTAGE, salaryInfo.getAmountType())) {
+			structure.setPercentage(salaryInfo.getPercentage());
+		} else {
+			structure.setAmount(salaryInfo.getPercentage());
+		}
 		ERPCompanyDetails company = new ERPCompanyDetails();
 		company.setId(salaryInfo.getCompany().getId());
 		structure.setCompany(company);

@@ -1,6 +1,9 @@
 package com.rns.web.erp.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -13,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -25,6 +29,8 @@ import com.rns.web.erp.service.domain.ERPServiceRequest;
 import com.rns.web.erp.service.domain.ERPServiceResponse;
 import com.rns.web.erp.service.util.CommonUtils;
 import com.rns.web.erp.service.util.ERPConstants;
+import com.rns.web.erp.service.util.ERPExcelUtil;
+import com.rns.web.erp.service.util.ERPReportUtil;
 import com.rns.web.erp.service.util.LoggingUtil;
 
 @Component
@@ -183,7 +189,11 @@ public class ERPUserController {
 		LoggingUtil.logObject("Apply leave Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			CommonUtils.setResponse(response, userBo.applyLeave(request.getLeave()));
+			String responseText = userBo.applyLeave(request.getLeave());
+			CommonUtils.setResponse(response, responseText);
+			if(ERPConstants.ERROR_LEAVES_EXCEEDED.equals(responseText)) {
+				response.setStatus(-101);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(-999);
@@ -383,6 +393,68 @@ public class ERPUserController {
 			InputStream is = userBo.downloadSalarySlip(employee);
 			ResponseBuilder response = Response.ok(is);
 			response.header("Content-Disposition","attachment; filename=salary.pdf");  
+			return response.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//LoggingUtil.logObject("Download resume Response :", response);
+		return Response.serverError().build();
+
+	}
+	
+	@GET
+	@Path("/downloadSalaryMaster/{companyId}/{employeeId}/{year}/{month}")
+	//@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces("application/vnd.ms-excel")
+	public Response downloadSalaryMaster(@PathParam("companyId") Integer companyId, @PathParam("employeeId") Integer employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
+		LoggingUtil.logMessage("Download Master request for :" + companyId);
+		try {
+			/*ERPUser employee = new ERPUser();
+			employee.setId(employeeId);*/
+			ERPCompany company = new ERPCompany();
+			ERPFilter filter = new ERPFilter();
+			filter.setYear(year);
+			filter.setMonth(month);
+			company.setFilter(filter);
+			company.setId(companyId);
+			//employee.setCompany(company);
+			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(company);
+			HSSFWorkbook wb = ERPExcelUtil.generateEmployeeSalarySheet(employees);
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			wb.write(os);
+			InputStream is = new ByteArrayInputStream(os.toByteArray());
+			ResponseBuilder response = Response.ok(is);
+			response.header("Content-Disposition","attachment; filename=master.xls");  
+			return response.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//LoggingUtil.logObject("Download resume Response :", response);
+		return Response.serverError().build();
+
+	}
+	
+	@GET
+	@Path("/downloadBankStatement/{companyId}/{employeeId}/{year}/{month}")
+	//@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.MULTIPART_FORM_DATA)
+	public Response downloadBankStatement(@PathParam("companyId") Integer companyId, @PathParam("employeeId") Integer employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
+		LoggingUtil.logMessage("Download bank statement request for :" + companyId);
+		try {
+			/*ERPUser employee = new ERPUser();
+			employee.setId(employeeId);*/
+			ERPCompany company = new ERPCompany();
+			ERPFilter filter = new ERPFilter();
+			filter.setYear(year);
+			filter.setMonth(month);
+			company.setFilter(filter);
+			company.setId(companyId);
+			//employee.setCompany(company);
+			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(company);
+			company.setEmployees(employees);
+			InputStream is = ERPReportUtil.getBankStatement(company);
+			ResponseBuilder response = Response.ok(is);
+			response.header("Content-Disposition","attachment; filename=bank.pdf");  
 			return response.build();
 		} catch (Exception e) {
 			e.printStackTrace();

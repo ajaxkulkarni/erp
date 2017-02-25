@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+
+<head>
+
+<link href="report.css" rel="stylesheet"/>
+
+
+</head>
+
+<body>
+
+
+
+        <div>
+            <div>
+
+
+                <h3><span><strong>{companyName}</strong> <strong>Bank statement</strong></span></h3>
+                <h4><span><strong> Month & Year : </strong>{month} {year}</span></h4>
+				To, <br/>
+				
+                <span><strong>Chief manager,</strong></span><br/>
+                <span><strong>{companyBank}</strong></span><br/>
+                <span><strong>Branch : {companyBankBranch} </strong></span>
+				<br/>
+				<p>Respected Sir /Madam, <br/>		
+					Following are the details of employees and their account numbers, please transfer		
+					the salary to their accounts from Cash Credit Acount of {companyName}	</p>
+				<br/>
+				<p>Cash credit account number : {companyAccountNumber}</p>
+				<p>Date : {date}</p>
+				
+				<hr/>
+
+                <div>
+                    <table class="bank_master">
+                            <tr>
+                                <th class="srNo">#</th>
+                                <th>Employee Name</th>
+                                <th>Bank account number</th>
+                                <th>Amount to be transfered</th>
+                            </tr>
+                            {employees}
+                    </table>
+					<br/>
+					<br/>
+					<br/>
+
+                   
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+</body>
+
+
+
+</html>

@@ -2,6 +2,7 @@ package com.rns.web.erp.service.bo.impl;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -185,11 +186,20 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		try {
 			session = this.sessionFactory.openSession();
 			Transaction tx = session.beginTransaction();
-			ERPLoginDetails login = new ERPUserDAO().getLoginDetails(company.getCreatedBy().getEmail(), session);
-			ERPCompanyDetails cmp = ERPBusinessConverter.getCompanyDetails(company);
-			cmp.setCreatedBy(login);
-			session.persist(cmp);
-			login.setCompany(cmp);
+			ERPUserDAO erpUserDAO = new ERPUserDAO();
+			ERPLoginDetails login = erpUserDAO.getLoginDetails(company.getCreatedBy().getEmail(), session);
+			ERPCompanyDetails cmp = null;
+			if(company.getId() != null)  {
+				cmp = erpUserDAO.getCompany(company.getId(),session);
+				if(cmp != null) {
+					ERPBusinessConverter.setCompanyDetails(company, cmp);
+				}
+			} else {
+				cmp = ERPBusinessConverter.getCompanyDetails(company);
+				cmp.setCreatedBy(login);
+				session.persist(cmp);
+				login.setCompany(cmp);
+			}
 			tx.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -216,9 +226,34 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 				ERPEmployeeLeave lv = ERPBusinessConverter.getLeaveDetails(leave);
 				lv.setStatus(LEAVE_STATUS_APPLIED);
 				lv.setAppliedDate(new Date());
-				lv.setAppliedBy(erpUserDAO.getLoginDetails(leave.getAppliedBy().getEmail(), session));
-				session.persist(lv);
-				tx.commit();
+				ERPLoginDetails appliedBy = erpUserDAO.getLoginDetails(leave.getAppliedBy().getEmail(), session);
+				lv.setAppliedBy(appliedBy);
+				if(LEAVE_TYPE_LOP.equals(leave.getType().getName())) {
+					lv.setWithoutPay(lv.getNoOfDays());
+				} else if(leave.getType().getId() != null) {
+					Integer yearlyLeaves = erpUserDAO.getEmployeeLeaveCount(session, leave.getUser().getId(), leave.getType().getId(), CommonUtils.getFirstDate(CommonUtils.getCalendarValue(leave.getFrom(), Calendar.YEAR), 0), CommonUtils.getLastDate(CommonUtils.getCalendarValue(leave.getFrom(),Calendar.YEAR), 11), "noOfDays");
+					ERPCompanyLeavePolicy leavePolicy = erpUserDAO.getCompanyLeavePolicy(leave.getType().getId(), appliedBy.getCompany().getId(), session);
+					if(leavePolicy.getMaxAllowed() < yearlyLeaves) {
+						lv.setWithoutPay(lv.getNoOfDays());
+					} else {
+						Integer currentLeaveCount = yearlyLeaves + lv.getNoOfDays();
+						if(currentLeaveCount > leavePolicy.getMaxAllowed()) {
+							lv.setWithoutPay(currentLeaveCount - leavePolicy.getMaxAllowed());
+						}
+					}
+				}
+				if(lv.getWithoutPay() == null || lv.getWithoutPay() == 0 || LEAVE_TYPE_LOP.equals(leave.getType().getName())) {
+					session.persist(lv);
+					tx.commit();
+				} else  {
+					if(StringUtils.equals(YES, leave.getApproval())) {
+						session.persist(lv);
+						tx.commit();
+					} else {
+						result= ERROR_LEAVES_EXCEEDED;
+					}
+				}
+				
 			} else {
 				result = ERROR_LEAVES_OVERLAP;
 			}
@@ -317,22 +352,28 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			List<ERPLeaveType> types = dao.getAllLeaveTypes(session);
 			for(ERPLeaveType type: types) {
 				ERPLeaveCategory category = new ERPLeaveCategory();
-				if(!StringUtils.equals("ALL", requestType)) {
-					ERPCompanyLeavePolicy policy = dao.getCompanyLeavePolicy(type.getId(), company.getId(), session);
-					if(policy == null) {
-						continue;
-					}
+				ERPCompanyLeavePolicy policy = dao.getCompanyLeavePolicy(type.getId(), company.getId(), session);
+				if(policy != null) {
 					category.setCount(policy.getMaxAllowed());
 				}
 				category.setId(type.getId());
 				category.setName(type.getName());
-				leaveTypes.add(category);
+				if(StringUtils.equals("ALL", requestType)) {
+					leaveTypes.add(category);
+				} else if (category.getCount() != null && category.getCount() > 0) {
+					leaveTypes.add(category);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
 		} finally {
 			CommonUtils.closeSession(session);
+		}
+		if(CollectionUtils.isNotEmpty(leaveTypes) && !StringUtils.equals("ALL", requestType)) {
+			ERPLeaveCategory withoutPay = new ERPLeaveCategory();
+			withoutPay.setName(LEAVE_TYPE_LOP);
+			leaveTypes.add(withoutPay);
 		}
 		return leaveTypes;
 	}
@@ -389,12 +430,15 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		if(financial.getBasic() == null || financial.getBasic().getAmount() == null) {
 			return;
 		}
+		financial.setTotalBenefits(financial.getBasic().getAmount());
 		for(ERPSalaryStructure structure: salaryStructures) {
 			if(StringUtils.equalsIgnoreCase("Basic",structure.getRule())) {
 				continue;
 			}
 			ERPSalaryInfo salaryInfo = ERPDataConverter.getSalaryInfo(structure);
-			if(salaryInfo.getPercentage() != null && salaryInfo.getPercentage().compareTo(BigDecimal.ZERO) > 0) {
+			if(AMOUNT_TYPE_AMOUNT.equals(salaryInfo.getAmountType())) {
+				salaryInfo.setAmount(salaryInfo.getAmount());
+			} else if(salaryInfo.getPercentage() != null && salaryInfo.getPercentage().compareTo(BigDecimal.ZERO) > 0) {
 				salaryInfo.setAmount(financial.getBasic().getAmount().multiply(salaryInfo.getPercentage().divide(new BigDecimal(100))));
 			}
 			if(StringUtils.equals("add", salaryInfo.getType())) {
@@ -408,12 +452,12 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		if(user.getWithoutPayLeaves() != null && user.getWithoutPayLeaves() > 0) {
 			ERPSalaryInfo salaryInfo = new ERPSalaryInfo();
 			salaryInfo.setRule("Withoutpay Leaves");
-			salaryInfo.setAmount(user.getFinancial().getSalary().divide(new BigDecimal(user.getWithoutPayLeaves())));
+			salaryInfo.setAmount(user.getFinancial().getSalary().divide(new BigDecimal(30),RoundingMode.HALF_UP).multiply((new BigDecimal(user.getWithoutPayLeaves()))));
 			financial.getDeductions().add(salaryInfo);
 			financial.setTotalDeductions(salaryInfo.getAmount().add(financial.getTotalDeductions()));
 		}
 		ERPSalaryInfo salaryInfo = new ERPSalaryInfo();
-		salaryInfo.setAmount(financial.getSalary().subtract(financial.getTotalBenefits().add(financial.getBasic().getAmount())));
+		salaryInfo.setAmount(financial.getSalary().subtract(financial.getTotalBenefits()));
 		salaryInfo.setRule("Other allowances");
 		financial.getBenefits().add(salaryInfo);
 		financial.setTotalBenefits(financial.getTotalBenefits().add(salaryInfo.getAmount()));
@@ -431,26 +475,25 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		}
 		List<ERPLeaveCategory> leaveCount = new ArrayList<ERPLeaveCategory>();
 		Integer total = 0;
+		Integer withoutPayCount = 0;
 		for(ERPCompanyLeavePolicy type: leaveTypes) {
 			ERPUserDAO erpUserDAO = new ERPUserDAO();
-			Integer typeCount = erpUserDAO.getEmployeeLeaveCount(session, user.getId(), type.getType().getId(), date1, date2);
+			Integer typeCount = erpUserDAO.getEmployeeLeaveCount(session, user.getId(), type.getType().getId(), date1, date2, "noOfDays");
 			ERPLeaveCategory leaveCategory = ERPDataConverter.getLeaveCategory(type.getType());
 			leaveCategory.setCount(typeCount);
-			Integer typeLeaves = typeCount;
-			if(CommonUtils.getCalendarValue(date1, Calendar.MONTH) == CommonUtils.getCalendarValue(date2, Calendar.MONTH)) {
-				typeLeaves = erpUserDAO.getEmployeeLeaveCount(session, user.getId(), type.getType().getId(), CommonUtils.getFirstDate(CommonUtils.getCalendarValue(date1, Calendar.YEAR), 0), CommonUtils.getLastDate(CommonUtils.getCalendarValue(date1,Calendar.YEAR), 11));
-			}
-			leaveCategory.setAvailable(type.getMaxAllowed() - typeLeaves);
-			if(leaveCategory.getAvailable() < 0) {
-				if(Math.abs(leaveCategory.getAvailable()) > typeCount) {
-					user.setWithoutPayLeaves(user.getWithoutPayLeaves() + typeCount);
-				} else {
-					user.setWithoutPayLeaves(user.getWithoutPayLeaves() + Math.abs(leaveCategory.getAvailable()));
-				}
-			}
+			
+			Integer withoutPayLeaves = erpUserDAO.getEmployeeLeaveCount(session, user.getId(), type.getType().getId(), date1, date2, "withoutPay");
+			withoutPayCount = withoutPayCount + withoutPayLeaves;
+			leaveCategory.setWithoutPay(withoutPayLeaves);
 			total = total + typeCount;
 			leaveCount.add(leaveCategory);
 		}
+		user.setWithoutPayLeaves(new ERPUserDAO().getWithoutPayCount(session, user.getId(), date1, date2));
+		ERPLeaveCategory withoutPay = new ERPLeaveCategory();
+		withoutPay.setName(LEAVE_TYPE_LOP);
+		withoutPay.setCount(user.getWithoutPayLeaves());
+		leaveCount.add(withoutPay);
+		total = total + (user.getWithoutPayLeaves() - withoutPayCount);
 		user.setTotalLeaves(total);
 		user.setLeaveCount(leaveCount);
 	}
@@ -645,6 +688,8 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		try {
 			session = this.sessionFactory.openSession();
 			ERPUserDAO dao = new ERPUserDAO();
+			ERPCompanyDetails companyDetails = dao.getCompany(company.getId(), session);
+			ERPDataConverter.setCompany(companyDetails, company);
 			List<ERPEmployeeDetails> emps = dao.getCompanyEmployees(company.getId(), session);
 			if(CollectionUtils.isNotEmpty(emps)) {
 				extractDates(company);

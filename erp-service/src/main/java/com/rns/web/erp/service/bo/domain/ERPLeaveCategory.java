@@ -6,6 +6,7 @@ public class ERPLeaveCategory {
 	private String name;
 	private Integer count;
 	private Integer available;
+	private Integer withoutPay;
 	
 	public Integer getId() {
 		return id;
@@ -30,6 +31,12 @@ public class ERPLeaveCategory {
 	}
 	public void setAvailable(Integer available) {
 		this.available = available;
+	}
+	public Integer getWithoutPay() {
+		return withoutPay;
+	}
+	public void setWithoutPay(Integer withoutPay) {
+		this.withoutPay = withoutPay;
 	}
 
 }

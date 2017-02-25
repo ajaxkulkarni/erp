@@ -17,6 +17,8 @@ public class ERPLeave {
 	private Integer noOfDays;
 	private String fromString;
 	private String toString;
+	private Integer withoutPay;
+	private String approval;
 	
 	public Integer getId() {
 		return id;
@@ -96,6 +98,17 @@ public class ERPLeave {
 	public void setToString(String toString) {
 		this.toString = toString;
 	}
-	
+	public Integer getWithoutPay() {
+		return withoutPay;
+	}
+	public void setWithoutPay(Integer withoutPay) {
+		this.withoutPay = withoutPay;
+	}
+	public String getApproval() {
+		return approval;
+	}
+	public void setApproval(String approval) {
+		this.approval = approval;
+	}
 
 }

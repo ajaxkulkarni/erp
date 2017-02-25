@@ -32,6 +32,7 @@ public class ERPEmployeeLeave {
 	private Integer noOfDays;
 	private ERPEmployeeDetails employee;
 	private ERPLoginDetails appliedBy;
+	private Integer withoutPay;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -128,6 +129,15 @@ public class ERPEmployeeLeave {
 	}
 	public void setAppliedBy(ERPLoginDetails appliedBy) {
 		this.appliedBy = appliedBy;
+	}
+	
+	public void setWithoutPay(Integer withoutPay) {
+		this.withoutPay = withoutPay;
+	}
+	
+	@Column(name = "without_pay")
+	public Integer getWithoutPay() {
+		return withoutPay;
 	}
 	
 }

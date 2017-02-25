@@ -136,5 +136,12 @@ public class CommonUtils {
 		}
 		return value.toString();
 	}
+
+	public static String getStringValue(BigDecimal value) {
+		if(value == null) {
+			return "";
+		}
+		return value.toString();
+	}
 	
 }

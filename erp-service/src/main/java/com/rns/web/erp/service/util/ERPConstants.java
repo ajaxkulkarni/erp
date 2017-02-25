@@ -10,10 +10,12 @@ public interface ERPConstants {
 	
 	String USER_TYPE_OWNER = "Owner";
 	String USER_TYPE_EMPLOYEE = "Employee";
-	
+	String AMOUNT_TYPE_PERCENTAGE = "percentage";
+	String AMOUNT_TYPE_AMOUNT = "amount";
 	String LEAVE_STATUS_APPLIED = "Applied";
 	String LEAVE_STATUS_CANCELLED = "Cancelled";
-	
+	String LEAVE_TYPE_LOP = "Without Pay";
+	String YES = "Y";
 	
 	String RESPONSE_OK = "OK";
 	String DATE_FORMAT = "dd/MM/yy";
@@ -35,6 +37,8 @@ public interface ERPConstants {
 	String ERROR_INVALID_LEAVE_POLICY = "Invalid leave policy!";
 	String ERROR_LEAVES_OVERLAP = "Applied leaves overlapping with existing leaves!";
 	String ERROR_INCORRECT_OLD_PASSWORD = "Incorrect old password!";
+	String ERROR_LEAVES_EXCEEDED = "The leaves entered exceed the maximum allowed limit. Any applied leave will be considered as without pay. Do you want to continue?";
+	
 	
 	String[] ADMIN_MAILS = {"ajinkyashiva@gmail.com"};
 	

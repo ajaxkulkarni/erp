@@ -1,14 +1,21 @@
 <!doctype html>
 <html>
 
+<head>
+
+<link href="report.css" rel="stylesheet"/>
+
+
+</head>
+
 <body>
 
 
-    <div class="container">
+    <div>
 
 
-        <div class="row">
-            <div class="col-sm-8 col-sm-offset-2 levcard">
+        <div>
+            <div>
 
 
                 <h3><span><strong>{companyName}</strong><h4><strong>Salary Slip</strong></h4></span></h3>
@@ -26,39 +33,37 @@
 
 				<hr/>
 
-                <div class="table-responsive">
-                    <table>
+                <div>
+                    <table >
                             <tr>
-                                <th>#</th>
+                                <th class="srNo">#</th>
                                 <th>Earnings</th>
                                 <th>Payable</th>
 
                             </tr>
                             <tr>
-                                <td>1</td>
+                                <td class="srNo">1</td>
                                 <td>Basic Salary</td>
                                 <td>{basicSalary}</td>
 
                             </tr>
                             {benefits}
                             <tr>
-                                <td></td>
-
-                                <td><strong>Total Earnings</strong></td>
-                                <td><strong>1250000</strong></td>
-                                <td><strong>210000</strong></td>
+                                <td class="srNo"></td>
+                                <td><strong>Total Benefits</strong></td>
+                                <td><strong>{totalBenefits}</strong></td>
                              </tr>
 
-
                     </table>
+					<br/>
+					<br/>
+					<br/>
 
-
-                    <table class="table distabl table-hover">
+                    <table>
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th class="srNo">#</th>
                                 <th>Deductions</th>
-                                <th></th>
                                 <th>Amount </th>
 
 
@@ -66,28 +71,25 @@
                         </thead>
                         <tbody>
                             {deductions}
+                            <tr>
+                                <td class="srNo"></td>
+                                <td><strong>Total deductions</strong></td>
+                                <td><strong>{totalDeductions}</strong></td>
+                             </tr>
                         </tbody>
                     </table>
 
                 </div>
+				
+				<hr/>
+				
+				<br/>
+				<br/>
 
-
-                <h4><span><strong>Previous Advance : </strong> -- </span></h4>
-                <h4><span><strong>Current Advance : </strong> -- </span></h4>
-                <h4><span><strong> Advance Balance : </strong> -- </span></h4>
-
-
-                <h4><span><strong>Net Salary : 34000 /- </strong></span></h4>
-                <h4><span><strong>Rounded salary : 29000 /- </strong></span></h4>
+                <h4><span><strong>Gross Salary : {employeeSalary} </strong></span></h4>
+                <h4><span><strong>Payable salary : {payableSalary} </strong></span></h4>
                 <br/>
 
-            </div>
-        </div>
-
-
-        <div class="row">
-            <div class="col-sm-8 col-sm-offset-2 ">
-                <button type="button" class="btn btn-secondary btn-lg btn-block " data-toggle="modal" data-target="#myModal">Print</button>
             </div>
         </div>
 

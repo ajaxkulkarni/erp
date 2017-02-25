@@ -13,6 +13,8 @@ public class ERPSalaryInfo {
 	private BigDecimal percentage;
 	private ERPCompany company;
 	private String description;
+	private String amountType;
+	private boolean customRule;
 	
 	public Integer getId() {
 		return id;
@@ -67,6 +69,18 @@ public class ERPSalaryInfo {
 			this.percentage.divide(new BigDecimal(100)).multiply(basic.getAmount());
 		}
 		return BigDecimal.ZERO;
+	}
+	public String getAmountType() {
+		return amountType;
+	}
+	public void setAmountType(String amountType) {
+		this.amountType = amountType;
+	}
+	public boolean isCustomRule() {
+		return customRule;
+	}
+	public void setCustomRule(boolean customRule) {
+		this.customRule = customRule;
 	}
 	
 }

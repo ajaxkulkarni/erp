@@ -18,7 +18,7 @@ public class ERPCompany {
 	private List<ERPSalaryInfo> salaryInfo;
 	private ERPSalaryInfo basic;
 	private ERPFilter filter;
-	
+	private ERPFinancial financial;
 	
 	public Integer getId() {
 		return id;
@@ -91,6 +91,13 @@ public class ERPCompany {
 	}
 	public void setFilter(ERPFilter filter) {
 		this.filter = filter;
+	}
+	
+	public ERPFinancial getFinancial() {
+		return financial;
+	}
+	public void setFinancial(ERPFinancial financial) {
+		this.financial = financial;
 	}
 	
 }

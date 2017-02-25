@@ -9,6 +9,7 @@ import org.hibernate.Session;
 
 import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.dao.domain.ERPCompanyDetails;
 import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
@@ -63,8 +64,9 @@ public class ERPUserDAO {
 		return query.list();
 	}
 
-	public int getEmployeeLeaveCount(Session session, Integer id, Integer type, Date date1, Date date2) {
-		String queryString = "select sum(noOfDays) from ERPEmployeeLeave where employee.id=:id AND type.id=:type";
+	public int getEmployeeLeaveCount(Session session, Integer id, Integer type, Date date1, Date date2, String countType) {
+		//String countType = "noOfDays";
+		String queryString = "select sum(" + countType + ") from ERPEmployeeLeave where employee.id=:id AND type.id=:type";
 		if(date1 !=null && date2!= null) {
 			queryString = queryString + " AND (fromDate>=:date1 AND fromDate<=:date2 OR toDate>=:date1 AND toDate<=:date2)";
 		}
@@ -140,6 +142,37 @@ public class ERPUserDAO {
 		Query query = session.createQuery("delete from ERPSalaryStructure where company.id=:companyId");
 		query.setInteger("companyId", id);
 		query.executeUpdate();
+	}
+
+	public Integer getWithoutPayCount(Session session, Integer id, Date date1, Date date2) {
+		String queryString = "select sum(withoutPay) from ERPEmployeeLeave where employee.id=:id";
+		if(date1 !=null && date2!= null) {
+			queryString = queryString + " AND (fromDate>=:date1 AND fromDate<=:date2 OR toDate>=:date1 AND toDate<=:date2)";
+		}
+		Query query = session.createQuery(queryString);
+		query.setInteger("id", id);
+		if(date1 !=null && date2!= null) {
+			query.setDate("date1", date1);
+			query.setDate("date2", date2);
+		}
+		List list = query.list();
+		if(CollectionUtils.isNotEmpty(list)) {
+			Number number = (Number) list.get(0);
+			if(number != null) {
+				return number.intValue();
+			}
+		}
+		return 0;
+	}
+
+	public ERPCompanyDetails getCompany(Integer id, Session session) {
+		Query query = session.createQuery("from ERPCompanyDetails where id=:companyId");
+		query.setInteger("companyId", id);
+		List<ERPCompanyDetails> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
 	}
 
 }
