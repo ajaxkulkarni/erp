@@ -38,6 +38,7 @@ public interface ERPConstants {
 	String ERROR_LEAVES_OVERLAP = "Applied leaves overlapping with existing leaves!";
 	String ERROR_INCORRECT_OLD_PASSWORD = "Incorrect old password!";
 	String ERROR_LEAVES_EXCEEDED = "The leaves entered exceed the maximum allowed limit. Any applied leave will be considered as without pay. Do you want to continue?";
+	String ERROR_INCOMPLETE_BANK_DETAILS = "Please update the employee bank details first!";
 	
 	
 	String[] ADMIN_MAILS = {"ajinkyashiva@gmail.com"};

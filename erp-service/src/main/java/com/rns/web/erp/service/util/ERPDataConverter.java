@@ -51,12 +51,17 @@ public class ERPDataConverter {
 
 	public static void setCompany(ERPCompanyDetails companyDetails, ERPCompany company) {
 		company.setName(companyDetails.getName());
+		company.setEmail(companyDetails.getEmail());
+		company.setPhone(companyDetails.getPhone());
+		company.setAddress(companyDetails.getAddress());
+		company.setTan(companyDetails.getTanNumber());
 		company.setLeavePolicy(getLeavePolicy(companyDetails.getPolicy()));
 		ERPFinancial financial = new ERPFinancial();
 		financial.setAccountNumber(companyDetails.getAccountNumber());
 		financial.setBankName(companyDetails.getBankName());
 		financial.setBranchName(companyDetails.getBranchName());
 		financial.setIfscCode(companyDetails.getIfscCode());
+		financial.setPan(companyDetails.getCompanyPan());
 		company.setFinancial(financial);
 	}
 
@@ -91,6 +96,8 @@ public class ERPDataConverter {
 		employee.setJoiningDate(emp.getJoiningDate());
 		employee.setEmployeeStatus(emp.getStatus());
 		employee.setFinancial(getFinancial(emp.getFinancials()));
+		employee.setExperiences(CommonUtils.getUserExperiences(emp.getExperiences()));
+		employee.setQualifications(CommonUtils.getUserExperiences(emp.getQualifications()));
 		return employee;
 	}
 	

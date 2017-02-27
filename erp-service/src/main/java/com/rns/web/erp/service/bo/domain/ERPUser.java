@@ -1,9 +1,10 @@
 package com.rns.web.erp.service.bo.domain;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-public class ERPUser {
+public class ERPUser implements Comparable<ERPUser> {
 	
 	private Integer id;
 	private String name;
@@ -26,6 +27,9 @@ public class ERPUser {
 	private List<ERPLeaveCategory> categories;
 	private List<ERPLeave> leaves;
 	private Integer withoutPayLeaves;
+	private List<ERPUserExperience> experiences;
+	private BigDecimal experience;
+	private List<ERPUserExperience> qualifications;
 	
 	public Integer getId() {
 		return id;
@@ -156,5 +160,50 @@ public class ERPUser {
 	public void setWithoutPayLeaves(Integer withoutPayLeaves) {
 		this.withoutPayLeaves = withoutPayLeaves;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		ERPUser user = (ERPUser) obj;
+		if(user == null) {
+			return false;
+		}
+		if(user.getId() == null || this.getId() == null){
+			return false;
+		}
+		return user.getId().intValue() == this.getId().intValue();
+	}
+	public int compareTo(ERPUser o) {
+		if(o == null) {
+			return 1;
+		}
+		if(o.getId() == null || this.getId() == null){
+			return 1;
+		}
+		if(o.getId().intValue() == this.getId().intValue()) {
+			return 0;
+		} else if (o.getId().intValue() < this.getId().intValue()) {
+			return 1;
+		}
+		return -1;
+	}
+	public List<ERPUserExperience> getExperiences() {
+		return experiences;
+	}
+	public void setExperiences(List<ERPUserExperience> experiences) {
+		this.experiences = experiences;
+	}
+	public BigDecimal getExperience() {
+		return experience;
+	}
+	public void setExperience(BigDecimal experience) {
+		this.experience = experience;
+	}
+	public List<ERPUserExperience> getQualifications() {
+		return qualifications;
+	}
+	public void setQualifications(List<ERPUserExperience> qualifications) {
+		this.qualifications = qualifications;
+	}
+	
 
 }

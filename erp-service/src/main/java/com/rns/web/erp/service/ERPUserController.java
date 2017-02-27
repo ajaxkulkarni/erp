@@ -3,7 +3,9 @@ package com.rns.web.erp.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -16,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -392,7 +395,8 @@ public class ERPUserController {
 			employee.setCompany(company);
 			InputStream is = userBo.downloadSalarySlip(employee);
 			ResponseBuilder response = Response.ok(is);
-			response.header("Content-Disposition","attachment; filename=salary.pdf");  
+			String fileName = company.getName() + "_" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "_Bank_Statement.pdf";
+			response.header("Content-Disposition","attachment; filename=" + fileName);  
 			return response.build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -406,7 +410,7 @@ public class ERPUserController {
 	@Path("/downloadSalaryMaster/{companyId}/{employeeId}/{year}/{month}")
 	//@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces("application/vnd.ms-excel")
-	public Response downloadSalaryMaster(@PathParam("companyId") Integer companyId, @PathParam("employeeId") Integer employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
+	public Response downloadSalaryMaster(@PathParam("companyId") Integer companyId, @PathParam("employeeId") String employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
 		LoggingUtil.logMessage("Download Master request for :" + companyId);
 		try {
 			/*ERPUser employee = new ERPUser();
@@ -418,13 +422,15 @@ public class ERPUserController {
 			company.setFilter(filter);
 			company.setId(companyId);
 			//employee.setCompany(company);
+			company.setEmployees(extractEmployees(employeeId));
 			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(company);
 			HSSFWorkbook wb = ERPExcelUtil.generateEmployeeSalarySheet(employees);
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			wb.write(os);
 			InputStream is = new ByteArrayInputStream(os.toByteArray());
 			ResponseBuilder response = Response.ok(is);
-			response.header("Content-Disposition","attachment; filename=master.xls");  
+			String fileName = company.getName() + "_" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "_Financial_Master.xls";
+			response.header("Content-Disposition","attachment; filename=" + fileName);  
 			return response.build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -438,7 +444,7 @@ public class ERPUserController {
 	@Path("/downloadBankStatement/{companyId}/{employeeId}/{year}/{month}")
 	//@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.MULTIPART_FORM_DATA)
-	public Response downloadBankStatement(@PathParam("companyId") Integer companyId, @PathParam("employeeId") Integer employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
+	public Response downloadBankStatement(@PathParam("companyId") Integer companyId, @PathParam("employeeId") String employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
 		LoggingUtil.logMessage("Download bank statement request for :" + companyId);
 		try {
 			/*ERPUser employee = new ERPUser();
@@ -449,6 +455,8 @@ public class ERPUserController {
 			filter.setMonth(month);
 			company.setFilter(filter);
 			company.setId(companyId);
+			List<ERPUser> filteredEmployees = extractEmployees(employeeId);
+			company.setEmployees(filteredEmployees);
 			//employee.setCompany(company);
 			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(company);
 			company.setEmployees(employees);
@@ -462,6 +470,26 @@ public class ERPUserController {
 		//LoggingUtil.logObject("Download resume Response :", response);
 		return Response.serverError().build();
 
+	}
+
+	private List<ERPUser> extractEmployees(String employeeId) {
+		if(StringUtils.isEmpty(StringUtils.trimToEmpty(employeeId))) {
+			return null;
+		}
+		String[] employeeIds = StringUtils.split(employeeId,",");
+		if(employeeIds == null || employeeIds.length == 0) {
+			return null;
+		}
+		List<ERPUser> filteredEmployees = new ArrayList<ERPUser>();
+		for(String id: employeeIds) {
+			ERPUser user = new ERPUser();
+			if(!StringUtils.isNumeric(id)) {
+				continue;
+			}
+			user.setId(new Integer(id));
+			filteredEmployees.add(user);
+		}
+		return filteredEmployees;
 	}
 	
 	

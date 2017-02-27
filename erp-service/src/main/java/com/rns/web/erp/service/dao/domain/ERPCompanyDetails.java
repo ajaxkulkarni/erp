@@ -38,6 +38,7 @@ public class ERPCompanyDetails {
 	private String companyPan;
 	private String branchName;
 	private String ifscCode;
+	private String tanNumber;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -154,6 +155,14 @@ public class ERPCompanyDetails {
 	}
 	public void setIfscCode(String ifscCode) {
 		this.ifscCode = ifscCode;
+	}
+	
+	@Column(name = "tan")
+	public String getTanNumber() {
+		return tanNumber;
+	}
+	public void setTanNumber(String tanNumber) {
+		this.tanNumber = tanNumber;
 	}
 	
 }

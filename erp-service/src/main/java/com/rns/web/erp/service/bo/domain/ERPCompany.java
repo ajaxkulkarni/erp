@@ -19,6 +19,7 @@ public class ERPCompany {
 	private ERPSalaryInfo basic;
 	private ERPFilter filter;
 	private ERPFinancial financial;
+	private String tan;
 	
 	public Integer getId() {
 		return id;
@@ -98,6 +99,12 @@ public class ERPCompany {
 	}
 	public void setFinancial(ERPFinancial financial) {
 		this.financial = financial;
+	}
+	public String getTan() {
+		return tan;
+	}
+	public void setTan(String tan) {
+		this.tan = tan;
 	}
 	
 }

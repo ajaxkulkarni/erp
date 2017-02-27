@@ -2,7 +2,6 @@ package com.rns.web.erp.service.dao.domain;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -37,6 +36,9 @@ public class ERPEmployeeDetails {
 	private String qualification;
 	private ERPEmployeeFinancials financials;
 	private String status;
+	private String experiences;
+	private String qualifications;
+	private Integer totalExperience;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -147,6 +149,30 @@ public class ERPEmployeeDetails {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+	@Column(name = "experiences")
+	public String getExperiences() {
+		return experiences;
+	}
+	public void setExperiences(String experiences) {
+		this.experiences = experiences;
+	}
+	
+	@Column(name = "total_experience")
+	public Integer getTotalExperience() {
+		return totalExperience;
+	}
+	public void setTotalExperience(Integer totalExperience) {
+		this.totalExperience = totalExperience;
+	}
+	
+	@Column(name = "qualifications")
+	public String getQualifications() {
+		return qualifications;
+	}
+	public void setQualifications(String qualifications) {
+		this.qualifications = qualifications;
 	}
 	
 }

@@ -63,6 +63,8 @@ public class ERPBusinessConverter {
 		employee.setStatus(user.getEmployeeStatus());
 		ERPEmployeeFinancials financials = getFinancials(user.getFinancial(), employee);
 		employee.setFinancials(financials);
+		employee.setExperiences(CommonUtils.getUserExperience(user.getExperiences()));
+		employee.setQualifications(CommonUtils.getUserExperience(user.getQualifications()));
 	}
 	
 	private static ERPEmployeeFinancials getFinancials(ERPFinancial financial, ERPEmployeeDetails employee) {
@@ -98,6 +100,7 @@ public class ERPBusinessConverter {
 		cmp.setAddress(company.getAddress());
 		cmp.setEmail(company.getEmail());
 		cmp.setPhone(company.getPhone());
+		cmp.setTanNumber(company.getTan());
 		if(company.getFinancial() != null) {
 			cmp.setAccountNumber(company.getFinancial().getAccountNumber());
 			cmp.setBankName(company.getFinancial().getBankName());

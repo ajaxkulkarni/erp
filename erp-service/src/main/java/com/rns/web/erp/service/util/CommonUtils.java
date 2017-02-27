@@ -5,15 +5,19 @@ import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
 import com.rns.web.erp.service.bo.domain.ERPUser;
+import com.rns.web.erp.service.bo.domain.ERPUserExperience;
 import com.rns.web.erp.service.domain.ERPServiceResponse;
 
 public class CommonUtils {
@@ -142,6 +146,38 @@ public class CommonUtils {
 			return "";
 		}
 		return value.toString();
+	}
+	
+	public static String getUserExperience(List<ERPUserExperience> exp) {
+		if(CollectionUtils.isEmpty(exp)) {
+			return null;
+		}
+		StringBuilder builder = new StringBuilder();
+		for(ERPUserExperience experience:exp) {
+			builder.append(StringUtils.remove(StringUtils.remove(experience.getCompanyName(), ","), ":")).append(":")
+					.append(experience.getFromYear()).append(":")
+					.append(experience.getToYear()).append(",");
+		}
+		return StringUtils.removeEnd(builder.toString(), ",");
+	}
+	
+	public static List<ERPUserExperience> getUserExperiences(String expString) {
+		if(StringUtils.isBlank(expString)) {
+			return null;
+		}
+		List<ERPUserExperience> experiences = new ArrayList<ERPUserExperience>();
+		String[] experienceArray = StringUtils.split(expString, ",");
+		for(String exp: experienceArray) {
+			String[] values = StringUtils.split(exp, ":");
+			if(values != null && values.length > 2) {
+				ERPUserExperience experience = new ERPUserExperience();
+				experience.setCompanyName(values[0]);
+				experience.setFromYear(values[1]);
+				experience.setToYear(values[2]);
+				experiences.add(experience);
+			}
+		}
+		return experiences;
 	}
 	
 }

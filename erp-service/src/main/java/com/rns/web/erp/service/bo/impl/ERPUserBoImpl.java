@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -668,8 +669,11 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 				if(employee != null && financials != null) {
 					financials.setSalary(user.getFinancial().getSalary());
 				}
+				tx.commit();
+			} else {
+				result = ERROR_INCOMPLETE_BANK_DETAILS;
 			}
-			tx.commit();
+			
 		} catch (Exception e) {
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
 			result = e.getMessage();
@@ -696,7 +700,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 				List<ERPCompanyLeavePolicy> leaveTypes = dao.getCompanyLeaveTypes(session, company.getId());
 				for(ERPEmployeeDetails emp: emps) {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
-					if(user != null) {
+					if(user != null && isNotFiltered(company, user)) {
 						setEmployeeLeaveCount(session, leaveTypes, user, company);
 						setEmployeeFinancial(session, user, company);
 						employees.add(user);
@@ -710,6 +714,13 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			CommonUtils.closeSession(session);
 		}
 		return employees;
+	}
+
+	private boolean isNotFiltered(ERPCompany company, ERPUser user) {
+		if(CollectionUtils.isEmpty(company.getEmployees())) {
+			return true;
+		}
+		return company.getEmployees().contains(user);
 	}
 	
 	public InputStream downloadSalarySlip(ERPUser employee) {
