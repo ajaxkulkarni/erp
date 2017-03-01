@@ -444,10 +444,14 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			}
 			if(StringUtils.equals("add", salaryInfo.getType())) {
 				financial.getBenefits().add(salaryInfo);
-				financial.setTotalBenefits(salaryInfo.getAmount().add(financial.getTotalBenefits()));
+				if(salaryInfo.getAmount() != null) {
+					financial.setTotalBenefits(salaryInfo.getAmount().add(financial.getTotalBenefits()));
+				}
 			} else {
 				financial.getDeductions().add(salaryInfo);
-				financial.setTotalDeductions(salaryInfo.getAmount().add(financial.getTotalDeductions()));
+				if(salaryInfo.getAmount() != null) {
+					financial.setTotalDeductions(salaryInfo.getAmount().add(financial.getTotalDeductions()));
+				}
 			}
 		}
 		if(user.getWithoutPayLeaves() != null && user.getWithoutPayLeaves() > 0) {
