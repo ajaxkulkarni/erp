@@ -20,6 +20,8 @@ public class ERPCompany {
 	private ERPFilter filter;
 	private ERPFinancial financial;
 	private String tan;
+	private ERPUser currentEmployee;
+	
 	
 	public Integer getId() {
 		return id;
@@ -105,6 +107,12 @@ public class ERPCompany {
 	}
 	public void setTan(String tan) {
 		this.tan = tan;
+	}
+	public ERPUser getCurrentEmployee() {
+		return currentEmployee;
+	}
+	public void setCurrentEmployee(ERPUser currentEmployee) {
+		this.currentEmployee = currentEmployee;
 	}
 	
 }

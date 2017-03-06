@@ -3,6 +3,7 @@ package com.rns.web.erp.service.dao.domain;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -39,6 +41,7 @@ public class ERPEmployeeDetails {
 	private String experiences;
 	private String qualifications;
 	private Integer totalExperience;
+	private List<ERPEmployeeSalaryStructure> structures;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -173,6 +176,14 @@ public class ERPEmployeeDetails {
 	}
 	public void setQualifications(String qualifications) {
 		this.qualifications = qualifications;
+	}
+	
+	@OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+	public List<ERPEmployeeSalaryStructure> getStructures() {
+		return structures;
+	}
+	public void setStructures(List<ERPEmployeeSalaryStructure> structures) {
+		this.structures = structures;
 	}
 	
 }

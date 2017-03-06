@@ -1,5 +1,6 @@
 package com.rns.web.erp.service.util;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,7 @@ import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeFinancials;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
+import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
@@ -199,6 +201,22 @@ public class ERPBusinessConverter {
 		structure.setType(salaryInfo.getType());
 		structure.setRule(salaryInfo.getRule());
 		structure.setDescription(salaryInfo.getDescription());
+	}
+	
+	public static ERPEmployeeSalaryStructure getEmployeeSalaryStructure(ERPSalaryInfo salaryInfo) {
+		if(salaryInfo == null || salaryInfo.getAmount() == null || salaryInfo.getId() == null) {
+			return null;
+		}
+		ERPEmployeeSalaryStructure salaryStructure = new ERPEmployeeSalaryStructure();
+		salaryStructure.setAmount(salaryInfo.getAmount());
+		/*ERPEmployeeDetails employee = new ERPEmployeeDetails();
+		employee.setId(salaryInfo.getUser().getId());
+		salaryStructure.setEmployee(employee);*/
+		ERPSalaryStructure structure = new ERPSalaryStructure();
+		structure.setId(salaryInfo.getId());
+		salaryStructure.setSalaryStructure(structure);
+		salaryStructure.setCreatedDate(new Date());
+		return salaryStructure;
 	}
 	
 }

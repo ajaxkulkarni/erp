@@ -3,6 +3,7 @@ package com.rns.web.erp.service.bo.api;
 import java.math.BigDecimal;
 
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.bo.domain.ERPUser;
 
 public class ERPSalaryInfo {
 
@@ -15,6 +16,8 @@ public class ERPSalaryInfo {
 	private String description;
 	private String amountType;
 	private boolean customRule;
+	private boolean error;
+	private ERPUser user;
 	
 	public Integer getId() {
 		return id;
@@ -81,6 +84,18 @@ public class ERPSalaryInfo {
 	}
 	public void setCustomRule(boolean customRule) {
 		this.customRule = customRule;
+	}
+	public boolean isError() {
+		return error;
+	}
+	public void setError(boolean error) {
+		this.error = error;
+	}
+	public ERPUser getUser() {
+		return user;
+	}
+	public void setUser(ERPUser user) {
+		this.user = user;
 	}
 	
 }

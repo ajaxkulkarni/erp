@@ -32,7 +32,7 @@
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/erp" />
 		<property name="username" value="root" />
-		<property name="password" value="'asd'" />
+		<property name="password" value="" />
 		<property name="testOnReturn" value="true" />
 		<property name="testOnBorrow" value="true" />
 		<property name="testWhileIdle" value="true" />
@@ -57,6 +57,7 @@
 				<value>com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeFinancials</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPSalaryStructure</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

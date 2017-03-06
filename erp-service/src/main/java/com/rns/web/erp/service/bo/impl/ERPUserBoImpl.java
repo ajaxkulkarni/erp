@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +28,7 @@ import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeFinancials;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
+import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
@@ -332,8 +332,12 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			return;
 		}
 		if(company.getFilter().getYear() == null || company.getFilter().getMonth() == null) {
-			company.getFilter().setFromDate(CommonUtils.getFirstDate(Calendar.getInstance().get(Calendar.YEAR), 0));
-			company.getFilter().setToDate(CommonUtils.getLastDate(Calendar.getInstance().get(Calendar.YEAR), 11));
+			int year = Calendar.getInstance().get(Calendar.YEAR);
+			if(company.getFilter().getYear() != null) {
+				year = company.getFilter().getYear().intValue();
+			}
+			company.getFilter().setFromDate(CommonUtils.getFirstDate(year, 0));
+			company.getFilter().setToDate(CommonUtils.getLastDate(year, 11));
 		} else {
 			company.getFilter().setFromDate(CommonUtils.getFirstDate(company.getFilter().getYear(), company.getFilter().getMonth()));
 			company.getFilter().setToDate(CommonUtils.getLastDate(company.getFilter().getYear(), company.getFilter().getMonth()));
@@ -396,7 +400,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
 					if(user != null) {
 						setEmployeeLeaveCount(session, leaveTypes, user, company);
-						setEmployeeFinancial(session, user, company);
+						setEmployeeFinancial(session, user, emp);
 						employees.add(user);
 					}
 				}
@@ -410,21 +414,24 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		return employees;
 	}
 
-	private void setEmployeeFinancial(Session session, ERPUser user, ERPCompany company) {
+	private void setEmployeeFinancial(Session session, ERPUser user, ERPEmployeeDetails emp) {
 		ERPFinancial financial = user.getFinancial();
 		if(financial == null || financial.getSalary() == null) {
 			return;
 		}
-		List<ERPSalaryStructure> salaryStructures = new ERPUserDAO().getCompanySalaryStructure(company.getId(), session);
+		List<ERPEmployeeSalaryStructure> salaryStructures = emp.getStructures();
 		if(CollectionUtils.isEmpty(salaryStructures)) {
 			return;
 		}
-		for(ERPSalaryStructure structure: salaryStructures) {
-			if(StringUtils.equalsIgnoreCase("Basic",structure.getRule())) {
+		for(ERPEmployeeSalaryStructure structure: salaryStructures) {
+			if(structure.getSalaryStructure() == null) {
+				continue;
+			}
+			if(StringUtils.equalsIgnoreCase("Basic",structure.getSalaryStructure().getRule())) {
 				ERPSalaryInfo basic = ERPDataConverter.getSalaryInfo(structure);
-				if(basic.getAmount() == null) {
+				/*if(basic.getAmount() == null) {
 					basic.setAmount(financial.getSalary().multiply(basic.getPercentage().divide(new BigDecimal(100))));
-				}
+				}*/
 				financial.setBasic(basic);
 			}
 		}
@@ -432,16 +439,19 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			return;
 		}
 		financial.setTotalBenefits(financial.getBasic().getAmount());
-		for(ERPSalaryStructure structure: salaryStructures) {
-			if(StringUtils.equalsIgnoreCase("Basic",structure.getRule())) {
+		for(ERPEmployeeSalaryStructure structure: salaryStructures) {
+			if(structure.getSalaryStructure() == null) {
+				continue;
+			}
+			if(StringUtils.equalsIgnoreCase("Basic",structure.getSalaryStructure().getRule())) {
 				continue;
 			}
 			ERPSalaryInfo salaryInfo = ERPDataConverter.getSalaryInfo(structure);
-			if(AMOUNT_TYPE_AMOUNT.equals(salaryInfo.getAmountType())) {
+			/*if(AMOUNT_TYPE_AMOUNT.equals(salaryInfo.getAmountType())) {
 				salaryInfo.setAmount(salaryInfo.getAmount());
 			} else if(salaryInfo.getPercentage() != null && salaryInfo.getPercentage().compareTo(BigDecimal.ZERO) > 0) {
 				salaryInfo.setAmount(financial.getBasic().getAmount().multiply(salaryInfo.getPercentage().divide(new BigDecimal(100))));
-			}
+			}*/
 			if(StringUtils.equals("add", salaryInfo.getType())) {
 				financial.getBenefits().add(salaryInfo);
 				if(salaryInfo.getAmount() != null) {
@@ -512,7 +522,8 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		try {
 			session = this.sessionFactory.openSession();
 			ERPUserDAO dao = new ERPUserDAO();
-			List<ERPEmployeeLeave> leaves = dao.getEmployeeLeaves(session, user.getId());
+			extractDates(user.getCompany());
+			List<ERPEmployeeLeave> leaves = dao.getEmployeeLeaveDetails(session, user.getId(), user.getCompany().getFilter().getFromDate(), user.getCompany().getFilter().getToDate());
 			if(CollectionUtils.isNotEmpty(leaves)) {
 				for(ERPEmployeeLeave lv: leaves) {
 					ERPLeave leave = ERPDataConverter.getLeave(lv);
@@ -597,7 +608,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 	}
 	
 	public String addSalaryStructure(ERPCompany company) {
-		if(company == null || company.getId() == null || CollectionUtils.isEmpty(company.getSalaryInfo())) {
+		if(company == null || company.getId() == null) {
 			return ERROR_INVALID_COMPANY_DETAILS;
 		}
 		String result = RESPONSE_OK;
@@ -609,11 +620,14 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			erpUserDAO.removeAllSalaryStructure(company.getId(), session);
 			company.getBasic().setRule("Basic");
 			company.getBasic().setCompany(company);
+			company.getBasic().setAmountType(AMOUNT_TYPE_PERCENTAGE);
 			session.persist(ERPBusinessConverter.getSalaryStructure(company.getBasic()));
-			for(ERPSalaryInfo salaryInfo: company.getSalaryInfo()) {
-				salaryInfo.setCompany(company);
-				ERPSalaryStructure structure = ERPBusinessConverter.getSalaryStructure(salaryInfo);
-				session.persist(structure);
+			if(CollectionUtils.isNotEmpty(company.getSalaryInfo())) {
+				for(ERPSalaryInfo salaryInfo: company.getSalaryInfo()) {
+					salaryInfo.setCompany(company);
+					ERPSalaryStructure structure = ERPBusinessConverter.getSalaryStructure(salaryInfo);
+					session.persist(structure);
+				}
 			}
 			tx.commit();
 		} catch (Exception e) {
@@ -642,6 +656,12 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 				if(salaryInfo == null) {
 					continue;
 				}
+				if(company.getCurrentEmployee() != null && company.getCurrentEmployee().getId() != null) {
+					ERPEmployeeSalaryStructure employeeSalaryStructure = dao.getEmployeeSalaryStructure(salaryInfo.getId(),company.getCurrentEmployee().getId(),session);
+					if(employeeSalaryStructure != null) {
+						salaryInfo.setAmount(employeeSalaryStructure.getAmount());
+					}
+				}
 				if("Basic".equalsIgnoreCase(salaryInfo.getRule())) {
 					company.setBasic(salaryInfo);
 					continue;
@@ -668,12 +688,23 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			Transaction tx = session.beginTransaction();
 			ERPEmployeeDetails employee = null;
 			if(user.getId() != null && user.getFinancial() != null) {
-				employee = new ERPUserDAO().getEmployeeById(user.getId(), session);
+				ERPUserDAO erpUserDAO = new ERPUserDAO();
+				employee = erpUserDAO.getEmployeeById(user.getId(), session);
 				ERPEmployeeFinancials financials = employee.getFinancials();
 				if(employee != null && financials != null) {
 					financials.setSalary(user.getFinancial().getSalary());
+					erpUserDAO.removeAllEmployeeSalaryStructure(employee.getId(), session);
+					if(user.getCompany() != null) {
+						ERPEmployeeSalaryStructure employeeSalaryStructure = ERPBusinessConverter.getEmployeeSalaryStructure(user.getCompany().getBasic());
+						employeeSalaryStructure.setEmployee(employee);
+						session.persist(employeeSalaryStructure);
+						addEmployeeStructures(user.getCompany().getSalaryInfo(), session, employee);
+						//addEmployeeStructures(user.getCompany().getFinancial().getDeductions(), session, employee);
+					}
+					tx.commit();
+				} else {
+					result = ERROR_INCOMPLETE_BANK_DETAILS;
 				}
-				tx.commit();
 			} else {
 				result = ERROR_INCOMPLETE_BANK_DETAILS;
 			}
@@ -681,10 +712,25 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		} catch (Exception e) {
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
 			result = e.getMessage();
+			if(StringUtils.isBlank(StringUtils.trimToEmpty(result))) {
+				result = ERROR_IN_PROCESSING;
+			}
 		} finally {
 			CommonUtils.closeSession(session);
 		}
 		return result;
+	}
+
+	private void addEmployeeStructures(List<ERPSalaryInfo> list, Session session, ERPEmployeeDetails employee) {
+		if(CollectionUtils.isNotEmpty(list)) {
+			for(ERPSalaryInfo salaryInfo:list) {
+				if(salaryInfo.getAmount() != null && BigDecimal.ZERO.compareTo(salaryInfo.getAmount()) < 0) {
+					ERPEmployeeSalaryStructure employeeSalaryStructure = ERPBusinessConverter.getEmployeeSalaryStructure(salaryInfo);
+					employeeSalaryStructure.setEmployee(employee);
+					session.persist(employeeSalaryStructure);
+				}
+			}
+		}
 	}
 	
 	public List<ERPUser> getAllEmployeeSalarySlips(ERPCompany company) {
@@ -706,7 +752,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
 					if(user != null && isNotFiltered(company, user)) {
 						setEmployeeLeaveCount(session, leaveTypes, user, company);
-						setEmployeeFinancial(session, user, company);
+						setEmployeeFinancial(session, user, emp);
 						employees.add(user);
 					}
 				}
@@ -742,7 +788,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			if (user != null && company.getId().intValue() == employee.getCompany().getId().intValue()) {
 				extractDates(employee.getCompany());
 				setEmployeeLeaveCount(session, leaveTypes, user, employee.getCompany());
-				setEmployeeFinancial(session, user, employee.getCompany());
+				setEmployeeFinancial(session, user, emp);
 				user.setCompany(employee.getCompany());
 			}
 			return ERPReportUtil.getSalarySlip(user);

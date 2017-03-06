@@ -7,12 +7,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
-import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.dao.domain.ERPCompanyDetails;
 import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
+import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
@@ -57,22 +56,31 @@ public class ERPUserDAO {
 		return session.createQuery("from ERPLeaveType order by ID").list();
 	}
 
-	public List<ERPEmployeeLeave> getEmployeeLeaves(Session session, Integer id) {
-		Query query = session.createQuery("from ERPEmployeeLeave where employee.id=:id AND status!=:cancelled");
+	public List<ERPEmployeeLeave> getEmployeeLeaveDetails(Session session, Integer id, Date date1, Date date2) {
+		String queryString = "from ERPEmployeeLeave where employee.id=:id AND status!=:cancelled";
+		if(date1 !=null && date2!= null) {
+			queryString = queryString + " AND (fromDate>=:date1 AND fromDate<=:date2 OR toDate>=:date1 AND toDate<=:date2)";
+		}
+		Query query = session.createQuery(queryString);
 		query.setInteger("id", id);
 		query.setString("cancelled", ERPConstants.LEAVE_STATUS_CANCELLED);
+		if(date1 !=null && date2!= null) {
+			query.setDate("date1", date1);
+			query.setDate("date2", date2);
+		}
 		return query.list();
 	}
 
 	public int getEmployeeLeaveCount(Session session, Integer id, Integer type, Date date1, Date date2, String countType) {
 		//String countType = "noOfDays";
-		String queryString = "select sum(" + countType + ") from ERPEmployeeLeave where employee.id=:id AND type.id=:type";
+		String queryString = "select sum(" + countType + ") from ERPEmployeeLeave where employee.id=:id AND type.id=:type AND status!=:cancelled";
 		if(date1 !=null && date2!= null) {
 			queryString = queryString + " AND (fromDate>=:date1 AND fromDate<=:date2 OR toDate>=:date1 AND toDate<=:date2)";
 		}
 		Query query = session.createQuery(queryString);
 		query.setInteger("id", id);
 		query.setInteger("type", type);
+		query.setString("cancelled", ERPConstants.LEAVE_STATUS_CANCELLED);
 		if(date1 !=null && date2!= null) {
 			query.setDate("date1", date1);
 			query.setDate("date2", date2);
@@ -109,16 +117,18 @@ public class ERPUserDAO {
 	}
 
 	public List<ERPEmployeeLeave> getEmployeeLeaves(Session session, Integer id, Date from, Date to) {
-		Query query = session.createQuery("from ERPEmployeeLeave where employee.id=:id AND fromDate<=:from_date AND toDate>=:from_date");
+		Query query = session.createQuery("from ERPEmployeeLeave where employee.id=:id AND fromDate<=:from_date AND toDate>=:from_date AND status!=:cancelled");
 		query.setInteger("id", id);
 		query.setDate("from_date", from);
+		query.setString("cancelled", ERPConstants.LEAVE_STATUS_CANCELLED);
 		List<ERPEmployeeLeave> dates = query.list();
 		if(CollectionUtils.isNotEmpty(dates)) {
 			return dates;
 		}
-		query = session.createQuery("from ERPEmployeeLeave where employee.id=:id AND fromDate<=:to_date AND toDate>=:to_date");
+		query = session.createQuery("from ERPEmployeeLeave where employee.id=:id AND fromDate<=:to_date AND toDate>=:to_date AND status!=:cancelled");
 		query.setInteger("id", id);
 		query.setDate("to_date", to);
+		query.setString("cancelled", ERPConstants.LEAVE_STATUS_CANCELLED);
 		return query.list();
 	}
 
@@ -141,6 +151,12 @@ public class ERPUserDAO {
 	public void removeAllSalaryStructure(Integer id, Session session) {
 		Query query = session.createQuery("delete from ERPSalaryStructure where company.id=:companyId");
 		query.setInteger("companyId", id);
+		query.executeUpdate();
+	}
+	
+	public void removeAllEmployeeSalaryStructure(Integer id, Session session) {
+		Query query = session.createQuery("delete from ERPEmployeeSalaryStructure where employee.id=:id");
+		query.setInteger("id", id);
 		query.executeUpdate();
 	}
 
@@ -169,6 +185,17 @@ public class ERPUserDAO {
 		Query query = session.createQuery("from ERPCompanyDetails where id=:companyId");
 		query.setInteger("companyId", id);
 		List<ERPCompanyDetails> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+
+	public ERPEmployeeSalaryStructure getEmployeeSalaryStructure(Integer structureId, Integer employeeId, Session session) {
+		Query query = session.createQuery("from ERPEmployeeSalaryStructure where salaryStructure.id=:structureId AND employee.id=:employeeId");
+		query.setInteger("structureId", structureId);
+		query.setInteger("employeeId", employeeId);
+		List<ERPEmployeeSalaryStructure> list = query.list();
 		if(CollectionUtils.isEmpty(list)) {
 			return null;
 		}

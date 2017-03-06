@@ -19,6 +19,7 @@ import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeFinancials;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
+import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
@@ -173,6 +174,15 @@ public class ERPDataConverter {
 			salaryInfo.setPercentage(salaryInfo.getAmount());
 		}
 		return salaryInfo;
+	}
+
+	public static ERPSalaryInfo getSalaryInfo(ERPEmployeeSalaryStructure structure) {
+		if(structure != null && structure.getSalaryStructure() != null && structure.getEmployee() != null) {
+			ERPSalaryInfo salary = getSalaryInfo(structure.getSalaryStructure());
+			salary.setAmount(structure.getAmount());
+			return salary;
+		}
+		return null;
 	}
 	
 }
