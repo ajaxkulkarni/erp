@@ -208,7 +208,11 @@ public class ERPBusinessConverter {
 			return null;
 		}
 		ERPEmployeeSalaryStructure salaryStructure = new ERPEmployeeSalaryStructure();
-		salaryStructure.setAmount(salaryInfo.getAmount());
+		if(salaryInfo.getAmount() != null && BigDecimal.ZERO.compareTo(salaryInfo.getAmount()) < 0) {
+			salaryStructure.setAmount(salaryInfo.getAmount());
+		} else {
+			salaryInfo.setAmount(BigDecimal.ZERO);
+		}
 		/*ERPEmployeeDetails employee = new ERPEmployeeDetails();
 		employee.setId(salaryInfo.getUser().getId());
 		salaryStructure.setEmployee(employee);*/
