@@ -16,6 +16,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
+import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.bo.domain.ERPUserExperience;
 import com.rns.web.erp.service.domain.ERPServiceResponse;
@@ -175,9 +176,74 @@ public class CommonUtils {
 				experience.setFromYear(values[1]);
 				experience.setToYear(values[2]);
 				experiences.add(experience);
+				
 			}
 		}
 		return experiences;
+	}
+
+	public static String getSalaryInfoString(List<ERPSalaryInfo> salaryInfos) {
+		if(CollectionUtils.isEmpty(salaryInfos)) {
+			return null;
+		}
+		StringBuffer buffer = new StringBuffer();
+		for(ERPSalaryInfo salaryInfo: salaryInfos) {
+			buffer.append(salaryInfo.getRule()).append(":").append(salaryInfo.getAmount()).append(",");
+		}
+		return StringUtils.removeEnd(buffer.toString(), ",");
+	}
+	
+	public static List<ERPSalaryInfo> getSalaryInfos(String salaryInfos) {
+		if(StringUtils.isBlank(salaryInfos)) {
+			return null;
+		}
+		List<ERPSalaryInfo> salaryInfoList = new ArrayList<ERPSalaryInfo>();
+		String[] salaryInfoArray = StringUtils.split(salaryInfos, ",");
+		for(String sal: salaryInfoArray) {
+			String[] values = StringUtils.split(sal, ":");
+			if(values != null && values.length > 1) {
+				if(StringUtils.equalsIgnoreCase(values[0], "Basic")) {
+					continue;
+				}
+				ERPSalaryInfo salaryInfo = new ERPSalaryInfo();
+				salaryInfo.setRule(values[0]);
+				salaryInfo.setAmount(new BigDecimal(values[1]));
+				salaryInfoList.add(salaryInfo);
+			}
+		}
+		return salaryInfoList;
+	}
+
+	public static ERPSalaryInfo getSalaryInfo(String salaryInfos, String string) {
+		if(StringUtils.isBlank(salaryInfos)) {
+			return null;
+		}
+		String[] salaryInfoArray = StringUtils.split(salaryInfos, ",");
+		for(String sal: salaryInfoArray) {
+			String[] values = StringUtils.split(sal, ":");
+			if(values != null && values.length > 1) {
+				if(StringUtils.equalsIgnoreCase(values[0], "Basic")) {
+					ERPSalaryInfo salaryInfo = new ERPSalaryInfo();
+					salaryInfo.setRule(values[0]);
+					salaryInfo.setAmount(new BigDecimal(values[1]));
+					return salaryInfo;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static BigDecimal calculateTotal(List<ERPSalaryInfo> salaryInfos) {
+		if(CollectionUtils.isEmpty(salaryInfos)) {
+			return BigDecimal.ZERO;
+		}
+		BigDecimal total = BigDecimal.ZERO;
+		for(ERPSalaryInfo salaryInfo:salaryInfos) {
+			if(salaryInfo.getAmount() != null) {
+				total= total.add(salaryInfo.getAmount());
+			}
+		}
+		return total;
 	}
 	
 }

@@ -11,6 +11,7 @@ import com.rns.web.erp.service.dao.domain.ERPCompanyDetails;
 import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
+import com.rns.web.erp.service.dao.domain.ERPEmployeeSalarySlips;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
@@ -200,6 +201,23 @@ public class ERPUserDAO {
 			return null;
 		}
 		return list.get(0);
+	}
+
+	public ERPEmployeeSalarySlips getEmployeeSalarySlip(Integer id, Integer year, Integer month, Session session) {
+		Query query = session.createQuery("from ERPEmployeeSalarySlips where month=:month AND year=:year AND employee.id=:employeeId");
+		query.setInteger("month", month);
+		query.setInteger("year", year);
+		query.setInteger("employeeId", id);
+		List<ERPEmployeeSalarySlips> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+
+	public List<ERPEmployeeDetails> getAllEmployees(Session session) {
+		Query query = session.createQuery("from ERPEmployeeDetails");
+		return query.list();
 	}
 
 }

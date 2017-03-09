@@ -1,6 +1,5 @@
 package com.rns.web.erp.service.bo.api;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -29,4 +28,5 @@ public interface ERPUserBo {
 	String updateSalary(ERPUser employee);
 	List<ERPUser> getAllEmployeeSalarySlips(ERPCompany company);
 	InputStream downloadSalarySlip(ERPUser employee);
+	String updateEmployeeSalarySlips(ERPCompany user);
 }

@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -490,6 +491,58 @@ public class ERPUserController {
 			filteredEmployees.add(user);
 		}
 		return filteredEmployees;
+	}
+	
+	@GET
+	@Path("/downloadLeavesMaster/{companyId}/{employeeId}/{year}/{month}")
+	//@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces("application/vnd.ms-excel")
+	public Response downloadLeavesMaster(@PathParam("companyId") Integer companyId, @PathParam("employeeId") String employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
+		LoggingUtil.logMessage("Download Leaves Master request for :" + companyId + " Employee:" + employeeId);
+		try {
+			ERPCompany company = new ERPCompany();
+			ERPFilter filter = new ERPFilter();
+			filter.setYear(year);
+			filter.setMonth(month);
+			if(month < 0 || month > 12) {
+				filter.setMonth(null);
+			}
+			company.setFilter(filter);
+			company.setId(companyId);
+			//employee.setCompany(company);
+			//company.setEmployees(extractEmployees(employeeId));
+			List<ERPUser> employees = null;
+			HSSFWorkbook wb = null;
+			String fileName = "";
+			String monthString = month > 12 ? "": month + "_";
+			if(companyId != null && companyId != 0) {
+				employees = userBo.getAllEmployeeLeaveData(company);
+				wb = ERPExcelUtil.generateEmployeeLeavesSheet(employees);
+				String companyName = "";
+				if(CollectionUtils.isNotEmpty(employees) && employees.get(0).getCompany() != null) {
+					companyName = employees.get(0).getCompany().getName() + "_";
+				}
+				fileName = companyName + monthString + year + "_Leaves_Master.xls";
+			} else {
+				ERPUser user = new ERPUser();
+				user.setCompany(company);
+				user = userBo.getEmployeeLeaveData(user);
+				wb = ERPExcelUtil.generateEmployeeLeavesSheet(user);
+				fileName = company.getName() + "_" + user.getName() + "_" + monthString + year + "_Leaves_Details.xls";
+			}
+			
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			wb.write(os);
+			InputStream is = new ByteArrayInputStream(os.toByteArray());
+			ResponseBuilder response = Response.ok(is);
+			response.header("Content-Disposition","attachment; filename=" + fileName);  
+			return response.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//LoggingUtil.logObject("Download resume Response :", response);
+		return Response.serverError().build();
+
 	}
 	
 	

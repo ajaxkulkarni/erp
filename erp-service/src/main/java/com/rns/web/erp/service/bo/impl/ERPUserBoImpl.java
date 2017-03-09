@@ -14,11 +14,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.bo.domain.ERPFilter;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
@@ -28,6 +30,7 @@ import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeFinancials;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
+import com.rns.web.erp.service.dao.domain.ERPEmployeeSalarySlips;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
@@ -400,7 +403,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
 					if(user != null) {
 						setEmployeeLeaveCount(session, leaveTypes, user, company);
-						setEmployeeFinancial(session, user, emp);
+						setEmployeeFinancialDetails(session, user, emp, company);
 						employees.add(user);
 					}
 				}
@@ -477,6 +480,28 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		financial.getBenefits().add(salaryInfo);
 		financial.setTotalBenefits(financial.getTotalBenefits().add(salaryInfo.getAmount()));
 		financial.setAmountPayable(financial.getSalary().subtract(financial.getTotalDeductions()));
+	}
+	
+	private void setEmployeeFinancialDetails(Session session, ERPUser user, ERPEmployeeDetails emp, ERPCompany company) {
+		ERPFinancial financial = user.getFinancial();
+		if(company == null || company.getFilter() == null || financial == null) {
+			return;
+		}
+		Integer year = CommonUtils.getCalendarValue(new Date(), Calendar.YEAR);
+		Integer month = CommonUtils.getCalendarValue(new Date(), Calendar.MONTH);
+		if(company.getFilter().getYear()!= year && company.getFilter().getMonth() != month) {
+			ERPEmployeeSalarySlips employeeSalarySlips = new ERPUserDAO().getEmployeeSalarySlip(emp.getId(), year, month, session);
+			if(employeeSalarySlips != null) {
+				financial.setBenefits(CommonUtils.getSalaryInfos(employeeSalarySlips.getBenefits()));
+				financial.setDeductions(CommonUtils.getSalaryInfos(employeeSalarySlips.getDeductions()));
+				financial.setAmountPayable(employeeSalarySlips.getAmountPaid());
+				financial.setBasic(CommonUtils.getSalaryInfo(employeeSalarySlips.getBenefits(), "Basic"));
+				financial.setTotalBenefits(CommonUtils.calculateTotal(financial.getBenefits()));
+				financial.setTotalDeductions(CommonUtils.calculateTotal(financial.getDeductions()));
+			}
+		} else {
+			setEmployeeFinancial(session, user, emp);
+		}
 	}
 
 	private void setEmployeeLeaveCount(Session session, List<ERPCompanyLeavePolicy> leaveTypes, ERPUser user, ERPCompany company) {
@@ -752,7 +777,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
 					if(user != null && isNotFiltered(company, user)) {
 						setEmployeeLeaveCount(session, leaveTypes, user, company);
-						setEmployeeFinancial(session, user, emp);
+						setEmployeeFinancialDetails(session, user, emp, company);
 						employees.add(user);
 					}
 				}
@@ -788,7 +813,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			if (user != null && company.getId().intValue() == employee.getCompany().getId().intValue()) {
 				extractDates(employee.getCompany());
 				setEmployeeLeaveCount(session, leaveTypes, user, employee.getCompany());
-				setEmployeeFinancial(session, user, emp);
+				setEmployeeFinancialDetails(session, user, emp, employee.getCompany());
 				user.setCompany(employee.getCompany());
 			}
 			return ERPReportUtil.getSalarySlip(user);
@@ -799,6 +824,82 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			CommonUtils.closeSession(session);
 		}
 		return null;
+	}
+
+	public String updateEmployeeSalarySlips(ERPCompany company) {
+		if(company == null || company.getId() == null || company.getFilter() == null) {
+			return ERROR_INVALID_COMPANY_DETAILS;
+		}
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			ERPUserDAO dao = new ERPUserDAO();
+			List<ERPEmployeeDetails> employees = dao.getCompanyEmployees(company.getId(), session);
+			saveEmployeeSalarySlips(company.getFilter(), session, dao, employees);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return RESPONSE_OK;
+	}
+
+	private void saveEmployeeSalarySlips(ERPFilter erpFilter, Session session, ERPUserDAO dao,
+			List<ERPEmployeeDetails> employees) {
+		if(CollectionUtils.isNotEmpty(employees)) {
+			for(ERPEmployeeDetails employeeDetails: employees) {
+				ERPUser employee = ERPDataConverter.getEmployee(employeeDetails);
+				if(employee == null) {
+					continue;
+				}
+				setEmployeeFinancial(session, employee, employeeDetails);
+				if(employee.getFinancial() == null || employee.getFinancial().getAmountPayable() == null) {
+					continue;
+				}
+				Transaction tx = session.beginTransaction();
+				ERPEmployeeSalarySlips salarySlip = null;
+				salarySlip = dao.getEmployeeSalarySlip(employeeDetails.getId(),erpFilter.getYear(),erpFilter.getMonth(), session);
+				if(salarySlip == null) {
+					salarySlip = new ERPEmployeeSalarySlips();
+				}
+				salarySlip.setAmountPaid(employee.getFinancial().getAmountPayable());
+				salarySlip.setEmployee(employeeDetails);
+				salarySlip.setUpdatedDate(new Date());
+				salarySlip.setMonth(erpFilter.getMonth());
+				salarySlip.setYear(erpFilter.getYear());
+				List<ERPSalaryInfo> benefits = employee.getFinancial().getBenefits();
+				if(benefits == null) {
+					benefits = new ArrayList<ERPSalaryInfo>();
+				}
+				benefits.add(employee.getFinancial().getBasic());
+				salarySlip.setBenefits(CommonUtils.getSalaryInfoString(benefits));
+				salarySlip.setDeductions(CommonUtils.getSalaryInfoString(employee.getFinancial().getDeductions()));
+				session.persist(salarySlip);
+				tx.commit();
+			}
+		}
+	}
+	
+	@Scheduled(cron = "0 14 2 * * *")
+	public void saveSalarySlips() {
+		LoggingUtil.logMessage("########### START OF SAVING SALARY SLIPS PROCESS ##############");
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			ERPUserDAO dao = new ERPUserDAO();
+			List<ERPEmployeeDetails> employees =  dao.getAllEmployees(session);
+			ERPFilter filter = new ERPFilter();
+			filter.setYear(CommonUtils.getCalendarValue(new Date(), Calendar.YEAR));
+			filter.setMonth(CommonUtils.getCalendarValue(new Date(), Calendar.MONTH));
+			saveEmployeeSalarySlips(filter, session, dao, employees);
+			LoggingUtil.logMessage("########### END OF SAVING SALARY SLIPS PROCESS ##############");
+		} catch (Exception e) {
+			LoggingUtil.logError("########### ERROR OCCURRED IN SAVING SALARY SLIPS ##############");
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
 	}
 	
 }
