@@ -149,11 +149,11 @@ public class ERPUserDAO {
 		return query.list();
 	}
 
-	public void removeAllSalaryStructure(Integer id, Session session) {
+	/*public void removeAllSalaryStructure(Integer id, Session session) {
 		Query query = session.createQuery("delete from ERPSalaryStructure where company.id=:companyId");
 		query.setInteger("companyId", id);
 		query.executeUpdate();
-	}
+	}*/
 	
 	public void removeAllEmployeeSalaryStructure(Integer id, Session session) {
 		Query query = session.createQuery("delete from ERPEmployeeSalaryStructure where employee.id=:id");
@@ -162,12 +162,13 @@ public class ERPUserDAO {
 	}
 
 	public Integer getWithoutPayCount(Session session, Integer id, Date date1, Date date2) {
-		String queryString = "select sum(withoutPay) from ERPEmployeeLeave where employee.id=:id";
+		String queryString = "select sum(withoutPay) from ERPEmployeeLeave where employee.id=:id AND status!=:cancelled";
 		if(date1 !=null && date2!= null) {
 			queryString = queryString + " AND (fromDate>=:date1 AND fromDate<=:date2 OR toDate>=:date1 AND toDate<=:date2)";
 		}
 		Query query = session.createQuery(queryString);
 		query.setInteger("id", id);
+		query.setString("cancelled", ERPConstants.LEAVE_STATUS_CANCELLED);
 		if(date1 !=null && date2!= null) {
 			query.setDate("date1", date1);
 			query.setDate("date2", date2);

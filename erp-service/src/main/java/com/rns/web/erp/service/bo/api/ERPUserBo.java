@@ -29,4 +29,5 @@ public interface ERPUserBo {
 	List<ERPUser> getAllEmployeeSalarySlips(ERPCompany company);
 	InputStream downloadSalarySlip(ERPUser employee);
 	String updateEmployeeSalarySlips(ERPCompany user);
+	String forgotPassword(ERPUser user);
 }

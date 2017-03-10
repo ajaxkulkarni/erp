@@ -24,7 +24,7 @@ public interface ERPConstants {
 	String MAIL_TYPE_SUBSCRIPTION_ADMIN = "subscriptionMailAdmin";
 	String MAIL_TYPE_PASSWORD_SENT = "passwordSentMail";
 	String MAIL_TYPE_PASSWORD_CHANGED = "passwordChanged";
-	
+	String MAIL_TYPE_FORGOT_PASSWORD = "forgotPassword";
 	
 	
 	String ERROR_INVALID_USER_DETAILS = "Invalid User Details!";

@@ -3,14 +3,18 @@ package com.rns.web.erp.service.dao.domain;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.NotFound;
@@ -28,6 +32,7 @@ public class ERPSalaryStructure {
 	private String comment;
 	private String type;
 	private String description;
+	private Set<ERPEmployeeSalaryStructure> employeeSalaryStructures = new HashSet<ERPEmployeeSalaryStructure>(0);
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -95,6 +100,14 @@ public class ERPSalaryStructure {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	@OneToMany(mappedBy = "salaryStructure",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	public Set<ERPEmployeeSalaryStructure> getEmployeeSalaryStructures() {
+		return employeeSalaryStructures;
+	}
+	public void setEmployeeSalaryStructures(Set<ERPEmployeeSalaryStructure> employeeSalaryStructures) {
+		this.employeeSalaryStructures = employeeSalaryStructures;
 	}
 	
 }

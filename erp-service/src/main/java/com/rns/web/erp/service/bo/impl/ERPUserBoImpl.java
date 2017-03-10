@@ -642,18 +642,60 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			session = this.sessionFactory.openSession();
 			Transaction tx = session.beginTransaction();
 			ERPUserDAO erpUserDAO = new ERPUserDAO();
-			erpUserDAO.removeAllSalaryStructure(company.getId(), session);
-			company.getBasic().setRule("Basic");
-			company.getBasic().setCompany(company);
-			company.getBasic().setAmountType(AMOUNT_TYPE_PERCENTAGE);
-			session.persist(ERPBusinessConverter.getSalaryStructure(company.getBasic()));
+			//erpUserDAO.removeAllSalaryStructure(company.getId(), session);
+			if(company.getBasic().getId() != null) {
+				ERPSalaryStructure basic = erpUserDAO.getSalaryStructure(company.getBasic().getId(), session);
+				basic.setPercentage(company.getBasic().getPercentage());
+			} else {
+				company.getBasic().setRule("Basic");
+				company.getBasic().setCompany(company);
+				company.getBasic().setAmountType(AMOUNT_TYPE_PERCENTAGE);
+				session.persist(ERPBusinessConverter.getSalaryStructure(company.getBasic()));
+			}
+			ERPCompanyDetails companyDetails = erpUserDAO.getCompany(company.getId(), session);
+			
+			//Delete all the structures not present currently
+			if(CollectionUtils.isNotEmpty(companyDetails.getSalaryInfo())) {
+				for(ERPSalaryStructure structure: companyDetails.getSalaryInfo()) {
+					if(StringUtils.equalsIgnoreCase("Basic", structure.getRule())) {
+						continue;
+					}
+					if(CollectionUtils.isEmpty(company.getSalaryInfo())) {
+						session.delete(structure);
+						continue;
+					}
+					boolean found = false;
+					for(ERPSalaryInfo salaryInfo:company.getSalaryInfo()) {
+						if(salaryInfo.getId() != null && salaryInfo.getId().intValue() == structure.getId().intValue()) {
+							found = true;
+							break;
+						}
+					}
+					if(!found) {
+						session.delete(structure);
+					}
+				}
+			}
+			
+			// update all the current salary structures
 			if(CollectionUtils.isNotEmpty(company.getSalaryInfo())) {
 				for(ERPSalaryInfo salaryInfo: company.getSalaryInfo()) {
+					ERPSalaryStructure structure = null;
+					if(salaryInfo.getId() != null) {
+						structure = erpUserDAO.getSalaryStructure(salaryInfo.getId(), session);
+					} else {
+						structure = new ERPSalaryStructure();
+					}
+					if(structure == null) {
+						structure = new ERPSalaryStructure();
+					}
 					salaryInfo.setCompany(company);
-					ERPSalaryStructure structure = ERPBusinessConverter.getSalaryStructure(salaryInfo);
+					ERPBusinessConverter.setSalaryStructure(salaryInfo, structure);
 					session.persist(structure);
 				}
 			}
+			
+			
 			tx.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -720,7 +762,9 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 					financials.setSalary(user.getFinancial().getSalary());
 					erpUserDAO.removeAllEmployeeSalaryStructure(employee.getId(), session);
 					if(user.getCompany() != null) {
-						ERPEmployeeSalaryStructure employeeSalaryStructure = ERPBusinessConverter.getEmployeeSalaryStructure(user.getCompany().getBasic());
+						ERPSalaryInfo basic = user.getCompany().getBasic();
+						ERPEmployeeSalaryStructure employeeSalaryStructure = ERPBusinessConverter.getEmployeeSalaryStructure(basic);
+						employeeSalaryStructure.setSalaryStructure(erpUserDAO.getSalaryStructure(basic.getId(), session));
 						employeeSalaryStructure.setEmployee(employee);
 						session.persist(employeeSalaryStructure);
 						addEmployeeStructures(user.getCompany().getSalaryInfo(), session, employee);
@@ -752,6 +796,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 				if(salaryInfo.getAmount() != null && BigDecimal.ZERO.compareTo(salaryInfo.getAmount()) < 0) {
 					ERPEmployeeSalaryStructure employeeSalaryStructure = ERPBusinessConverter.getEmployeeSalaryStructure(salaryInfo);
 					employeeSalaryStructure.setEmployee(employee);
+					employeeSalaryStructure.setSalaryStructure(new ERPUserDAO().getSalaryStructure(salaryInfo.getId(), session));
 					session.persist(employeeSalaryStructure);
 				}
 			}
@@ -900,6 +945,42 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		} finally {
 			CommonUtils.closeSession(session);
 		}
+	}
+
+	public String forgotPassword(ERPUser user) {
+		if(user == null || StringUtils.isEmpty(user.getEmail())) {
+			return ERROR_INVALID_USER_DETAILS;
+		}
+		String result = RESPONSE_OK;
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPLoginDetails existingLogin = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
+			if(existingLogin != null) {
+				if(StringUtils.equals(USER_STATUS_ACTIVE, existingLogin.getStatus()) || StringUtils.equals(USER_STATUS_PASSWORD_SENT, existingLogin.getStatus())) {
+					ERPUser currentUser = ERPDataConverter.getERPUser(existingLogin);
+					String password = CommonUtils.generatePassword(currentUser);
+					existingLogin.setPassword(password);
+					existingLogin.setStatus(USER_STATUS_PASSWORD_SENT);
+					tx.commit();
+					ERPMailUtil forgotMail = new ERPMailUtil(MAIL_TYPE_FORGOT_PASSWORD);
+					forgotMail.setUser(currentUser);
+					executor.execute(forgotMail);
+				} else {
+					result = ERROR_INACTIVE_PROFILE;
+				}
+			} else {
+				result = ERROR_INVALID_LOGIN_DETAILS;
+			}
+			
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			result = e.getMessage();
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return result;
 	}
 	
 }

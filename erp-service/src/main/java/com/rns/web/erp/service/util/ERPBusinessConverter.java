@@ -216,9 +216,9 @@ public class ERPBusinessConverter {
 		/*ERPEmployeeDetails employee = new ERPEmployeeDetails();
 		employee.setId(salaryInfo.getUser().getId());
 		salaryStructure.setEmployee(employee);*/
-		ERPSalaryStructure structure = new ERPSalaryStructure();
+		/*ERPSalaryStructure structure = new ERPSalaryStructure();
 		structure.setId(salaryInfo.getId());
-		salaryStructure.setSalaryStructure(structure);
+		salaryStructure.setSalaryStructure(structure);*/
 		salaryStructure.setCreatedDate(new Date());
 		return salaryStructure;
 	}

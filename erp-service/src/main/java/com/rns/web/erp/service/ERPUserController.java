@@ -57,7 +57,7 @@ public class ERPUserController {
 	@Path("/subscribeUser")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ERPServiceResponse searchSkill(ERPServiceRequest request) {
+	public ERPServiceResponse subscribe(ERPServiceRequest request) {
 		LoggingUtil.logObject("Subscribe Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
@@ -86,6 +86,24 @@ public class ERPUserController {
 			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
 		}
 		LoggingUtil.logObject("Login Response :", response);
+		return response;
+	}
+	
+	@POST
+	@Path("/forgotPassword")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse forgotPassword(ERPServiceRequest request) {
+		LoggingUtil.logObject("Forgot password Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			CommonUtils.setResponse(response, (userBo.forgotPassword(request.getUser())));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Forgot password Response :", response);
 		return response;
 	}
 	

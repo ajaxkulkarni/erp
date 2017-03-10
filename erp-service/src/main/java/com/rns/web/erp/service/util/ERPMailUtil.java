@@ -27,9 +27,10 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 	private static final String READ_RECEIPT_MAIL = "talnoterns@gmail.com";
 	private static final String MAIL_ID = "contact@talnote.com";
 	private static final String MAIL_AUTH = "true";
-	private static final String MAIL_HOST = "support.tiffeat.com";
+	//private static final String MAIL_HOST = "support.tiffeat.com";
+	private static final String MAIL_HOST = "smtp.zoho.com";
 	private static final String MAIL_PORT = "25";
-	private static final String MAIL_PASSWORD = "contact2016";
+	private static final String MAIL_PASSWORD = "1mCeobitch";
 
 	private String type;
 	private ERPUser user;
@@ -175,6 +176,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			put(MAIL_TYPE_SUBSCRIPTION_ADMIN, "subscription_mail_admin.html");
 			put(MAIL_TYPE_PASSWORD_SENT, "password_sent_mail.html");
 			put(MAIL_TYPE_PASSWORD_CHANGED, "password_changed_mail.html");
+			put(MAIL_TYPE_FORGOT_PASSWORD, "forgot_password.html");
 		}
 	});
 
@@ -184,6 +186,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			put(MAIL_TYPE_SUBSCRIPTION_ADMIN, "New Subscription!");
 			put(MAIL_TYPE_PASSWORD_SENT, "Your account is now active!");
 			put(MAIL_TYPE_PASSWORD_CHANGED, "Your password is changed!");
+			put(MAIL_TYPE_FORGOT_PASSWORD, "Temporary password for HREasy login");
 		}
 	});
 
