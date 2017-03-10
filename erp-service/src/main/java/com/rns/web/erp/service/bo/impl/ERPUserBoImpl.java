@@ -965,6 +965,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 					existingLogin.setStatus(USER_STATUS_PASSWORD_SENT);
 					tx.commit();
 					ERPMailUtil forgotMail = new ERPMailUtil(MAIL_TYPE_FORGOT_PASSWORD);
+					currentUser.setPassword(password);
 					forgotMail.setUser(currentUser);
 					executor.execute(forgotMail);
 				} else {
