@@ -23,6 +23,7 @@ public class ERPUser implements Comparable<ERPUser> {
 	private ERPFinancial financial;
 	private String employeeStatus;
 	private List<ERPLeaveCategory> leaveCount;
+	private List<ERPLeaveCategory> leaveBalance;
 	private Integer totalLeaves;
 	private List<ERPLeaveCategory> categories;
 	private List<ERPLeave> leaves;
@@ -203,6 +204,12 @@ public class ERPUser implements Comparable<ERPUser> {
 	}
 	public void setQualifications(List<ERPUserExperience> qualifications) {
 		this.qualifications = qualifications;
+	}
+	public List<ERPLeaveCategory> getLeaveBalance() {
+		return leaveBalance;
+	}
+	public void setLeaveBalance(List<ERPLeaveCategory> leaveBalance) {
+		this.leaveBalance = leaveBalance;
 	}
 	
 

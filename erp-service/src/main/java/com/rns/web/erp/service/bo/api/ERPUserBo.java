@@ -30,4 +30,5 @@ public interface ERPUserBo {
 	InputStream downloadSalarySlip(ERPUser employee);
 	String updateEmployeeSalarySlips(ERPCompany user);
 	String forgotPassword(ERPUser user);
+	String updateEmployeeLeaveBalance(ERPUser user);
 }

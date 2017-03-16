@@ -64,6 +64,7 @@
 				<value>com.rns.web.erp.service.dao.domain.ERPSalaryStructure</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeSalarySlips</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeLeaveBalance</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

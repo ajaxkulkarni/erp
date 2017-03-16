@@ -161,6 +161,7 @@ public class ERPBusinessConverter {
 		companyPolicy.setType(type);
 		companyPolicy.setCreatedDate(new Date());
 		companyPolicy.setMaxAllowed(policy.getMaxAllowed());
+		companyPolicy.setFrequency(policy.getFrequency());
 		return companyPolicy;
 	}
 
@@ -177,6 +178,7 @@ public class ERPBusinessConverter {
 		companyPolicy.setType(type);
 		companyPolicy.setCreatedDate(new Date());
 		companyPolicy.setMaxAllowed(policy.getCount());
+		companyPolicy.setFrequency(policy.getFrequency());
 		return companyPolicy;
 	}
 

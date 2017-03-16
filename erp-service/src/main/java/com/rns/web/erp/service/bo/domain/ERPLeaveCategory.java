@@ -7,6 +7,7 @@ public class ERPLeaveCategory {
 	private Integer count;
 	private Integer available;
 	private Integer withoutPay;
+	private String frequency;
 	
 	public Integer getId() {
 		return id;
@@ -37,6 +38,12 @@ public class ERPLeaveCategory {
 	}
 	public void setWithoutPay(Integer withoutPay) {
 		this.withoutPay = withoutPay;
+	}
+	public String getFrequency() {
+		return frequency;
+	}
+	public void setFrequency(String frequency) {
+		this.frequency = frequency;
 	}
 
 }

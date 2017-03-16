@@ -6,6 +6,7 @@ public class ERPLeavePolicy {
 	private ERPCompany company;
 	private ERPLeaveCategory category;
 	private Integer maxAllowed;
+	private String frequency;
 	
 	public Integer getId() {
 		return id;
@@ -30,6 +31,12 @@ public class ERPLeavePolicy {
 	}
 	public void setCompany(ERPCompany company) {
 		this.company = company;
+	}
+	public String getFrequency() {
+		return frequency;
+	}
+	public void setFrequency(String frequency) {
+		this.frequency = frequency;
 	}
 
 	

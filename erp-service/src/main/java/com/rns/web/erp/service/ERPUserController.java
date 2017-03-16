@@ -41,6 +41,7 @@ import com.rns.web.erp.service.util.LoggingUtil;
 @Path("/service")
 public class ERPUserController {
 
+	private static final String APPLICATION_PDF = "application/pdf";
 	@Autowired(required = true)
 	@Qualifier(value = "userBo")
 	ERPUserBo userBo;
@@ -399,7 +400,7 @@ public class ERPUserController {
 	@GET
 	@Path("/download/{companyId}/{employeeId}/{year}/{month}")
 	//@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.MULTIPART_FORM_DATA)
+	@Produces(APPLICATION_PDF)
 	public Response downloadSalarySlip(@PathParam("companyId") Integer companyId, @PathParam("employeeId") Integer employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
 		LoggingUtil.logMessage("Download Salary slip request for :" + employeeId);
 		try {
@@ -414,8 +415,8 @@ public class ERPUserController {
 			employee.setCompany(company);
 			InputStream is = userBo.downloadSalarySlip(employee);
 			ResponseBuilder response = Response.ok(is);
-			String fileName = company.getName() + "_" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "_Bank_Statement.pdf";
-			response.header("Content-Disposition","attachment; filename=" + fileName);  
+			String fileName = company.getName() + "_" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "_Salary_Statement.pdf";
+			response.header("Content-Disposition","filename=" + fileName);  
 			return response.build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -462,7 +463,7 @@ public class ERPUserController {
 	@GET
 	@Path("/downloadBankStatement/{companyId}/{employeeId}/{year}/{month}")
 	//@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.MULTIPART_FORM_DATA)
+	@Produces(APPLICATION_PDF)
 	public Response downloadBankStatement(@PathParam("companyId") Integer companyId, @PathParam("employeeId") String employeeId,@PathParam("year") Integer year,@PathParam("month") Integer month) {
 		LoggingUtil.logMessage("Download bank statement request for :" + companyId);
 		try {
@@ -481,7 +482,8 @@ public class ERPUserController {
 			company.setEmployees(employees);
 			InputStream is = ERPReportUtil.getBankStatement(company);
 			ResponseBuilder response = Response.ok(is);
-			response.header("Content-Disposition","attachment; filename=bank.pdf");  
+			String fileName = company.getName() + "_" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "_Bank_Master.pdf";
+			response.header("Content-Disposition","filename=" + fileName);  
 			return response.build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -561,6 +563,24 @@ public class ERPUserController {
 		//LoggingUtil.logObject("Download resume Response :", response);
 		return Response.serverError().build();
 
+	}
+	
+	@POST
+	@Path("/updateLeaveBalance")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse updateLeaveBalance(ERPServiceRequest request) {
+		LoggingUtil.logObject("Leave balance Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			CommonUtils.setResponse(response, userBo.updateEmployeeLeaveBalance(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Leave balance Response :", response);
+		return response;
 	}
 	
 	

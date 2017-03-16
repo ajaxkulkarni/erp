@@ -76,6 +76,7 @@ public class ERPDataConverter {
 			leavePolicy.setId(p.getId());
 			leavePolicy.setMaxAllowed(p.getMaxAllowed());
 			leavePolicy.setCategory(getLeaveCategory(p.getType()));
+			leavePolicy.setFrequency(p.getFrequency());
 			policies.add(leavePolicy);
 		}
 		return policies;

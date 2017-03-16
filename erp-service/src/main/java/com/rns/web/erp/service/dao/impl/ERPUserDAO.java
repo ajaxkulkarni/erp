@@ -11,6 +11,7 @@ import com.rns.web.erp.service.dao.domain.ERPCompanyDetails;
 import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
+import com.rns.web.erp.service.dao.domain.ERPEmployeeLeaveBalance;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalarySlips;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
@@ -218,6 +219,22 @@ public class ERPUserDAO {
 
 	public List<ERPEmployeeDetails> getAllEmployees(Session session) {
 		Query query = session.createQuery("from ERPEmployeeDetails");
+		return query.list();
+	}
+
+	public ERPEmployeeLeaveBalance getEmployeeLeaveBalance(Integer employeeId, Integer leaveType, Session session) {
+		Query query = session.createQuery("from ERPEmployeeLeaveBalance where employee.id=:employeeId AND type.id=:leaveType");
+		query.setInteger("employeeId", employeeId);
+		query.setInteger("leaveType", leaveType);
+		List<ERPEmployeeLeaveBalance> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+	
+	public List<ERPEmployeeLeaveBalance> getAllEmployeeLeaveBalances(Session session) {
+		Query query = session.createQuery("from ERPEmployeeLeaveBalance");
 		return query.list();
 	}
 

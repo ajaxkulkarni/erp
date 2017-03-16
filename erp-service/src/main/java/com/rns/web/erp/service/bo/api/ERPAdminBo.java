@@ -10,5 +10,6 @@ public interface ERPAdminBo {
 	String activateUser(ERPUser user);
 	String addLeaveType(ERPLeaveCategory type);
 	List<ERPUser> getUsersByStatus(String status);
+	void saveSalarySlips();
 	
 }
