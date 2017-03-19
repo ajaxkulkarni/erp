@@ -2,7 +2,6 @@ package com.rns.web.erp.service.bo.impl;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,13 +13,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
-import com.rns.web.erp.service.bo.domain.ERPFilter;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
@@ -160,16 +157,31 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			session = this.sessionFactory.openSession();
 			Transaction tx = session.beginTransaction();
 			ERPEmployeeDetails employee = null;
+			ERPUserDAO erpUserDAO = new ERPUserDAO();
+			ERPEmployeeDetails employeeByEmail = erpUserDAO.getEmployeeByEmail(user.getEmail(), session);
+			ERPEmployeeDetails employeeByRegId = erpUserDAO.getEmployeeByRegId(user.getRegId(), session);
 			if(user.getId() == null) {
-				employee = ERPBusinessConverter.getEmployeeDetails(user);
-				session.persist(employee);
+				if(employeeByEmail != null) {
+					result = ERROR_EMAIL_EXISTS;
+				} else if(employeeByRegId != null) {
+					result = ERROR_EMPLOYEE_ID_EXISTS;
+				} else {
+					employee = ERPBusinessConverter.getEmployeeDetails(user);
+					session.persist(employee);
+				}
 			} else {
-				employee = new ERPUserDAO().getEmployeeById(user.getId(), session);
-				if(employee != null) {
-					if(user.getFinancial() != null) {
-						employee.getFinancials();
+				employee = erpUserDAO.getEmployeeById(user.getId(), session);
+				if (employee != null) {
+					if (employeeByEmail != null && employeeByEmail.getId().intValue() != user.getId().intValue()) {
+						result = ERROR_EMAIL_EXISTS;
+					} else if (employeeByRegId != null && employeeByRegId.getId().intValue() != user.getId().intValue()) {
+						result = ERROR_EMPLOYEE_ID_EXISTS;
+					} else {
+						if (user.getFinancial() != null) {
+							employee.getFinancials();
+						}
+						ERPBusinessConverter.setEmployeeDetails(user, employee);
 					}
-					ERPBusinessConverter.setEmployeeDetails(user, employee);
 				}
 				
 			}
@@ -441,7 +453,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		Integer year = CommonUtils.getCalendarValue(new Date(), Calendar.YEAR);
 		Integer month = CommonUtils.getCalendarValue(new Date(), Calendar.MONTH);
 		if(company.getFilter().getYear()!= year && company.getFilter().getMonth() != month) {
-			ERPEmployeeSalarySlips employeeSalarySlips = new ERPUserDAO().getEmployeeSalarySlip(emp.getId(), year, month, session);
+			ERPEmployeeSalarySlips employeeSalarySlips = new ERPUserDAO().getEmployeeSalarySlip(emp.getId(), company.getFilter().getYear(), company.getFilter().getMonth(), session);
 			if(employeeSalarySlips != null) {
 				financial.setBenefits(CommonUtils.getSalaryInfos(employeeSalarySlips.getBenefits()));
 				financial.setDeductions(CommonUtils.getSalaryInfos(employeeSalarySlips.getDeductions()));

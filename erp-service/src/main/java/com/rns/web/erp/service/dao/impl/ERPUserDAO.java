@@ -238,4 +238,26 @@ public class ERPUserDAO {
 		return query.list();
 	}
 
+	public ERPEmployeeDetails getEmployeeByEmail(String email, Session session) {
+		Query query = session.createQuery("from ERPEmployeeDetails where email=:email AND status!=:deleted");
+		query.setString("email", email);
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		List<ERPEmployeeDetails> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+	
+	public ERPEmployeeDetails getEmployeeByRegId(String regId, Session session) {
+		Query query = session.createQuery("from ERPEmployeeDetails where regId=:regId AND status!=:deleted");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setString("regId", regId);
+		List<ERPEmployeeDetails> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+
 }

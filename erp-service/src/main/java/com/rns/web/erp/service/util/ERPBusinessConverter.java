@@ -54,6 +54,7 @@ public class ERPBusinessConverter {
 
 	public static void setEmployeeDetails(ERPUser user, ERPEmployeeDetails employee) {
 		employee.setName(user.getName());
+		employee.setRegId(user.getRegId());
 		employee.setDesignation(user.getDesignation());
 		employee.setEmail(user.getEmail());
 		employee.setType(user.getType());

@@ -88,6 +88,7 @@ public class ERPDataConverter {
 		}
 		ERPUser employee = new ERPUser();
 		employee.setId(emp.getId());
+		employee.setRegId(emp.getRegId());
 		employee.setName(emp.getName());
 		employee.setEmail(emp.getEmail());
 		employee.setDesignation(emp.getDesignation());

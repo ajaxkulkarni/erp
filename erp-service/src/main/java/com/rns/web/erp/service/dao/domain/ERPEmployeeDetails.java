@@ -26,6 +26,7 @@ public class ERPEmployeeDetails {
 
 	
 	private Integer id;
+	private String regId;
 	private String designation;
 	private String name;
 	private String email;
@@ -184,6 +185,14 @@ public class ERPEmployeeDetails {
 	}
 	public void setStructures(List<ERPEmployeeSalaryStructure> structures) {
 		this.structures = structures;
+	}
+	
+	@Column(name = "reg_id")
+	public String getRegId() {
+		return regId;
+	}
+	public void setRegId(String regId) {
+		this.regId = regId;
 	}
 	
 }

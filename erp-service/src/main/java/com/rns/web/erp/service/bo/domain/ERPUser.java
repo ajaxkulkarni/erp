@@ -7,6 +7,7 @@ import java.util.List;
 public class ERPUser implements Comparable<ERPUser> {
 	
 	private Integer id;
+	private String regId;
 	private String name;
 	private String designation;
 	private String email;
@@ -210,6 +211,12 @@ public class ERPUser implements Comparable<ERPUser> {
 	}
 	public void setLeaveBalance(List<ERPLeaveCategory> leaveBalance) {
 		this.leaveBalance = leaveBalance;
+	}
+	public String getRegId() {
+		return regId;
+	}
+	public void setRegId(String regId) {
+		this.regId = regId;
 	}
 	
 
