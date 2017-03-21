@@ -430,7 +430,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
 					if(user != null) {
 						setEmployeeLeaveCount(session, leaveTypes, user, company);
-						setEmployeeFinancialDetails(session, user, emp, company);
+						//TODO Why setEmployeeFinancialDetails(session, user, emp, company);
 						employees.add(user);
 					}
 				}
