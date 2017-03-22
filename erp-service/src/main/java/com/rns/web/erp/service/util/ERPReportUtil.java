@@ -28,6 +28,7 @@ import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
 import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPUser;
+import com.rns.web.erp.service.bo.domain.ERPUserExperience;
 
 public class ERPReportUtil {
 	
@@ -38,7 +39,7 @@ public class ERPReportUtil {
 			String cssString = CommonUtils.readFile("report/report.css");
 			if (employee != null) {
 				result = StringUtils.replace(result, "{name}", CommonUtils.getStringValue(employee.getName()));
-				result = StringUtils.replace(result, "{employeeId}", CommonUtils.getStringValue(employee.getId()));
+				result = StringUtils.replace(result, "{employeeId}", CommonUtils.getStringValue(employee.getRegId()));
 				result = StringUtils.replace(result, "{email}", CommonUtils.getStringValue(employee.getEmail()));
 				result = StringUtils.replace(result, "{phone}", CommonUtils.getStringValue(employee.getPhone()));
 				result = StringUtils.replace(result, "{designation}", CommonUtils.getStringValue(employee.getDesignation()));
@@ -173,6 +174,75 @@ public class ERPReportUtil {
 			return is;
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static InputStream getEmployeeProfile(ERPUser employee) {
+		if(employee == null) {
+			return null;
+		}
+		try {
+		    String contentPath = "report/employee_profile.html";
+			String result = CommonUtils.readFile(contentPath);
+			String cssString = CommonUtils.readFile("report/report.css");
+			if (employee != null) {
+				result = StringUtils.replace(result, "{name}", CommonUtils.getStringValue(employee.getName()));
+				result = StringUtils.replace(result, "{employeeId}", CommonUtils.getStringValue(employee.getRegId()));
+				result = StringUtils.replace(result, "{email}", CommonUtils.getStringValue(employee.getEmail()));
+				result = StringUtils.replace(result, "{phone}", CommonUtils.getStringValue(employee.getPhone()));
+				result = StringUtils.replace(result, "{designation}", CommonUtils.getStringValue(employee.getDesignation()));
+				result = StringUtils.replace(result, "{department}", CommonUtils.getStringValue(employee.getDepartment()));
+				result = StringUtils.replace(result, "{joiningDate}", CommonUtils.getStringValue(new SimpleDateFormat(ERPConstants.DATE_FORMAT).format(employee.getJoiningDate())));
+				result = StringUtils.replace(result, "{type}", CommonUtils.getStringValue(employee.getType()));
+				if(employee.getCompany() != null) {
+					result = StringUtils.replace(result, "{companyName}", CommonUtils.getStringValue(employee.getCompany().getName()));
+				}
+				if(CollectionUtils.isNotEmpty(employee.getExperiences())) {
+					StringBuffer buffer = new StringBuffer();
+					int count = 1;
+					for(ERPUserExperience exp: employee.getExperiences()) {
+						buffer.append("<tr>")
+							  .append("<td class='srNo'>").append(count++).append("</td>")
+							  .append("<td >").append(exp.getDesignation()).append("</td>")
+							  .append("<td >").append(exp.getCompanyName()).append("</td>")
+							  .append("<td >").append(exp.getFromYear()).append("</td>")
+							  .append("<td >").append(exp.getToYear()).append("</td>")
+							  .append("</tr>");
+							  
+					}
+					result = StringUtils.replace(result, "{experienceDetails}", buffer.toString());
+					
+				}
+				
+				if(CollectionUtils.isNotEmpty(employee.getQualifications())) {
+					StringBuffer buffer = new StringBuffer();
+					int count = 1;
+					for(ERPUserExperience exp: employee.getQualifications()) {
+						buffer.append("<tr>")
+							  .append("<td class='srNo'>").append(count++).append("</td>")
+							  .append("<td >").append(exp.getDesignation()).append("</td>")
+							  .append("<td >").append(exp.getSpecialization()).append("</td>")
+							  .append("<td >").append(exp.getCompanyName()).append("</td>")
+							  .append("<td >").append(exp.getFromYear()).append("</td>")
+							  .append("<td >").append(exp.getToYear()).append("</td>")
+							  .append("</tr>");
+							  
+					}
+					result = StringUtils.replace(result, "{educationalDetails}", buffer.toString());
+				}
+				if(employee.getFinancial() != null) {
+					result = StringUtils.replace(result, "{panNumber}", CommonUtils.getStringValue(employee.getFinancial().getPan()));
+					result = StringUtils.replace(result, "{accountNumber}", CommonUtils.getStringValue(employee.getFinancial().getAccountNumber()));
+					result = StringUtils.replace(result, "{bankName}", CommonUtils.getStringValue(employee.getFinancial().getBankName()));
+					result = StringUtils.replace(result, "{pfNumber}", CommonUtils.getStringValue(employee.getFinancial().getPfNumber()));
+				}
+			}
+			InputStream is = generatePdf(result, cssString);
+		    return is;
+		    //file.close();
+		} catch (Exception e) {
+		    e.printStackTrace();
 		}
 		return null;
 	}

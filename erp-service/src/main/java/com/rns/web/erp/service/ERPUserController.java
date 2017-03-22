@@ -565,6 +565,28 @@ public class ERPUserController {
 
 	}
 	
+	@GET
+	@Path("/downloadEmployeeProfile/{employeeId}/{name}")
+	//@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(APPLICATION_PDF)
+	public Response downloadEmployeeProfile(@PathParam("employeeId") Integer employeeId,@PathParam("name") String name) {
+		LoggingUtil.logMessage("Download employee profile request for :" + employeeId);
+		try {
+			ERPUser employee = new ERPUser();
+			employee.setId(employeeId);
+			InputStream is = userBo.getEmployeeDocument(employee);
+			ResponseBuilder response = Response.ok(is);
+			String fileName = name + "_" +  "_Profile.pdf";
+			response.header("Content-Disposition","filename=" + fileName);  
+			return response.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//LoggingUtil.logObject("Download resume Response :", response);
+		return Response.serverError().build();
+
+	}
+	
 	@POST
 	@Path("/updateLeaveBalance")
 	@Produces(MediaType.APPLICATION_JSON)

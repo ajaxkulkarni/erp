@@ -22,3 +22,19 @@ td {
 .bank_master {
 	width: 80%;
 }
+.txt_center {
+    text-align: center;
+}
+
+.long_Name {
+    width: 100px;
+}
+
+.tabl_width {
+    width: auto;
+}
+
+.General {
+    font-family: sans-serif;
+    
+}

@@ -952,6 +952,27 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		return result;
 	}
 	
-	
+	public InputStream getEmployeeDocument(ERPUser user) {
+		if(user == null || user.getId() == null) {
+			return null;
+		}
+		Session session = null;
+		InputStream is = null;
+		try {
+			session = this.sessionFactory.openSession();
+			ERPUserDAO dao = new ERPUserDAO();
+			ERPEmployeeDetails erpEmployee = dao.getEmployeeById(user.getId(), session);
+			if(erpEmployee != null) {
+				ERPUser employee = ERPDataConverter.getEmployee(erpEmployee);
+				employee.setCompany(ERPDataConverter.getCompany(erpEmployee.getCompany()));
+				is = ERPReportUtil.getEmployeeProfile(employee);
+			}
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return is;
+	}
 	
 }

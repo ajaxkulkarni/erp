@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+
+<head>
+
+<link href="report.css" rel="stylesheet"/>
+
+
+</head>
+
+<body class="General">
+
+
+    <div>
+
+
+        <div>
+            <div>
+
+
+                <h2 class="txt_center"><span><strong>{companyName}</strong></span></h2>
+                <h3 class="txt_center"><span><strong>Employee Profile</strong></span></h3>
+                
+                <hr/>
+
+                <h4><span><strong>Employee ID : </strong>{employeeId}</span></h4>
+                
+                <h4><span><strong>Name : </strong> {name}</span></h4>
+
+                <h4><span><strong> Designation :  </strong> {designation}</span></h4>
+                
+                <h4><span><strong> Department :  </strong> {department} </span></h4>
+
+
+               
+
+				<hr/>
+                
+                
+                <!-- <h4><span><strong>Location : </strong>##</span></h4> -->
+
+                <h4><span><strong> Joining Date:  </strong>{joiningDate}</span></h4>
+                
+                <h4><span><strong> Employee Type :  </strong> {type} </span></h4>
+
+
+               
+
+				<hr/>
+
+                <div>
+                    
+                    <h4><span><strong> Previous Experience Details </strong></span></h4>
+                    
+                    <table>
+                            <tr>
+                                <th class="srNo">#</th>
+                                <th class="tabl_width">Company Name</th>
+                                <th class="tabl_width">Designation</th>
+                                <th class="tabl_width">From Date</th>
+                                <th class="tabl_width">To Date</th>
+
+                            </tr>
+                            <!-- <tr>
+                                <td class="srNo">1</td>
+                                <td>##</td>
+                                <td>##</td>
+                                <td>##</td>
+                                <td>##</td>
+
+                            </tr> -->
+                            {experienceDetails}
+                           
+
+                    </table>
+					<br/>
+					
+                    
+                     <h4><span><strong> Educational Details </strong></span></h4>
+                    
+                    <table >
+                            <tr>
+                                <th class="srNo">#</th>
+                                <th class="tabl_width">Degree</th>
+                                <th class="tabl_width">Specialization</th>
+                                <th class="tabl_width">University/College Name</th>
+                                <th class="tabl_width">From Date</th>
+                                <th class="tabl_width" >To Date</th>
+
+                            </tr>  
+                            <!-- <tr>
+                                <td class="srNo">1</td>
+                                <td>##</td>
+                                <td>##</td>
+                                <td>##</td>
+                                <td>##</td>
+                                <td>##</td>
+
+                            </tr> -->
+                            {educationalDetails}
+                           
+
+                    </table>
+                    
+                <br/> 
+
+                </div>
+				
+				<hr/>
+				
+				
+                
+                <h4><span><strong>Employee Pan Number : </strong>{panNumber}</span></h4>
+
+                <h4><span><strong>Employee Account Number :  </strong>{accountNumber}</span></h4>
+                
+                <h4><span><strong> Bank Name :  </strong> {bankName} </span></h4>
+                <h4><span><strong> Employee PF Number :  </strong> {pfNumber} </span></h4>
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+</body>
+
+
+
+</html>
