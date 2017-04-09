@@ -137,6 +137,7 @@ public class ERPUserController {
 			ERPCompany company = request.getUser().getCompany();
 			company.setCreatedBy(request.getUser());
 			CommonUtils.setResponse(response, userBo.addCompany(company));
+			response.setCompanyId(company.getId());
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(-999);

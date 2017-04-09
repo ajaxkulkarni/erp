@@ -217,6 +217,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 				cmp.setCreatedBy(login);
 				session.persist(cmp);
 				login.setCompany(cmp);
+				company.setId(cmp.getId());
 			}
 			tx.commit();
 		} catch (Exception e) {

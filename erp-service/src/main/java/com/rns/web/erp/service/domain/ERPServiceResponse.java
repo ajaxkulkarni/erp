@@ -8,6 +8,7 @@ import com.rns.web.erp.service.bo.domain.ERPUser;
 public class ERPServiceResponse {
 	
 	private Integer status;
+	private Integer companyId;
 	private String responseText;
 	private List<ERPUser> users;
 	private ERPUser user;
@@ -42,6 +43,12 @@ public class ERPServiceResponse {
 	}
 	public void setCompany(ERPCompany company) {
 		this.company = company;
+	}
+	public Integer getCompanyId() {
+		return companyId;
+	}
+	public void setCompanyId(Integer companyId) {
+		this.companyId = companyId;
 	}
 	
 	
