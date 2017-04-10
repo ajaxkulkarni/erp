@@ -35,9 +35,12 @@
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost:3306/erp" />
+		<property name="url" value="jdbc:mysql://localhost:3306/hreasy_data" />
+		<property name="username" value="hreasy_user" />
+		<property name="password" value="123456" />
+		<!-- <property name="url" value="jdbc:mysql://localhost:3306/erp" />
 		<property name="username" value="root" />
-		<property name="password" value="" />
+		<property name="password" value="" /> -->
 		<property name="testOnReturn" value="true" />
 		<property name="testOnBorrow" value="true" />
 		<property name="testWhileIdle" value="true" />
