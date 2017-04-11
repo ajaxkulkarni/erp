@@ -3,7 +3,6 @@ package com.rns.web.erp.service.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,17 +15,10 @@ import java.util.Scanner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
-import com.rns.web.erp.service.bo.domain.ERPFilter;
-import com.rns.web.erp.service.bo.domain.ERPFinancial;
+import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.bo.domain.ERPUserExperience;
-import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
-import com.rns.web.erp.service.dao.domain.ERPEmployeeSalarySlips;
-import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
-import com.rns.web.erp.service.dao.impl.ERPUserDAO;
 import com.rns.web.erp.service.domain.ERPServiceResponse;
 
 public class CommonUtils {

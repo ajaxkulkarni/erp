@@ -6,6 +6,7 @@ import java.util.List;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
+import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 
 public interface ERPUserBo {

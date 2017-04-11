@@ -5,12 +5,12 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
 import com.rns.web.erp.service.bo.domain.ERPLeavePolicy;
+import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPCompanyDetails;
 import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;

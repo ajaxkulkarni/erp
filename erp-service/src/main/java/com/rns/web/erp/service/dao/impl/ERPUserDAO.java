@@ -47,10 +47,17 @@ public class ERPUserDAO {
 		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
 		return query.list();
 	}
+	
+	public List<ERPEmployeeDetails> getAllCompanyEmployees(Integer id, Session session) {
+		Query query = session.createQuery("from ERPEmployeeDetails where company.id=:id");
+		query.setInteger("id", id);
+		return query.list();
+	}
 
 	public List<ERPCompanyLeavePolicy> getCompanyLeaveTypes(Session session, Integer id) {
-		Query query = session.createQuery("from ERPCompanyLeavePolicy where company.id=:id order by ID");
+		Query query = session.createQuery("from ERPCompanyLeavePolicy where company.id=:id AND maxAllowed>:minCount order by ID");
 		query.setInteger("id", id);
+		query.setInteger("minCount", 0);
 		return query.list();
 	}
 	
@@ -221,6 +228,12 @@ public class ERPUserDAO {
 		Query query = session.createQuery("from ERPEmployeeDetails");
 		return query.list();
 	}
+	
+	public List<ERPEmployeeDetails> getAllActiveEmployees(Session session) {
+		Query query = session.createQuery("from ERPEmployeeDetails where status!=:deleted");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		return query.list();
+	}
 
 	public ERPEmployeeLeaveBalance getEmployeeLeaveBalance(Integer employeeId, Integer leaveType, Session session) {
 		Query query = session.createQuery("from ERPEmployeeLeaveBalance where employee.id=:employeeId AND type.id=:leaveType");
@@ -234,7 +247,8 @@ public class ERPUserDAO {
 	}
 	
 	public List<ERPEmployeeLeaveBalance> getAllEmployeeLeaveBalances(Session session) {
-		Query query = session.createQuery("from ERPEmployeeLeaveBalance");
+		Query query = session.createQuery("from ERPEmployeeLeaveBalance where status!=:deleted");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
 		return query.list();
 	}
 

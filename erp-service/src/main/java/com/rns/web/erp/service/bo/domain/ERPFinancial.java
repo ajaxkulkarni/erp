@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
-
 public class ERPFinancial {
 	
 	private Integer id;

@@ -1,4 +1,4 @@
-package com.rns.web.erp.service.bo.api;
+package com.rns.web.erp.service.bo.domain;
 
 import java.math.BigDecimal;
 

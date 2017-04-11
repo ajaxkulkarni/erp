@@ -2,8 +2,6 @@ package com.rns.web.erp.service.bo.domain;
 
 import java.util.List;
 
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
-
 public class ERPCompany {
 
 	private Integer id;

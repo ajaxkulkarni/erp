@@ -11,9 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPFilter;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
+import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalarySlips;

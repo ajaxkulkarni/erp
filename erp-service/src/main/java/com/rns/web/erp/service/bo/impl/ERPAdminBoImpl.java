@@ -133,7 +133,7 @@ public class ERPAdminBoImpl implements ERPAdminBo, ERPConstants {
 		try {
 			session = this.sessionFactory.openSession();
 			ERPUserDAO dao = new ERPUserDAO();
-			List<ERPEmployeeDetails> employees =  dao.getAllEmployees(session);
+			List<ERPEmployeeDetails> employees =  dao.getAllActiveEmployees(session);
 			ERPFilter filter = new ERPFilter();
 			filter.setYear(CommonUtils.getCalendarValue(new Date(), Calendar.YEAR));
 			filter.setMonth(CommonUtils.getCalendarValue(new Date(), Calendar.MONTH));

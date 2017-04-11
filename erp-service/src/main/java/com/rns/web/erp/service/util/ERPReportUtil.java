@@ -25,8 +25,8 @@ import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline;
 import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
-import com.rns.web.erp.service.bo.api.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.bo.domain.ERPUserExperience;
 
