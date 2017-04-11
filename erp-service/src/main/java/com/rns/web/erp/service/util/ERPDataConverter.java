@@ -37,6 +37,7 @@ public class ERPDataConverter {
 		erpUser.setPhone(loginDetails.getPhone());
 		erpUser.setStatus(loginDetails.getStatus());
 		erpUser.setCompany(getCompany(loginDetails.getCompany()));
+		erpUser.setLoginType(loginDetails.getType());
 		return erpUser;
 	}
 

@@ -32,6 +32,7 @@ public class ERPUser implements Comparable<ERPUser> {
 	private List<ERPUserExperience> experiences;
 	private BigDecimal experience;
 	private List<ERPUserExperience> qualifications;
+	private String loginType;
 	
 	public Integer getId() {
 		return id;
@@ -217,6 +218,12 @@ public class ERPUser implements Comparable<ERPUser> {
 	}
 	public void setRegId(String regId) {
 		this.regId = regId;
+	}
+	public String getLoginType() {
+		return loginType;
+	}
+	public void setLoginType(String loginType) {
+		this.loginType = loginType;
 	}
 	
 

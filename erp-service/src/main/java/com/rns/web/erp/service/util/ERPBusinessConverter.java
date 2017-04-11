@@ -32,12 +32,16 @@ public class ERPBusinessConverter {
 		if(user.getId() != null) {
 			login.setId(user.getId());
 		}
+		setLoginDetails(user, login);
+		return login;
+	}
+
+	public static void setLoginDetails(ERPUser user, ERPLoginDetails login) {
 		login.setEmail(user.getEmail());
 		login.setCreatedDate(new Date());
 		login.setName(user.getName());
 		login.setPassword(user.getPassword());
 		login.setPhone(user.getPhone());
-		return login;
 	}
 	
 	public static ERPEmployeeDetails getEmployeeDetails(ERPUser user) {

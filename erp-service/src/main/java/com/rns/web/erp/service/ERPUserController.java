@@ -173,7 +173,7 @@ public class ERPUserController {
 		LoggingUtil.logObject("All employee Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			List<ERPUser> allEmployees = userBo.getAllEmployees(request.getUser().getCompany());
+			List<ERPUser> allEmployees = userBo.getAllEmployees(request.getUser());
 			response.setUser(request.getUser());
 			response.getUser().getCompany().setEmployees(allEmployees);
 		} catch (Exception e) {
@@ -236,7 +236,7 @@ public class ERPUserController {
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
 			ERPCompany company = request.getUser().getCompany();
-			List<ERPUser> employees = userBo.getAllEmployeeLeaveData(company);
+			List<ERPUser> employees = userBo.getAllEmployeeLeaveData(request.getUser());
 			company.setEmployees(employees);
 			company.setLeaveTypes(userBo.getAllLeaveTypes(company, request.getRequestType()));
 			response.setCompany(company);
@@ -387,7 +387,7 @@ public class ERPUserController {
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
 			ERPCompany company = request.getUser().getCompany();
-			company.setEmployees(userBo.getAllEmployeeSalarySlips(company));
+			company.setEmployees(userBo.getAllEmployeeSalarySlips(request.getUser()));
 			response.setCompany(company);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -444,7 +444,9 @@ public class ERPUserController {
 			company.setId(companyId);
 			//employee.setCompany(company);
 			company.setEmployees(extractEmployees(employeeId));
-			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(company);
+			ERPUser user = new ERPUser();
+			user.setCompany(company);
+			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(user);
 			HSSFWorkbook wb = ERPExcelUtil.generateEmployeeSalarySheet(employees);
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			wb.write(os);
@@ -479,7 +481,9 @@ public class ERPUserController {
 			List<ERPUser> filteredEmployees = extractEmployees(employeeId);
 			company.setEmployees(filteredEmployees);
 			//employee.setCompany(company);
-			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(company);
+			ERPUser user = new ERPUser();
+			user.setCompany(company);
+			List<ERPUser> employees = userBo.getAllEmployeeSalarySlips(user);
 			company.setEmployees(employees);
 			InputStream is = ERPReportUtil.getBankStatement(company);
 			ResponseBuilder response = Response.ok(is);
@@ -537,7 +541,9 @@ public class ERPUserController {
 			String fileName = "";
 			String monthString = month > 12 ? "": month + "_";
 			if(companyId != null && companyId != 0) {
-				employees = userBo.getAllEmployeeLeaveData(company);
+				ERPUser user = new ERPUser();
+				user.setCompany(company);
+				employees = userBo.getAllEmployeeLeaveData(user);
 				wb = ERPExcelUtil.generateEmployeeLeavesSheet(employees);
 				String companyName = "";
 				if(CollectionUtils.isNotEmpty(employees) && employees.get(0).getCompany() != null) {

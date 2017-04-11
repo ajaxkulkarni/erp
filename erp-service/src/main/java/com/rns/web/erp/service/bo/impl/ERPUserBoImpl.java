@@ -103,6 +103,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			if(existingLogin == null) {
 				ERPLoginDetails login = ERPBusinessConverter.getLoginDetails(user);
 				login.setStatus(USER_STATUS_CREATED);
+				login.setType(USER_TYPE_OWNER);
 				session.persist(login);
 				tx.commit();
 				ERPMailUtil mailUtil = new ERPMailUtil(MAIL_TYPE_SUBSCRIPTION);
@@ -168,6 +169,9 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 				} else {
 					employee = ERPBusinessConverter.getEmployeeDetails(user);
 					employee.setStatus(USER_STATUS_ACTIVE);
+					if(StringUtils.isNotBlank(user.getLoginType())) {
+						createUserLogin(user, session,employee);
+					}
 					session.persist(employee);
 				}
 			} else {
@@ -182,6 +186,16 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 							employee.getFinancials();
 						}
 						ERPBusinessConverter.setEmployeeDetails(user, employee);
+						ERPLoginDetails login = erpUserDAO.getLoginDetails(user.getEmail(), session);
+						if(StringUtils.isNotBlank(user.getLoginType())) {
+							if(login != null) {
+								login.setType(user.getLoginType());
+							} else {
+								createUserLogin(user, session, employee);
+							}
+						} else if(login != null) {
+							login.setStatus(USER_STATUS_DELETED);
+						}
 					}
 				}
 				
@@ -189,11 +203,22 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			tx.commit();
 		} catch (Exception e) {
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
-			result = e.getMessage();
+			result = ERROR_IN_PROCESSING;
 		} finally {
 			CommonUtils.closeSession(session);
 		}
 		return result;
+	}
+
+	private void createUserLogin(ERPUser user, Session session, ERPEmployeeDetails employee) {
+		ERPLoginDetails login;
+		login = new ERPLoginDetails();
+		ERPBusinessConverter.setLoginDetails(user, login);
+		login.setStatus(USER_STATUS_PASSWORD_SENT);
+		login.setPassword(CommonUtils.generatePassword(user));
+		login.setType(user.getLoginType());
+		login.setCompany(employee.getCompany());
+		session.persist(login);
 	}
 
 	public String addCompany(ERPCompany company) {
@@ -325,7 +350,11 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		return result;
 	}
 
-	public List<ERPUser> getAllEmployees(ERPCompany company) {
+	public List<ERPUser> getAllEmployees(ERPUser erpUser) {
+		if(erpUser == null) {
+			return null;
+		}
+		ERPCompany company = erpUser.getCompany();
 		if(company == null || company.getId() == null) {
 			return null;
 		}
@@ -333,11 +362,10 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		Session session = null;
 		try {
 			session = this.sessionFactory.openSession();
-			ERPUserDAO dao = new ERPUserDAO();
-			List<ERPEmployeeDetails> emps = dao.getCompanyEmployees(company.getId(), session);
+			List<ERPEmployeeDetails> emps = getCompanyEmployees(erpUser, company, session);
 			extractDates(company);
 			if(CollectionUtils.isNotEmpty(emps)) {
-				List<ERPCompanyLeavePolicy> leaveTypes = dao.getCompanyLeaveTypes(session, company.getId());
+				List<ERPCompanyLeavePolicy> leaveTypes = new ERPUserDAO().getCompanyLeaveTypes(session, company.getId());
 				for(ERPEmployeeDetails emp: emps) {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
 					if(user != null) {
@@ -353,6 +381,22 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			CommonUtils.closeSession(session);
 		}
 		return employees;
+	}
+
+	private List<ERPEmployeeDetails> getCompanyEmployees(ERPUser erpUser, ERPCompany company, Session session) {
+		List<ERPEmployeeDetails> emps = new ArrayList<ERPEmployeeDetails>();
+		//Return data based on type of employee
+		ERPUserDAO dao = new ERPUserDAO();
+		if(StringUtils.equals(USER_TYPE_EMPLOYEE, erpUser.getLoginType())) {
+			ERPEmployeeDetails emp = dao.getEmployeeByEmail(erpUser.getEmail(), session);
+			if(emp != null) {
+				emps.add(emp);
+			}
+			//TODO Return subordinates
+		} else {
+			emps = dao.getCompanyEmployees(company.getId(), session);
+		}
+		return emps;
 	}
 
 	private void extractDates(ERPCompany company) {
@@ -415,7 +459,11 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		return leaveTypes;
 	}
 	
-	public List<ERPUser> getAllEmployeeLeaveData(ERPCompany company) {
+	public List<ERPUser> getAllEmployeeLeaveData(ERPUser erpUser) {
+		if(erpUser == null) {
+			return null;
+		}
+		ERPCompany company = erpUser.getCompany();
 		if(company == null || company.getId() == null) {
 			return null;
 		}
@@ -424,7 +472,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		try {
 			session = this.sessionFactory.openSession();
 			ERPUserDAO dao = new ERPUserDAO();
-			List<ERPEmployeeDetails> emps = dao.getAllCompanyEmployees(company.getId(), session);
+			List<ERPEmployeeDetails> emps = getCompanyEmployees(erpUser, company, session);
 			if(CollectionUtils.isNotEmpty(emps)) {
 				extractDates(company);
 				List<ERPCompanyLeavePolicy> leaveTypes = dao.getCompanyLeaveTypes(session, company.getId());
@@ -794,7 +842,11 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		}
 	}
 	
-	public List<ERPUser> getAllEmployeeSalarySlips(ERPCompany company) {
+	public List<ERPUser> getAllEmployeeSalarySlips(ERPUser erpUser) {
+		if(erpUser == null) {
+			return null;
+		}
+		ERPCompany company = erpUser.getCompany();
 		if(company == null || company.getId() == null) {
 			return null;
 		}
@@ -805,7 +857,7 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			ERPUserDAO dao = new ERPUserDAO();
 			ERPCompanyDetails companyDetails = dao.getCompany(company.getId(), session);
 			ERPDataConverter.setCompany(companyDetails, company);
-			List<ERPEmployeeDetails> emps = dao.getAllCompanyEmployees(company.getId(), session);
+			List<ERPEmployeeDetails> emps = getCompanyEmployees(erpUser, company, session);
 			if(CollectionUtils.isNotEmpty(emps)) {
 				extractDates(company);
 				List<ERPCompanyLeavePolicy> leaveTypes = dao.getCompanyLeaveTypes(session, company.getId());
