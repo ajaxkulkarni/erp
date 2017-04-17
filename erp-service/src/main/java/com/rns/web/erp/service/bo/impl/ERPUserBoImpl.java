@@ -215,11 +215,13 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		login = new ERPLoginDetails();
 		ERPBusinessConverter.setLoginDetails(user, login);
 		login.setStatus(USER_STATUS_PASSWORD_SENT);
-		login.setPassword(CommonUtils.generatePassword(user));
+		String generatedPassword = CommonUtils.generatePassword(user);
+		login.setPassword(generatedPassword);
 		login.setType(user.getLoginType());
 		login.setCompany(employee.getCompany());
 		session.persist(login);
 		ERPMailUtil erpMailUtil = new ERPMailUtil(MAIL_TYPE_FORGOT_PASSWORD);
+		user.setPassword(generatedPassword);
 		erpMailUtil.setUser(user);
 		executor.execute(erpMailUtil);
 	}
