@@ -1,6 +1,7 @@
 package com.rns.web.erp.service.bo.domain;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,9 @@ public class ERPUser implements Comparable<ERPUser> {
 	private BigDecimal experience;
 	private List<ERPUserExperience> qualifications;
 	private String loginType;
+	private ERPProject currentProject;
+	private List<ERPProject> projects;
+	private ERPRecord currentRecord;
 	
 	public Integer getId() {
 		return id;
@@ -224,6 +228,27 @@ public class ERPUser implements Comparable<ERPUser> {
 	}
 	public void setLoginType(String loginType) {
 		this.loginType = loginType;
+	}
+	public ERPProject getCurrentProject() {
+		return currentProject;
+	}
+	public void setCurrentProject(ERPProject currentProject) {
+		this.currentProject = currentProject;
+	}
+	public List<ERPProject> getProjects() {
+		if(projects == null) {
+			projects = new ArrayList<ERPProject>();
+		}
+		return projects;
+	}
+	public void setProjects(List<ERPProject> projects) {
+		this.projects = projects;
+	}
+	public ERPRecord getCurrentRecord() {
+		return currentRecord;
+	}
+	public void setCurrentRecord(ERPRecord currentRecord) {
+		this.currentRecord = currentRecord;
 	}
 	
 

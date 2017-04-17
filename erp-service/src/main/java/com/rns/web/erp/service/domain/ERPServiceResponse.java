@@ -3,6 +3,7 @@ package com.rns.web.erp.service.domain;
 import java.util.List;
 
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 
 public class ERPServiceResponse {
@@ -13,6 +14,7 @@ public class ERPServiceResponse {
 	private List<ERPUser> users;
 	private ERPUser user;
 	private ERPCompany company;
+	private List<ERPProject> projects;
 	
 	public Integer getStatus() {
 		return status;
@@ -49,6 +51,12 @@ public class ERPServiceResponse {
 	}
 	public void setCompanyId(Integer companyId) {
 		this.companyId = companyId;
+	}
+	public List<ERPProject> getProjects() {
+		return projects;
+	}
+	public void setProjects(List<ERPProject> projects) {
+		this.projects = projects;
 	}
 	
 	

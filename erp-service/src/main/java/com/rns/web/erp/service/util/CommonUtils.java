@@ -249,5 +249,17 @@ public class CommonUtils {
 		}
 		return total;
 	}
+
+	public static String getDate(Date date) {
+		if(date == null) {
+			return null;
+		}
+		try {
+			return new SimpleDateFormat(ERPConstants.DATE_FORMAT).format(date);
+		} catch (Exception e) {
+			
+		}
+		return null;
+	}
 	
 }

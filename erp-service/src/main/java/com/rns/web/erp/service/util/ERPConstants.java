@@ -7,6 +7,8 @@ public interface ERPConstants {
 	String USER_STATUS_ACTIVE = "A";
 	String USER_STATUS_DELETED = "D";
 	
+	String FIELD_TYPE_TEXT = "TEXT";
+	String FIELD_TYPE_TITLE = "TITLE";
 	
 	String USER_TYPE_OWNER = "Owner";
 	String USER_TYPE_EMPLOYEE = "Employee";
@@ -18,7 +20,7 @@ public interface ERPConstants {
 	String YES = "Y";
 	
 	String RESPONSE_OK = "OK";
-	String DATE_FORMAT = "dd/MM/yy";
+	String DATE_FORMAT = "yyyy-MM-dd";
 	
 	String MAIL_TYPE_SUBSCRIPTION = "subscriptionMail";
 	String MAIL_TYPE_SUBSCRIPTION_ADMIN = "subscriptionMailAdmin";
@@ -40,6 +42,8 @@ public interface ERPConstants {
 	String ERROR_LEAVES_EXCEEDED = "The leaves entered exceed the maximum allowed limit. Any applied leave will be considered as without pay. Do you want to continue?";
 	String ERROR_INCOMPLETE_BANK_DETAILS = "Please update the employee bank details first!";
 	String ERROR_EMPLOYEE_ID_EXISTS = "Employee ID already Exists!";
+	String ERROR_PROJECT_NOT_FOUND = "Project not found. Please check if the project is archived.";
+	String ERROR_RECORD_NOT_FOUND = "Record not found!";
 	
 	
 	

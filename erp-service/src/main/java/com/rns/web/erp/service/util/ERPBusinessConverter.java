@@ -4,12 +4,15 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
 
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
 import com.rns.web.erp.service.bo.domain.ERPLeavePolicy;
+import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPCompanyDetails;
@@ -20,7 +23,13 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
+import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
+import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
+import com.rns.web.erp.service.dao.domain.ERPProjects;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
+import com.rns.web.erp.service.dao.impl.ERPUserDAO;
 
 public class ERPBusinessConverter {
 
@@ -230,4 +239,43 @@ public class ERPBusinessConverter {
 		return salaryStructure;
 	}
 	
+	public static ERPProjectUsers getProjectUser(Session session, ERPProjects projects, ERPUser erpUser) {
+		ERPProjectUsers projectUser = new ERPProjectUsers();
+		ERPLoginDetails erpLogin = new ERPUserDAO().getLoginDetails(erpUser.getEmail(), session);
+		if(erpLogin != null) {
+			projectUser.setUser(erpLogin);
+			projectUser.setProject(projects);
+			projectUser.setStatus(ERPConstants.USER_STATUS_ACTIVE);
+			projectUser.setCreatedDate(new Date());
+		} else {
+			return null;
+		}
+		return projectUser;
+	}
+
+	
+	public static ERPProjectRecords getRecords(ERPUser user, ERPRecord currentRecord, ERPLoginDetails loginDetails) {
+		ERPProjectRecords records = new ERPProjectRecords();
+		records.setCreatedDate(new Date());
+		records.setCreatedBy(loginDetails);
+		ERPProjects project = new ERPProjects();
+		project.setId(user.getCurrentProject().getId());
+		records.setProject(project);
+		records.setRecordDate(currentRecord.getRecordDate());
+		records.setStatus(ERPConstants.USER_STATUS_ACTIVE);
+		return records;
+	}
+	
+	public static ERPProjectRecordValues getRecordValues(ERPLoginDetails loginDetails, ERPProjectRecords records, ERPField value) {
+		ERPProjectRecordValues values = new ERPProjectRecordValues();
+		values.setRecord(records);
+		ERPProjectFields field = new ERPProjectFields();
+		field.setId(value.getId());
+		values.setField(field);
+		values.setUpdatedBy(loginDetails);
+		values.setUpdatedDate(new Date());
+		values.setValue(value.getValue());
+		return values;
+	}
+
 }

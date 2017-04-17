@@ -20,6 +20,11 @@
 		<property name="executor" ref="executor" />
 	</bean>
 	
+	<bean id="projectBo" class="com.rns.web.erp.service.bo.impl.ERPProjectBoImpl">
+		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
+		<property name="executor" ref="executor" />
+	</bean>
+	
 	<bean id="adminBo" class="com.rns.web.erp.service.bo.impl.ERPAdminBoImpl">
 		<property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
 		<property name="executor" ref="executor" />
@@ -35,12 +40,12 @@
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost:3306/hreasy_data" />
+		<!-- <property name="url" value="jdbc:mysql://localhost:3306/hreasy_data" />
 		<property name="username" value="hreasy_user" />
-		<property name="password" value="123456" />
-		<!-- <property name="url" value="jdbc:mysql://localhost:3306/erp" />
+		<property name="password" value="123456" /> -->
+		<property name="url" value="jdbc:mysql://localhost:3306/erp" />
 		<property name="username" value="root" />
-		<property name="password" value="" /> -->
+		<property name="password" value="" />
 		<property name="testOnReturn" value="true" />
 		<property name="testOnBorrow" value="true" />
 		<property name="testWhileIdle" value="true" />
@@ -68,6 +73,11 @@
 				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeSalarySlips</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPEmployeeLeaveBalance</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPProjects</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPProjectUsers</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPProjectRecords</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPProjectFields</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPProjectRecordValues</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

@@ -6,12 +6,17 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
 
 import com.rns.web.erp.service.bo.domain.ERPCompany;
+import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
 import com.rns.web.erp.service.bo.domain.ERPLeavePolicy;
+import com.rns.web.erp.service.bo.domain.ERPProject;
+import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPCompanyDetails;
@@ -22,7 +27,13 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
+import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
+import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
+import com.rns.web.erp.service.dao.domain.ERPProjects;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
+import com.rns.web.erp.service.dao.impl.ERPProjectDAO;
 
 public class ERPDataConverter {
 
@@ -89,6 +100,11 @@ public class ERPDataConverter {
 		}
 		ERPUser employee = new ERPUser();
 		employee.setId(emp.getId());
+		setEmployee(emp, employee);
+		return employee;
+	}
+
+	public static void setEmployee(ERPEmployeeDetails emp, ERPUser employee) {
 		employee.setRegId(emp.getRegId());
 		employee.setName(emp.getName());
 		employee.setEmail(emp.getEmail());
@@ -102,7 +118,6 @@ public class ERPDataConverter {
 		employee.setFinancial(getFinancial(emp.getFinancials()));
 		employee.setExperiences(CommonUtils.getUserExperiences(emp.getExperiences()));
 		employee.setQualifications(CommonUtils.getUserExperiences(emp.getQualifications()));
-		return employee;
 	}
 	
 	private static ERPFinancial getFinancial(ERPEmployeeFinancials financials) {
@@ -186,6 +201,48 @@ public class ERPDataConverter {
 			return salary;
 		}
 		return null;
+	}
+	
+	public static ERPProject getProject(ERPProjectUsers userProject) {
+		ERPProjects projects = userProject.getProject();
+		ERPProject project = getProjectBasic(projects);
+		return project;
+	}
+
+	public static ERPProject getProjectBasic(ERPProjects projects) {
+		ERPProject project = new ERPProject();
+		project.setId(projects.getId());
+		project.setTitle(projects.getTitle());
+		project.setDescription(projects.getDescription());
+		project.setCreatedBy(ERPDataConverter.getERPUser(projects.getCreatedBy()));
+		project.setCreatedDate(projects.getCreatedDate());
+		return project;
+	}
+	
+	public static ERPRecord getRecord(Session session, List<ERPProjectFields> projectFields, ERPProjectRecords rec) {
+		ERPRecord record = new ERPRecord();
+		record.setId(rec.getId());
+		record.setCreatedDate(rec.getCreatedDate());
+		record.setCreatedUser(ERPDataConverter.getERPUser(rec.getCreatedBy()));
+		record.setRecordDate(rec.getRecordDate());
+		record.setRecordDateString(CommonUtils.getDate(rec.getRecordDate()));
+		for(ERPProjectFields fields: projectFields) {
+			ERPProjectRecordValues values = new ERPProjectDAO().getRecordValueByField(fields.getId(),rec.getId(), session);
+			ERPField field = new ERPField();
+			field.setName(fields.getName());
+			field.setType(fields.getType());
+			field.setId(fields.getId());
+			if(values != null) {
+				field.setRecordId(values.getId());
+				field.setValue(values.getValue());
+			}
+			if(StringUtils.equals(ERPConstants.FIELD_TYPE_TITLE, fields.getType())) {
+				record.setTitleField(field);
+			} else {
+				record.getValues().add(field);
+			}
+		}
+		return record;
 	}
 	
 }
