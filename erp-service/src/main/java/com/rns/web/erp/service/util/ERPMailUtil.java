@@ -25,9 +25,9 @@ import com.rns.web.erp.service.bo.domain.ERPUser;
 public class ERPMailUtil implements Runnable, ERPConstants {
 
 	private static final String READ_RECEIPT_MAIL = "talnoterns@gmail.com";
-	private static final String MAIL_ID = "contact@talnote.com";
+	private static final String MAIL_ID = "contact@hreasy.in";
 	private static final String MAIL_AUTH = "true";
-	private static final String MAIL_HOST = "support.tiffeat.com";
+	private static final String MAIL_HOST = "mail.hreasy.in";
 	//private static final String MAIL_HOST = "smtp.zoho.com";
 	private static final String MAIL_PORT = "25";
 	private static final String MAIL_PASSWORD = "contact2017";

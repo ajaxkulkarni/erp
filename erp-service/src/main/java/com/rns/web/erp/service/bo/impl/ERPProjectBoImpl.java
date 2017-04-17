@@ -209,7 +209,9 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				for(ERPProjectUsers projectUser: projectUsers) {
 					ERPUser erpUser = ERPDataConverter.getERPUser(projectUser.getUser());
 					ERPEmployeeDetails erpEmp = new ERPUserDAO().getEmployeeByEmail(erpUser.getEmail(), session);
-					ERPDataConverter.setEmployee(erpEmp, erpUser);
+					if(erpEmp != null) {
+						ERPDataConverter.setEmployee(erpEmp, erpUser);
+					}
 					if(erpUser != null) {
 						project.getUsers().add(erpUser);
 					}

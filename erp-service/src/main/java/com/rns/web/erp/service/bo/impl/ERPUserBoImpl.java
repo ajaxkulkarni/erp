@@ -219,6 +219,9 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 		login.setType(user.getLoginType());
 		login.setCompany(employee.getCompany());
 		session.persist(login);
+		ERPMailUtil erpMailUtil = new ERPMailUtil(MAIL_TYPE_FORGOT_PASSWORD);
+		erpMailUtil.setUser(user);
+		executor.execute(erpMailUtil);
 	}
 
 	public String addCompany(ERPCompany company) {
@@ -365,10 +368,15 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			List<ERPEmployeeDetails> emps = getCompanyEmployees(erpUser, company, session);
 			extractDates(company);
 			if(CollectionUtils.isNotEmpty(emps)) {
-				List<ERPCompanyLeavePolicy> leaveTypes = new ERPUserDAO().getCompanyLeaveTypes(session, company.getId());
+				ERPUserDAO erpUserDAO = new ERPUserDAO();
+				List<ERPCompanyLeavePolicy> leaveTypes = erpUserDAO.getCompanyLeaveTypes(session, company.getId());
 				for(ERPEmployeeDetails emp: emps) {
 					ERPUser user = ERPDataConverter.getEmployee(emp);
 					if(user != null) {
+						ERPLoginDetails login = erpUserDAO.getLoginDetails(emp.getEmail(), session);
+						if(login != null) {
+							user.setLoginType(login.getType());
+						}
 						setEmployeeLeaveCount(session, leaveTypes, user, company);
 						employees.add(user);
 					}
