@@ -78,6 +78,7 @@
 				<value>com.rns.web.erp.service.dao.domain.ERPProjectRecords</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPProjectFields</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPProjectRecordValues</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPProjectFiles</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

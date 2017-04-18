@@ -11,6 +11,7 @@ import org.hibernate.Session;
 
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPField;
+import com.rns.web.erp.service.bo.domain.ERPFile;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
@@ -28,6 +29,7 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
@@ -243,6 +245,16 @@ public class ERPDataConverter {
 			}
 		}
 		return record;
+	}
+	
+	
+	public static ERPFile getFile(ERPProjectFiles projectFile) {
+		ERPFile file = new ERPFile();
+		file.setId(projectFile.getId());
+		file.setFileName(projectFile.getFileName());
+		file.setCreatedDate(projectFile.getCreatedDate());
+		file.setCreatedBy(ERPDataConverter.getERPUser(projectFile.getCreatedBy()));
+		return file;
 	}
 	
 }

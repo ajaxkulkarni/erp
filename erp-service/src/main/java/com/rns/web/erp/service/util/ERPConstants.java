@@ -2,6 +2,9 @@ package com.rns.web.erp.service.util;
 
 public interface ERPConstants {
 	
+	String ROOT_PATH = "F:/Resoneuronance/HREasy/Documents/Data/";
+	
+	
 	String USER_STATUS_CREATED = "C";
 	String USER_STATUS_PASSWORD_SENT = "P";
 	String USER_STATUS_ACTIVE = "A";

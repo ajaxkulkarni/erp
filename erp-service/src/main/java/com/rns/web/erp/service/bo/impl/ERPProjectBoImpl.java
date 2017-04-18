@@ -1,5 +1,9 @@
 package com.rns.web.erp.service.bo.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,12 +18,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.rns.web.erp.service.bo.api.ERPProjectBo;
 import com.rns.web.erp.service.bo.domain.ERPField;
+import com.rns.web.erp.service.bo.domain.ERPFile;
 import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
@@ -87,6 +93,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 						// Add new users
 						addNewUsers(currentProject, session, projects, projectUsers);
 					}
+					
 				}
 			} else {
 				ERPProjects projects = new ERPProjects();
@@ -429,6 +436,9 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 									values.setUpdatedDate(new Date());
 									values.setValue(value.getValue());
 								}
+							} else {
+								ERPProjectRecordValues values = ERPBusinessConverter.getRecordValues(loginDetails, records, value);
+								session.persist(values);
 							}
 						}
 					}
@@ -460,6 +470,60 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 
 	}
 
+	public String updateFile(ERPUser user) {
+		if (user == null || StringUtils.isEmpty(user.getEmail()) || user.getCurrentRecord() == null || user.getCurrentRecord().getFile() == null) {
+			return ERROR_INVALID_USER_DETAILS;
+		}
+		ERPRecord currentRecord = user.getCurrentRecord();
+		String result = RESPONSE_OK;
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
+			ERPLoginDetails loginDetails = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
+			if (currentRecord.getId() != null) {
+				
+				ERPProjectRecords records = erpProjectDAO.getRecordById(currentRecord.getId(), session);
+				if (records == null) {
+					result = ERROR_RECORD_NOT_FOUND;
+				} else {
+					ERPFile file = currentRecord.getFile();
+					if(file.getId() != null) {
+						ERPProjectFiles files = erpProjectDAO.getRecordFile(file.getId(), session);
+						files.setStatus(USER_STATUS_DELETED);
+					} else if(file.getFileData() != null) {
+						ERPProjectFiles files = new ERPProjectFiles();
+						files.setFileName(file.getFileName());
+						files.setFileType(CommonUtils.getFileType(file.getFilePath()));
+						files.setCreatedBy(loginDetails);
+						files.setCreatedDate(new Date());
+						files.setStatus(USER_STATUS_ACTIVE);
+						files.setRecord(records);
+						String directory = ERPConstants.ROOT_PATH + currentRecord.getId();
+						File dir = new File(directory);
+						if(!dir.exists()) {
+							dir.mkdirs();
+						}
+						String fileLoc = directory + "/" + file.getFilePath();
+						files.setFilePath(fileLoc);
+						files.setFileSize(new BigDecimal(CommonUtils.writeToFile(file.getFileData(), fileLoc)));
+						session.persist(files);
+					}
+				}
+			} 
+			tx.commit();
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			result = ERROR_IN_PROCESSING;
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return result;
+
+	}
+
+	
 	public ERPRecord getRecord(ERPUser user) {
 		if (user == null || user.getCurrentProject() == null || user.getCurrentRecord().getId() == null) {
 			return null;
@@ -472,6 +536,16 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			List<ERPProjectFields> projectFields = erpProjectDAO.getProjectFields(user.getCurrentProject().getId(), session);
 			ERPProjectRecords rec = erpProjectDAO.getRecordById(user.getCurrentRecord().getId(), session);
 			record = ERPDataConverter.getRecord(session, projectFields, rec);
+			List<ERPProjectFiles> files = erpProjectDAO.getRecordFiles(rec.getId(), session);
+			if(CollectionUtils.isNotEmpty(files)) {
+				for(ERPProjectFiles projectFile: files) {
+					ERPFile file = ERPDataConverter.getFile(projectFile);
+					if(file == null) {
+						continue;
+					}
+					record.getFiles().add(file);
+				}
+			}
 			
 		} catch (Exception e) {
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
@@ -479,6 +553,29 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			CommonUtils.closeSession(session);
 		}
 		return record;
+	}
+
+	
+	public InputStream getFile(ERPFile file) {
+		if(file.getId() == null) {
+			return null;
+		}
+		Session session = null;
+		InputStream is = null;
+		try {
+			session = this.sessionFactory.openSession();
+			ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
+			ERPProjectFiles files = erpProjectDAO.getRecordFile(file.getId(), session);
+			if(files != null) {
+				file.setFileName(files.getFileName() + "." + files.getFileType());
+				is = new FileInputStream(files.getFilePath());
+			}
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return is;
 	}
 
 }

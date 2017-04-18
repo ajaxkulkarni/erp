@@ -14,6 +14,9 @@ public class ERPRecord {
 	private ERPUser createdUser;
 	private ERPField titleField;
 	private String recordDateString;
+	private ERPFile file;
+	private List<ERPFile> files;
+	
 	
 	public Integer getId() {
 		return id;
@@ -65,6 +68,21 @@ public class ERPRecord {
 	}
 	public void setRecordDateString(String recordDateString) {
 		this.recordDateString = recordDateString;
+	}
+	public ERPFile getFile() {
+		return file;
+	}
+	public void setFile(ERPFile file) {
+		this.file = file;
+	}
+	public List<ERPFile> getFiles() {
+		if(files == null) {
+			files = new ArrayList<ERPFile>();
+		}
+		return files;
+	}
+	public void setFiles(List<ERPFile> files) {
+		this.files = files;
 	}
 	
 }

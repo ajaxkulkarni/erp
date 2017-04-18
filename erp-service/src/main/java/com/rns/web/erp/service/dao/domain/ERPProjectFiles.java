@@ -2,6 +2,7 @@ package com.rns.web.erp.service.dao.domain;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -27,12 +28,12 @@ public class ERPProjectFiles {
 	private String fileName;
 	private String filePath;
 	private String fileDescription;
-	private String fileSize;
+	private BigDecimal fileSize;
 	private String fileType;
 	private String status;
 	private Date createdDate;
 	private ERPLoginDetails createdBy;
-	private ERPRecord record;
+	private ERPProjectRecords record;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -61,10 +62,10 @@ public class ERPProjectFiles {
 	}
 	
 	@Column(name = "file_size")
-	public String getFileSize() {
+	public BigDecimal getFileSize() {
 		return fileSize;
 	}
-	public void setFileSize(String fileSize) {
+	public void setFileSize(BigDecimal fileSize) {
 		this.fileSize = fileSize;
 	}
 	
@@ -95,11 +96,11 @@ public class ERPProjectFiles {
 	@ManyToOne(cascade = CascadeType.MERGE)
 	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "record_id")
-	public ERPRecord getRecord() {
+	public ERPProjectRecords getRecord() {
 		return record;
 	}
 	
-	public void setRecord(ERPRecord record) {
+	public void setRecord(ERPProjectRecords record) {
 		this.record = record;
 	}
 	

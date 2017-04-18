@@ -2,6 +2,10 @@ package com.rns.web.erp.service.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -258,6 +262,32 @@ public class CommonUtils {
 			return new SimpleDateFormat(ERPConstants.DATE_FORMAT).format(date);
 		} catch (Exception e) {
 			
+		}
+		return null;
+	}
+	
+	public static int writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) throws IOException {
+
+		OutputStream out = new FileOutputStream(new File(uploadedFileLocation));
+		int read = 0;
+		byte[] bytes = new byte[1024];
+		int size = 0;
+		out = new FileOutputStream(new File(uploadedFileLocation));
+		while ((read = uploadedInputStream.read(bytes)) != -1) {
+			out.write(bytes, 0, read);
+			size = size + read;
+		}
+		out.flush();
+		out.close();
+		return size;
+	}
+
+	public static String getFileType(String filePath) {
+		if(StringUtils.isNotBlank(filePath)) {
+			String[] values = StringUtils.split(filePath, ".");
+			if(values != null && values.length > 0) {
+				return values[values.length - 1];
+			}
 		}
 		return null;
 	}

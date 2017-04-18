@@ -8,6 +8,7 @@ import org.hibernate.Session;
 
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
@@ -108,6 +109,24 @@ public class ERPProjectDAO {
 		query.setInteger("id", id);
 		query.setInteger("recordId", recordId);
 		List<ERPProjectRecordValues> records = query.list();
+		if (CollectionUtils.isEmpty(records)) {
+			return null;
+		}
+		return records.get(0);
+	}
+
+	public List<ERPProjectFiles> getRecordFiles(Integer id, Session session) {
+		Query query = session.createQuery("from ERPProjectFiles where record.id=:id AND status!=:deleted order by id DESC");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setInteger("id", id);
+		return query.list();
+	}
+
+	public ERPProjectFiles getRecordFile(Integer id, Session session) {
+		Query query = session.createQuery("from ERPProjectFiles where id=:id AND status!=:deleted");
+		query.setInteger("id", id);
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		List<ERPProjectFiles> records = query.list();
 		if (CollectionUtils.isEmpty(records)) {
 			return null;
 		}

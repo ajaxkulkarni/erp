@@ -2,12 +2,17 @@ package com.rns.web.erp.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import com.rns.web.erp.service.bo.api.ERPProjectBo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
+import com.rns.web.erp.service.bo.domain.ERPFile;
 import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
@@ -189,22 +195,28 @@ public class ERPProjectController {
 	}
 	
 	@POST
-	@Path("/register")
+	@Path("/uploadFile")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public ERPServiceResponse uploadFile(
 		@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file") FormDataContentDisposition fileDetail,
 		@FormDataParam("user") String user) {
-		LoggingUtil.logObject("Register request:", user);
+		LoggingUtil.logObject("File Upload request:", user);
 		ObjectMapper mapper = new ObjectMapper();
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			ERPUser chatUser = mapper.readValue(user, ERPUser.class);
-			
-			if(fileDetail != null) {
-				//chatUser.setProfilePic(fileDetail.getFileName());
+			String result = ERPConstants.ERROR_IN_PROCESSING;
+			ERPUser erpUser = mapper.readValue(user, ERPUser.class);
+			if(fileDetail != null && erpUser.getCurrentRecord() != null && erpUser.getCurrentRecord().getFile() != null ) {
+				ERPFile file = erpUser.getCurrentRecord().getFile();
+				file.setFileData(uploadedInputStream);
+				file.setFileSize(new BigDecimal((fileDetail.getSize())));
+				file.setFileType(fileDetail.getType());
+				file.setFilePath(fileDetail.getFileName());
+				erpUser.getCurrentRecord().setFile(file);
+				result = projectBo.updateFile(erpUser);
 			}
-			//CommonUtils.setResponse(response, userBo.register(chatUser));
+			CommonUtils.setResponse(response, result);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -212,9 +224,43 @@ public class ERPProjectController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-
 		return response;
+	}
+	
+	@POST
+	@Path("/deleteFile")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse deleteFile(ERPServiceRequest request) {
+		LoggingUtil.logObject("Update file record Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			CommonUtils.setResponse(response, projectBo.updateFile(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Update file record Response :", response);
+		return response;
+	}
+	
+	@GET
+	@Path("/getFile/{fileId}")
+	@Produces(MediaType.MULTIPART_FORM_DATA)
+	public Response getImage(@PathParam("fileId") Integer fileId) {
+		LoggingUtil.logObject("File request:", fileId);
+		try {
+			ERPFile file = new ERPFile();
+			file.setId(fileId);
+			InputStream is = projectBo.getFile(file);
+			ResponseBuilder response = Response.ok(is);
+			response.header("Content-Disposition","filename=" + file.getFileName());  
+			return response.build();
 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
