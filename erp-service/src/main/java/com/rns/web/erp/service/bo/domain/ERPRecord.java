@@ -16,7 +16,8 @@ public class ERPRecord {
 	private String recordDateString;
 	private ERPFile file;
 	private List<ERPFile> files;
-	
+	private ERPComment comment;
+	private List<ERPComment> comments;
 	
 	public Integer getId() {
 		return id;
@@ -83,6 +84,21 @@ public class ERPRecord {
 	}
 	public void setFiles(List<ERPFile> files) {
 		this.files = files;
+	}
+	public List<ERPComment> getComments() {
+		if(comments == null) {
+			comments = new ArrayList<ERPComment>();
+		}
+		return comments;
+	}
+	public void setComments(List<ERPComment> comments) {
+		this.comments = comments;
+	}
+	public ERPComment getComment() {
+		return comment;
+	}
+	public void setComment(ERPComment comment) {
+		this.comment = comment;
 	}
 	
 }

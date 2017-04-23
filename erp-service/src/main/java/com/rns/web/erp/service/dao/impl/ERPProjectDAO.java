@@ -7,6 +7,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPProjectComments;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
 import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
@@ -131,6 +132,24 @@ public class ERPProjectDAO {
 			return null;
 		}
 		return records.get(0);
+	}
+
+	public ERPProjectComments getRecordComment(Integer id, Session session) {
+		Query query = session.createQuery("from ERPProjectComments where id=:id AND status!=:deleted");
+		query.setInteger("id", id);
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		List<ERPProjectComments> records = query.list();
+		if (CollectionUtils.isEmpty(records)) {
+			return null;
+		}
+		return records.get(0);
+	}
+
+	public List<ERPProjectComments> getRecordComments(Integer id, Session session) {
+		Query query = session.createQuery("from ERPProjectComments where record.id=:id AND status!=:deleted order by id DESC");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setInteger("id", id);
+		return query.list();
 	}
 
 }

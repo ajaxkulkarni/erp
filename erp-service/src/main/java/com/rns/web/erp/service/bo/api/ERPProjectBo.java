@@ -19,4 +19,5 @@ public interface ERPProjectBo {
 	ERPRecord getRecord(ERPUser user);
 	String updateFile(ERPUser user);
 	InputStream getFile(ERPFile file);
+	String updateComment(ERPUser user);
 }

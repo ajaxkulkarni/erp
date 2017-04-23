@@ -1,9 +1,7 @@
 package com.rns.web.erp.service.bo.impl;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +15,7 @@ import org.hibernate.Transaction;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.rns.web.erp.service.bo.api.ERPProjectBo;
+import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPFile;
 import com.rns.web.erp.service.bo.domain.ERPProject;
@@ -24,6 +23,7 @@ import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPProjectComments;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
 import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
@@ -37,6 +37,7 @@ import com.rns.web.erp.service.util.ERPBusinessConverter;
 import com.rns.web.erp.service.util.ERPConstants;
 import com.rns.web.erp.service.util.ERPDataConverter;
 import com.rns.web.erp.service.util.LoggingUtil;
+import com.rns.web.erp.service.util.ProjectLogUtil;
 
 public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 
@@ -87,11 +88,12 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					if (CollectionUtils.isEmpty(projectUsers)) {
 						// Add all users
 						addAllUsers(currentProject, session, projects);
+						ProjectLogUtil.addProjectUsersLog(currentProject.getUsers(), projects, session, loginDetails);
 					} else {
 						// Delete users
-						deleteUnwantedUsers(currentProject, projectUsers, session);
+						ProjectLogUtil.projectUsersDeletedLog(deleteUnwantedUsers(currentProject, projectUsers, session), loginDetails, session);
 						// Add new users
-						addNewUsers(currentProject, session, projects, projectUsers);
+						ProjectLogUtil.projectUsersAddedLog(addNewUsers(currentProject, session, projects, projectUsers), loginDetails, session);
 					}
 					
 				}
@@ -104,7 +106,11 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				projects.setStatus(USER_STATUS_ACTIVE);
 				session.persist(projects);
 				
+				ProjectLogUtil.projectCreateLog(session, loginDetails, projects);
+				
 				addAllUsers(currentProject, session, projects);
+				
+				ProjectLogUtil.addProjectUsersLog(currentProject.getUsers(), projects, session, loginDetails);
 				
 				ERPProjectUsers projectUsers = new ERPProjectUsers();
 				projectUsers.setUser(loginDetails);
@@ -113,8 +119,10 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				projectUsers.setCreatedDate(new Date());
 				
 				session.persist(projectUsers);
+				
+				
 			}
-
+			
 			tx.commit();
 		} catch (Exception e) {
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
@@ -125,7 +133,9 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 		return result;
 	}
 
-	private void deleteUnwantedUsers(ERPProject currentProject, List<ERPProjectUsers> projectUsers, Session session) {
+	
+	private List<ERPProjectUsers> deleteUnwantedUsers(ERPProject currentProject, List<ERPProjectUsers> projectUsers, Session session) {
+		List<ERPProjectUsers> deleted = new ArrayList<ERPProjectUsers>(); 
 		for (ERPProjectUsers projectUser : projectUsers) {
 			boolean found = false;
 			if(CollectionUtils.isNotEmpty(currentProject.getUsers())) {
@@ -139,14 +149,17 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			if (!found) {
 				//projectUser.setStatus(USER_STATUS_DELETED);
 				session.delete(projectUser);
+				deleted.add(projectUser);
 			}
 		}
+		return deleted;
 	}
 
-	private void addNewUsers(ERPProject currentProject, Session session, ERPProjects projects, List<ERPProjectUsers> projectUsers) {
+	private List<ERPProjectUsers> addNewUsers(ERPProject currentProject, Session session, ERPProjects projects, List<ERPProjectUsers> projectUsers) {
 		if(CollectionUtils.isEmpty(currentProject.getUsers())) {
-			return;
+			return null;
 		}
+		List<ERPProjectUsers> added = new ArrayList<ERPProjectUsers>();
 		for (ERPUser erpUser : currentProject.getUsers()) {
 			boolean found = false;
 			for (ERPProjectUsers projectUser : projectUsers) {
@@ -159,9 +172,11 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				ERPProjectUsers users = ERPBusinessConverter.getProjectUser(session, projects, erpUser);
 				if(users != null) {
 					session.persist(users);
+					added.add(users);
 				}
 			}
 		}
+		return added;
 	}
 
 	private void addAllUsers(ERPProject currentProject, Session session, ERPProjects projects) {
@@ -302,7 +317,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 		try {
 			session = this.sessionFactory.openSession();
 			Transaction tx = session.beginTransaction();
-			//ERPLoginDetails loginDetails = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
+			ERPLoginDetails loginDetails = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
 			if (currentProject.getId() != null) {
 				ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
 				ERPProjects projects = erpProjectDAO.getProjectById(currentProject.getId(), session);
@@ -311,9 +326,10 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				} else {
 					List<ERPProjectFields> projectFields = erpProjectDAO.getProjectFields(projects.getId(), session);
 					// Delete unwanted
-					deleteUnwanted(currentProject, projectFields);
+					ProjectLogUtil.projectDeletedFieldsLog(deleteUnwanted(currentProject, projectFields), loginDetails, session);
 					//Add new and edit current
-					updateNewRecords(currentProject, session, projects, projectFields);
+					String changeLog = updateNewRecords(currentProject, session, projects, projectFields);
+					ProjectLogUtil.projectFieldChangeLog(changeLog,loginDetails,session, projects);
 				}
 			} else {
 				result = ERROR_PROJECT_NOT_FOUND;
@@ -329,9 +345,10 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 		return result;
 	}
 
-	private void updateNewRecords(ERPProject currentProject, Session session, ERPProjects projects,
-			List<ERPProjectFields> projectFields) {
+	private String updateNewRecords(ERPProject currentProject, Session session, ERPProjects projects, List<ERPProjectFields> projectFields) {
 		ERPField titleField = currentProject.getTitleField();
+		StringBuilder addedFields = new StringBuilder();
+		StringBuilder changedFields = new StringBuilder();
 		if(titleField != null) {
 			if(titleField.getId() == null) {
 				ERPProjectFields title = new ERPProjectFields();
@@ -341,9 +358,11 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				title.setStatus(USER_STATUS_ACTIVE);
 				title.setProject(projects);
 				session.persist(title);
+				addedFields.append(title.getName()).append(",");
 			} else {
 				ERPProjectFields oldTitleField = new ERPProjectDAO().getField(titleField.getId(), session);
-				if(oldTitleField != null) {
+				if(oldTitleField != null && !StringUtils.equals(titleField.getName(), oldTitleField.getName())) {
+					changedFields.append(oldTitleField.getName()).append(" to ").append(titleField.getName()).append(",");
 					oldTitleField.setName(titleField.getName());
 				}
 			}
@@ -356,10 +375,11 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					for(ERPProjectFields field: projectFields) {
 						if(field.getId() != null && pf.getId() != null && field.getId().intValue() == pf.getId().intValue()) {
 							found = true;
-							if(StringUtils.isNotBlank(pf.getName())) {
+							if(StringUtils.isNotBlank(pf.getName()) && !StringUtils.equals(field.getName(), pf.getName())) {
+								changedFields.append(field.getName()).append(" to ").append(pf.getName()).append(",");
 								field.setName(pf.getName());
 							}
-							if(StringUtils.isNotBlank(pf.getType())) {
+							if(StringUtils.isNotBlank(pf.getType()) && !StringUtils.equals(field.getType(), pf.getType())) {
 								field.setType(pf.getType());
 							}
 							break;
@@ -374,13 +394,22 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					fields.setStatus(USER_STATUS_ACTIVE);
 					fields.setProject(projects);
 					session.persist(fields);
+					addedFields.append(fields.getName()).append(",");
 				}
 			}
 		}
+		if(StringUtils.isBlank(addedFields)) {
+			addedFields.append(" ");
+		}
+		if(StringUtils.isBlank(changedFields)) {
+			changedFields.append(" ");
+		}
+		return addedFields.append("||").append(changedFields).toString();
 	}
 
-	private void deleteUnwanted(ERPProject currentProject, List<ERPProjectFields> projectFields) {
+	private List<ERPProjectFields> deleteUnwanted(ERPProject currentProject, List<ERPProjectFields> projectFields) {
 		if(CollectionUtils.isNotEmpty(projectFields)) {
+			List<ERPProjectFields> fields = new ArrayList<ERPProjectFields>();
 			for(ERPProjectFields pf: projectFields) {
 				if(StringUtils.equals(FIELD_TYPE_TITLE, pf.getType())) {
 					continue;
@@ -396,9 +425,12 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				}
 				if(!found) {
 					pf.setStatus(USER_STATUS_DELETED);
+					fields.add(pf);
 				}
 			}
+			return fields;
 		}
+		return null;
 	}
 
 	public String updateRecord(ERPUser user) {
@@ -493,21 +525,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 						ERPProjectFiles files = erpProjectDAO.getRecordFile(file.getId(), session);
 						files.setStatus(USER_STATUS_DELETED);
 					} else if(file.getFileData() != null) {
-						ERPProjectFiles files = new ERPProjectFiles();
-						files.setFileName(file.getFileName());
-						files.setFileType(CommonUtils.getFileType(file.getFilePath()));
-						files.setCreatedBy(loginDetails);
-						files.setCreatedDate(new Date());
-						files.setStatus(USER_STATUS_ACTIVE);
-						files.setRecord(records);
-						String directory = ERPConstants.ROOT_PATH + currentRecord.getId();
-						File dir = new File(directory);
-						if(!dir.exists()) {
-							dir.mkdirs();
-						}
-						String fileLoc = directory + "/" + file.getFilePath();
-						files.setFilePath(fileLoc);
-						files.setFileSize(new BigDecimal(CommonUtils.writeToFile(file.getFileData(), fileLoc)));
+						ERPProjectFiles files = ERPBusinessConverter.getERPProjectFiles(loginDetails, records, file);
 						session.persist(files);
 					}
 				}
@@ -535,7 +553,9 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
 			List<ERPProjectFields> projectFields = erpProjectDAO.getProjectFields(user.getCurrentProject().getId(), session);
 			ERPProjectRecords rec = erpProjectDAO.getRecordById(user.getCurrentRecord().getId(), session);
+			
 			record = ERPDataConverter.getRecord(session, projectFields, rec);
+			//Files
 			List<ERPProjectFiles> files = erpProjectDAO.getRecordFiles(rec.getId(), session);
 			if(CollectionUtils.isNotEmpty(files)) {
 				for(ERPProjectFiles projectFile: files) {
@@ -546,7 +566,17 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					record.getFiles().add(file);
 				}
 			}
-			
+			//Comments
+			List<ERPProjectComments> comments = erpProjectDAO.getRecordComments(rec.getId(), session);
+			if(CollectionUtils.isNotEmpty(comments)) {
+				for(ERPProjectComments cm: comments) {
+					ERPComment comment = ERPDataConverter.getComment(cm);
+					if(comment == null) {
+						continue;
+					}
+					record.getComments().add(comment);
+				}
+			}
 		} catch (Exception e) {
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
 		} finally {
@@ -577,5 +607,47 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 		}
 		return is;
 	}
+	
+	public String updateComment(ERPUser user) {
+		if (user == null || StringUtils.isEmpty(user.getEmail()) || user.getCurrentRecord() == null
+				|| user.getCurrentRecord().getComment() == null) {
+			return ERROR_INVALID_USER_DETAILS;
+		}
+		ERPRecord currentRecord = user.getCurrentRecord();
+		String result = RESPONSE_OK;
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
+			ERPLoginDetails loginDetails = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
+			if (currentRecord.getId() != null) {
+
+				ERPProjectRecords records = erpProjectDAO.getRecordById(currentRecord.getId(), session);
+				if (records == null) {
+					result = ERROR_RECORD_NOT_FOUND;
+				} else {
+					ERPComment comment = currentRecord.getComment();
+					ERPProjectComments comments = null;
+					if (comment.getId() != null) {
+						comments = erpProjectDAO.getRecordComment(comment.getId(), session);
+						comments.setStatus(USER_STATUS_DELETED);
+					} else {
+						comments = ERPBusinessConverter.getERPProjectComments(loginDetails, records, comment);
+						session.persist(comments);
+					}
+				}
+			}
+			tx.commit();
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			result = ERROR_IN_PROCESSING;
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return result;
+
+	}
+
 
 }

@@ -1,13 +1,17 @@
 package com.rns.web.erp.service.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
+import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPField;
+import com.rns.web.erp.service.bo.domain.ERPFile;
 import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
@@ -23,7 +27,9 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPProjectComments;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
@@ -276,6 +282,35 @@ public class ERPBusinessConverter {
 		values.setUpdatedDate(new Date());
 		values.setValue(value.getValue());
 		return values;
+	}
+	
+	public static ERPProjectFiles getERPProjectFiles(ERPLoginDetails loginDetails, ERPProjectRecords records, ERPFile file) throws IOException {
+		ERPProjectFiles files = new ERPProjectFiles();
+		files.setFileName(file.getFileName());
+		files.setFileType(CommonUtils.getFileType(file.getFilePath()));
+		files.setCreatedBy(loginDetails);
+		files.setCreatedDate(new Date());
+		files.setStatus(ERPConstants.USER_STATUS_ACTIVE);
+		files.setRecord(records);
+		String directory = ERPConstants.ROOT_PATH + records.getId();
+		File dir = new File(directory);
+		if(!dir.exists()) {
+			dir.mkdirs();
+		}
+		String fileLoc = directory + "/" + file.getFilePath();
+		files.setFilePath(fileLoc);
+		files.setFileSize(new BigDecimal(CommonUtils.writeToFile(file.getFileData(), fileLoc)));
+		return files;
+	}
+	
+	public static ERPProjectComments getERPProjectComments(ERPLoginDetails loginDetails, ERPProjectRecords records, ERPComment comment) {
+		ERPProjectComments comments = new ERPProjectComments();
+		comments.setComment(comment.getComment());
+		comments.setCreatedBy(loginDetails);
+		comments.setRecord(records);
+		comments.setStatus(ERPConstants.USER_STATUS_ACTIVE);
+		comments.setCreatedDate(new Date());
+		return comments;
 	}
 
 }

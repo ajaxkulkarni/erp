@@ -263,4 +263,22 @@ public class ERPProjectController {
 		}
 		return null;
 	}
+	
+	@POST
+	@Path("/updateComment")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse updateComment(ERPServiceRequest request) {
+		LoggingUtil.logObject("Update comment Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			CommonUtils.setResponse(response, projectBo.updateComment(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Update comment Response :", response);
+		return response;
+	}
 }

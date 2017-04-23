@@ -9,6 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
+import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPFile;
@@ -28,6 +29,7 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeLeave;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPProjectComments;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
 import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
@@ -255,6 +257,19 @@ public class ERPDataConverter {
 		file.setCreatedDate(projectFile.getCreatedDate());
 		file.setCreatedBy(ERPDataConverter.getERPUser(projectFile.getCreatedBy()));
 		return file;
+	}
+
+	public static ERPComment getComment(ERPProjectComments cm) {
+		if(cm == null) {
+			return null;
+		}
+		ERPComment comment = new ERPComment();
+		comment.setId(cm.getId());
+		comment.setComment(cm.getComment());
+		comment.setCommentedBy(getERPUser(cm.getCreatedBy()));
+		comment.setDate(cm.getCreatedDate());
+		comment.setDateString(CommonUtils.getDate(comment.getDate()));
+		return comment;
 	}
 	
 }
