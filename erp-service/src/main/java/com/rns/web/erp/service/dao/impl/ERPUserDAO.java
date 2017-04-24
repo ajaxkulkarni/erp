@@ -42,7 +42,7 @@ public class ERPUserDAO {
 	}
 
 	public List<ERPEmployeeDetails> getCompanyEmployees(Integer id, Session session) {
-		Query query = session.createQuery("from ERPEmployeeDetails where company.id=:id AND status IS NULL OR status!=:deleted");
+		Query query = session.createQuery("from ERPEmployeeDetails where company.id=:id AND (status IS NULL OR status!=:deleted)");
 		query.setInteger("id", id);
 		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
 		return query.list();
