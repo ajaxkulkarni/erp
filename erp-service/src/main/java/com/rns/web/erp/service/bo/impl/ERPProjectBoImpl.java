@@ -18,6 +18,7 @@ import com.rns.web.erp.service.bo.api.ERPProjectBo;
 import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPFile;
+import com.rns.web.erp.service.bo.domain.ERPLog;
 import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
@@ -26,6 +27,7 @@ import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPProjectComments;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
 import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
+import com.rns.web.erp.service.dao.domain.ERPProjectLog;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
@@ -446,31 +448,44 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
 			ERPLoginDetails loginDetails = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
 			ERPField titleField = currentRecord.getTitleField();
+			List<ERPProjectRecordValues> changedValues = new ArrayList<ERPProjectRecordValues>();
+			List<ERPProjectRecordValues> addedValues = new ArrayList<ERPProjectRecordValues>();
 			if (currentRecord.getId() != null) {
 				
 				ERPProjectRecords records = erpProjectDAO.getRecordById(currentRecord.getId(), session);
 				if (records == null) {
 					result = ERROR_RECORD_NOT_FOUND;
 				} else {
+					ERPProjectLog recordChangeLog = ProjectLogUtil.createRecordChangeLog(records, currentRecord, loginDetails);
 					records.setStatus(currentRecord.getStatus());
 					records.setRecordDate(currentRecord.getRecordDate());
+					
+					if(recordChangeLog != null) {
+						session.persist(recordChangeLog);
+					}
+					
 					//Set title field
 					if(titleField != null) {
 						ERPProjectRecordValues titleValue = erpProjectDAO.getRecordValueById(titleField.getRecordId(), session);
-						titleValue.setValue(titleField.getValue());
+						if(titleValue != null && !StringUtils.equals(titleValue.getValue(), titleField.getValue())) {
+							titleValue.setValue(titleField.getValue());
+							changedValues.add(titleValue);
+						}
 					}
 					if (CollectionUtils.isNotEmpty(currentRecord.getValues())) {
 						for (ERPField value : currentRecord.getValues()) {
 							if(value.getRecordId() != null) {
 								ERPProjectRecordValues values = erpProjectDAO.getRecordValueById(value.getRecordId(), session);
-								if(values != null && StringUtils.isNotBlank(value.getValue())) {
+								if(values != null && StringUtils.isNotBlank(value.getValue()) && !StringUtils.equals(values.getValue(), value.getValue())) {
 									values.setUpdatedBy(loginDetails);
 									values.setUpdatedDate(new Date());
 									values.setValue(value.getValue());
+									changedValues.add(values);
 								}
 							} else {
 								ERPProjectRecordValues values = ERPBusinessConverter.getRecordValues(loginDetails, records, value);
 								session.persist(values);
+								addedValues.add(values);
 							}
 						}
 					}
@@ -478,19 +493,25 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			} else {
 				ERPProjectRecords records = ERPBusinessConverter.getRecords(user, currentRecord, loginDetails);
 				session.persist(records);
+				ERPProjectLog recordAddLog = ProjectLogUtil.createRecordChangeLog(records, currentRecord, loginDetails);
+				session.persist(recordAddLog);
+				
 				if(titleField != null) {
 					ERPProjectRecordValues titleValue = ERPBusinessConverter.getRecordValues(loginDetails, records, titleField);
 					session.persist(titleValue);
+					addedValues.add(titleValue);
 				}
 				if(CollectionUtils.isNotEmpty(currentRecord.getValues())) {
 					for(ERPField value: currentRecord.getValues()) {
 						ERPProjectRecordValues values = ERPBusinessConverter.getRecordValues(loginDetails, records, value);
 						session.persist(values);
+						addedValues.add(values);
 					}
 				}
 				
 			}
-
+			ProjectLogUtil.projectAddedValuesLog(addedValues, session, loginDetails, currentRecord);
+			ProjectLogUtil.projectChangedValuesLog(changedValues, session, loginDetails, currentRecord);
 			tx.commit();
 		} catch (Exception e) {
 			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
@@ -575,6 +596,17 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 						continue;
 					}
 					record.getComments().add(comment);
+				}
+			}
+			//Logs
+			List<ERPProjectLog> logs = erpProjectDAO.getRecordLogs(rec.getId(), session);
+			if(CollectionUtils.isNotEmpty(logs)) {
+				for(ERPProjectLog log: logs) {
+					ERPLog erpLog = ERPDataConverter.getLog(log);
+					if(erpLog == null) {
+						continue;
+					}
+					record.getLogs().add(erpLog);
 				}
 			}
 		} catch (Exception e) {

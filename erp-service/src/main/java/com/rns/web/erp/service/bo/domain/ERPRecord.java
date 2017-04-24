@@ -18,6 +18,7 @@ public class ERPRecord {
 	private List<ERPFile> files;
 	private ERPComment comment;
 	private List<ERPComment> comments;
+	private List<ERPLog> logs;
 	
 	public Integer getId() {
 		return id;
@@ -99,6 +100,15 @@ public class ERPRecord {
 	}
 	public void setComment(ERPComment comment) {
 		this.comment = comment;
+	}
+	public List<ERPLog> getLogs() {
+		if(logs == null) {
+			logs = new ArrayList<ERPLog>();
+		}
+		return logs;
+	}
+	public void setLogs(List<ERPLog> logs) {
+		this.logs = logs;
 	}
 	
 }

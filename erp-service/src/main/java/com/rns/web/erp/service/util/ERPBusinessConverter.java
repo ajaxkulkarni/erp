@@ -277,6 +277,7 @@ public class ERPBusinessConverter {
 		values.setRecord(records);
 		ERPProjectFields field = new ERPProjectFields();
 		field.setId(value.getId());
+		field.setName(value.getName());
 		values.setField(field);
 		values.setUpdatedBy(loginDetails);
 		values.setUpdatedDate(new Date());

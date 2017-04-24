@@ -25,6 +25,8 @@ public interface ERPConstants {
 	String RESPONSE_OK = "OK";
 	String DATE_FORMAT = "yyyy-MM-dd";
 	
+	int MAX_LOG_RECORDS = 20;
+	
 	String MAIL_TYPE_SUBSCRIPTION = "subscriptionMail";
 	String MAIL_TYPE_SUBSCRIPTION_ADMIN = "subscriptionMailAdmin";
 	String MAIL_TYPE_PASSWORD_SENT = "passwordSentMail";

@@ -17,6 +17,7 @@ import com.rns.web.erp.service.bo.domain.ERPFinancial;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
 import com.rns.web.erp.service.bo.domain.ERPLeavePolicy;
+import com.rns.web.erp.service.bo.domain.ERPLog;
 import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
@@ -32,6 +33,7 @@ import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPProjectComments;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
 import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
+import com.rns.web.erp.service.dao.domain.ERPProjectLog;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
@@ -270,6 +272,18 @@ public class ERPDataConverter {
 		comment.setDate(cm.getCreatedDate());
 		comment.setDateString(CommonUtils.getDate(comment.getDate()));
 		return comment;
+	}
+
+	public static ERPLog getLog(ERPProjectLog log) {
+		if(log == null) {
+			return null;
+		}
+		ERPLog erpLog = new ERPLog();
+		erpLog.setId(log.getId());
+		erpLog.setLog(log.getLog());
+		erpLog.setLogDate(CommonUtils.getDate(log.getCreatedDate()));
+		erpLog.setUser(getERPUser(log.getCreatedBy()));
+		return erpLog;
 	}
 	
 }

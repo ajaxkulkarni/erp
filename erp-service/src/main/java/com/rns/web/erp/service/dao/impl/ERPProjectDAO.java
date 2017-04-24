@@ -10,6 +10,7 @@ import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPProjectComments;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
 import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
+import com.rns.web.erp.service.dao.domain.ERPProjectLog;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
@@ -149,6 +150,13 @@ public class ERPProjectDAO {
 		Query query = session.createQuery("from ERPProjectComments where record.id=:id AND status!=:deleted order by id DESC");
 		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
 		query.setInteger("id", id);
+		return query.list();
+	}
+
+	public List<ERPProjectLog> getRecordLogs(Integer id, Session session) {
+		Query query = session.createQuery("from ERPProjectLog where record.id=:id order by id DESC");
+		query.setInteger("id", id);
+		query.setMaxResults(ERPConstants.MAX_LOG_RECORDS);
 		return query.list();
 	}
 
