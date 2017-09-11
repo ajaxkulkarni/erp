@@ -7,6 +7,7 @@ public class ERPField {
 	private String value;
 	private String type;
 	private Integer recordId;
+	private boolean maxLength;
 	
 	public Integer getId() {
 		return id;
@@ -37,6 +38,14 @@ public class ERPField {
 	}
 	public void setRecordId(Integer recordId) {
 		this.recordId = recordId;
+	}
+	
+	public boolean isMaxLength() {
+		return maxLength;
+	}
+	
+	public void setMaxLength(boolean maxLength) {
+		this.maxLength = maxLength;
 	}
 	
 }

@@ -50,6 +50,7 @@ public class ERPBusinessConverter {
 		setLoginDetails(user, login);
 		return login;
 	}
+	
 
 	public static void setLoginDetails(ERPUser user, ERPLoginDetails login) {
 		login.setEmail(user.getEmail());

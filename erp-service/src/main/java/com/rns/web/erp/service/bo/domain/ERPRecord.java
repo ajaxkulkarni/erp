@@ -19,6 +19,7 @@ public class ERPRecord {
 	private ERPComment comment;
 	private List<ERPComment> comments;
 	private List<ERPLog> logs;
+	private ERPUser assignedUser;
 	
 	public Integer getId() {
 		return id;
@@ -109,6 +110,12 @@ public class ERPRecord {
 	}
 	public void setLogs(List<ERPLog> logs) {
 		this.logs = logs;
+	}
+	public ERPUser getAssignedUser() {
+		return assignedUser;
+	}
+	public void setAssignedUser(ERPUser assignedUser) {
+		this.assignedUser = assignedUser;
 	}
 	
 }

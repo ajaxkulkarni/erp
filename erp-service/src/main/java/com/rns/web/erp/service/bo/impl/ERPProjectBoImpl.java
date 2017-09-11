@@ -459,7 +459,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					ERPProjectLog recordChangeLog = ProjectLogUtil.createRecordChangeLog(records, currentRecord, loginDetails);
 					records.setStatus(currentRecord.getStatus());
 					records.setRecordDate(currentRecord.getRecordDate());
-					
+					records.setAssignedTo(ERPBusinessConverter.getLoginDetails(currentRecord.getAssignedUser()));
 					if(recordChangeLog != null) {
 						session.persist(recordChangeLog);
 					}
@@ -492,6 +492,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				}
 			} else {
 				ERPProjectRecords records = ERPBusinessConverter.getRecords(user, currentRecord, loginDetails);
+				records.setAssignedTo(ERPBusinessConverter.getLoginDetails(currentRecord.getAssignedUser()));
 				session.persist(records);
 				ERPProjectLog recordAddLog = ProjectLogUtil.createRecordChangeLog(records, currentRecord, loginDetails);
 				session.persist(recordAddLog);

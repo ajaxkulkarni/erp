@@ -26,6 +26,9 @@ public class ERPProjectRecords {
 	private Date recordDate;
 	private ERPLoginDetails createdBy;
 	private ERPProjects project;
+	private ERPLoginDetails assignedTo;
+	
+	
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -80,6 +83,16 @@ public class ERPProjectRecords {
 	}
 	public void setRecordDate(Date recordDate) {
 		this.recordDate = recordDate;
+	}
+	
+	@ManyToOne(cascade = CascadeType.MERGE)
+	@NotFound(action = NotFoundAction.IGNORE)
+	@JoinColumn(name = "assigned_to")
+	public ERPLoginDetails getAssignedTo() {
+		return assignedTo;
+	}
+	public void setAssignedTo(ERPLoginDetails assignedTo) {
+		this.assignedTo = assignedTo;
 	}
 	
 }

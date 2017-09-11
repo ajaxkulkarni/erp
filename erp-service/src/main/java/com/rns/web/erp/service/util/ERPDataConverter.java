@@ -232,6 +232,7 @@ public class ERPDataConverter {
 		record.setCreatedUser(ERPDataConverter.getERPUser(rec.getCreatedBy()));
 		record.setRecordDate(rec.getRecordDate());
 		record.setRecordDateString(CommonUtils.getDate(rec.getRecordDate()));
+		record.setAssignedUser(ERPDataConverter.getERPUser(rec.getAssignedTo()));
 		for(ERPProjectFields fields: projectFields) {
 			ERPProjectRecordValues values = new ERPProjectDAO().getRecordValueByField(fields.getId(),rec.getId(), session);
 			ERPField field = new ERPField();
