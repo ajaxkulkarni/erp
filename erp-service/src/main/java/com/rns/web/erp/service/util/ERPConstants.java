@@ -12,6 +12,7 @@ public interface ERPConstants {
 	
 	String FIELD_TYPE_TEXT = "TEXT";
 	String FIELD_TYPE_TITLE = "TITLE";
+	String FIELD_TYPE_MULTIPLE = "MULTIPLE";
 	
 	String USER_TYPE_OWNER = "Owner";
 	String USER_TYPE_EMPLOYEE = "Employee";
@@ -53,5 +54,5 @@ public interface ERPConstants {
 	
 	
 	String[] ADMIN_MAILS = {"ajinkyashiva@gmail.com"};
-	
+
 }

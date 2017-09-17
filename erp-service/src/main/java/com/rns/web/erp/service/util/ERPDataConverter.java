@@ -2,6 +2,7 @@ package com.rns.web.erp.service.util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -242,6 +243,9 @@ public class ERPDataConverter {
 			if(values != null) {
 				field.setRecordId(values.getId());
 				field.setValue(values.getValue());
+			}
+			if(StringUtils.isNotBlank(fields.getValues()) && StringUtils.equals(ERPConstants.FIELD_TYPE_MULTIPLE, fields.getType())) {
+				field.setPossibleValues(Arrays.asList(StringUtils.split(fields.getValues(), ",")));
 			}
 			if(StringUtils.equals(ERPConstants.FIELD_TYPE_TITLE, fields.getType())) {
 				record.setTitleField(field);

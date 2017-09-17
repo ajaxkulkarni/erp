@@ -1,5 +1,7 @@
 package com.rns.web.erp.service.bo.domain;
 
+import java.util.List;
+
 public class ERPField {
 	
 	private Integer id;
@@ -8,6 +10,8 @@ public class ERPField {
 	private String type;
 	private Integer recordId;
 	private boolean maxLength;
+	private String values;
+	private List<String> possibleValues;
 	
 	public Integer getId() {
 		return id;
@@ -46,6 +50,18 @@ public class ERPField {
 	
 	public void setMaxLength(boolean maxLength) {
 		this.maxLength = maxLength;
+	}
+	public String getValues() {
+		return values;
+	}
+	public void setValues(String values) {
+		this.values = values;
+	}
+	public List<String> getPossibleValues() {
+		return possibleValues;
+	}
+	public void setPossibleValues(List<String> possibleValues) {
+		this.possibleValues = possibleValues;
 	}
 	
 }

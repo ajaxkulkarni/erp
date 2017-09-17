@@ -26,6 +26,7 @@ public class ERPProjectFields {
 	private String status;
 	private Date createdDate;
 	private ERPProjects project;
+	private String values;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -80,6 +81,14 @@ public class ERPProjectFields {
 	
 	public void setProject(ERPProjects project) {
 		this.project = project;
+	}
+	
+	@Column(name = "possible_values")
+	public String getValues() {
+		return values;
+	}
+	public void setValues(String values) {
+		this.values = values;
 	}
 	
 }

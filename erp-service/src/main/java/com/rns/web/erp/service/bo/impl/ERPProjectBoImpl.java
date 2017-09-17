@@ -3,6 +3,7 @@ package com.rns.web.erp.service.bo.impl;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -249,6 +250,10 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					field.setId(fields.getId());
 					field.setName(fields.getName());
 					field.setType(fields.getType());
+					if(StringUtils.isNotBlank(fields.getValues()) && StringUtils.equals(FIELD_TYPE_MULTIPLE, fields.getType())) {
+						field.setPossibleValues(Arrays.asList(StringUtils.split(fields.getValues(), ",")));
+						field.setValues(fields.getValues());
+					}
 					if(StringUtils.equals(field.getType(), FIELD_TYPE_TITLE)) {
 						project.setTitleField(field);
 						continue;
@@ -383,6 +388,9 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 							}
 							if(StringUtils.isNotBlank(pf.getType()) && !StringUtils.equals(field.getType(), pf.getType())) {
 								field.setType(pf.getType());
+							}
+							if(StringUtils.isNotBlank(pf.getValues()) && !StringUtils.equals(field.getValues(), pf.getValues())) {
+								field.setValues(StringUtils.removeEnd(StringUtils.trimToEmpty(pf.getValues()), ","));
 							}
 							break;
 						}
