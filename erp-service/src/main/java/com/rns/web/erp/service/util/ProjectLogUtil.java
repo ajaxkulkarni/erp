@@ -12,6 +12,7 @@ import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectFiles;
 import com.rns.web.erp.service.dao.domain.ERPProjectLog;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
@@ -25,7 +26,7 @@ public class ProjectLogUtil {
 	private static final String ACTION_CHANGE_ITEM = "ChangeItem";
 
 	public static void projectCreateLog(Session session, ERPLoginDetails loginDetails, ERPProjects projects) {
-		String msg = loginDetails.getName() + " created the project '" + projects.getTitle() + "'";
+		String msg = loginDetails.getName() + " created the project '" + CommonUtils.getStringValue(projects.getTitle()) + "'";
 		ERPProjectLog log = createNewLog(loginDetails, msg, projects, ACTION_NEW_ITEM);
 		session.persist(log);
 	}
@@ -35,13 +36,13 @@ public class ProjectLogUtil {
 			return;
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(projects.getCreatedBy().getName()).append(" has added ");
+		builder.append(CommonUtils.getStringValue(projects.getCreatedBy().getName())).append(" has added ");
 		StringBuilder usersList = new StringBuilder();
 		for (ERPUser user : users) {
-			usersList.append(user.getName()).append(",");
+			usersList.append(CommonUtils.getStringValue(user.getName())).append(",");
 		}
 		builder.append(StringUtils.removeEnd(",", usersList.toString()));
-		builder.append(" to the project '").append(projects.getTitle()).append("'");
+		builder.append(" to the project '").append(CommonUtils.getStringValue(projects.getTitle())).append("'");
 
 		ERPProjectLog log = createNewLog(loginDetails, builder.toString(), projects, ACTION_NEW_ITEM);
 		session.persist(log);
@@ -52,10 +53,10 @@ public class ProjectLogUtil {
 			return;
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(loginDetails.getName()).append(" has deleted ");
+		builder.append(CommonUtils.getStringValue(loginDetails.getName())).append(" has deleted ");
 		ERPProjects project = prepareUsersList(deletedUsers, builder);
 		if (project != null) {
-			builder.append(" from the project '").append(project.getTitle()).append("'");
+			builder.append(" from the project '").append(CommonUtils.getStringValue(project.getTitle())).append("'");
 		}
 
 		ERPProjectLog log = createNewLog(loginDetails, builder.toString(), project, ACTION_DELETE_ITEM);
@@ -67,10 +68,10 @@ public class ProjectLogUtil {
 			return;
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(loginDetails.getName()).append(" has added ");
+		builder.append(CommonUtils.getStringValue(loginDetails.getName())).append(" has added ");
 		ERPProjects project = prepareUsersList(addedUsers, builder);
 		if (project != null) {
-			builder.append(" to the project '").append(project.getTitle()).append("'");
+			builder.append(" to the project '").append(CommonUtils.getStringValue(project.getTitle())).append("'");
 		}
 
 		ERPProjectLog log = createNewLog(loginDetails, builder.toString(), project, ACTION_NEW_ITEM);
@@ -83,7 +84,7 @@ public class ProjectLogUtil {
 			if (user.getUser() == null) {
 				continue;
 			}
-			usersList.append(user.getUser().getName()).append(",");
+			usersList.append(CommonUtils.getStringValue(user.getUser().getName())).append(",");
 		}
 		builder.append(StringUtils.removeEnd(usersList.toString(), ","));
 		ERPProjects project = deletedUsers.get(0).getProject();
@@ -95,7 +96,7 @@ public class ProjectLogUtil {
 			return;
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(loginDetails.getName()).append(" has deleted fields ");
+		builder.append(CommonUtils.getStringValue(loginDetails.getName())).append(" has deleted fields ");
 		prepareFieldList(deletedFields, builder);
 		ERPProjects project = deletedFields.get(0).getProject();
 		builder.append(" from the project " + project.getTitle());
@@ -109,10 +110,10 @@ public class ProjectLogUtil {
 			return;
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(loginDetails.getName()).append(" has added fields ");
+		builder.append(CommonUtils.getStringValue(loginDetails.getName())).append(" has added fields ");
 		prepareFieldList(addedFields, builder);
 		ERPProjects project = addedFields.get(0).getProject();
-		builder.append(" to the project " + project.getTitle());
+		builder.append(" to the project " + CommonUtils.getStringValue(project.getTitle()));
 
 		ERPProjectLog log = createNewLog(loginDetails, builder.toString(), project, ACTION_NEW_ITEM);
 		session.persist(log);
@@ -131,7 +132,7 @@ public class ProjectLogUtil {
 	private static void prepareFieldList(List<ERPProjectFields> deletedFields, StringBuilder builder) {
 		StringBuilder fieldsList = new StringBuilder();
 		for (ERPProjectFields fields : deletedFields) {
-			fieldsList.append(fields.getName()).append(",");
+			fieldsList.append(CommonUtils.getStringValue(fields.getName())).append(",");
 		}
 		builder.append(StringUtils.removeEnd(fieldsList.toString(), ","));
 	}
@@ -141,17 +142,17 @@ public class ProjectLogUtil {
 		if (logs == null || logs.length < 2) {
 			return;
 		}
-		String addedFields = logs[0];
-		String changedFields = logs[1];
+		String addedFields = CommonUtils.getStringValue(logs[0]);
+		String changedFields = CommonUtils.getStringValue(logs[1]);
 		if (StringUtils.isNotBlank(changedFields)) {
-			String msg = loginDetails.getName() + " has changed the fields " + StringUtils.removeEnd(changedFields, ",") + " of the project "
-					+ projects.getTitle();
+			String msg = CommonUtils.getStringValue(loginDetails.getName()) + " has changed the fields " + StringUtils.removeEnd(changedFields, ",") + " of the project "
+					+ CommonUtils.getStringValue(projects.getTitle());
 			ERPProjectLog log = createNewLog(loginDetails, msg, projects, ACTION_CHANGE_ITEM);
 			session.persist(log);
 		}
 
 		if (StringUtils.isNotBlank(addedFields)) {
-			String msg = loginDetails.getName() + " has added the fields " + StringUtils.removeEnd(addedFields, ",") + " to the project " + projects.getTitle();
+			String msg = CommonUtils.getStringValue(loginDetails.getName()) + " has added the fields " + StringUtils.removeEnd(addedFields, ",") + " to the project " + CommonUtils.getStringValue(projects.getTitle());
 			ERPProjectLog log = createNewLog(loginDetails, msg, projects, ACTION_NEW_ITEM);
 			session.persist(log);
 		}
@@ -162,14 +163,15 @@ public class ProjectLogUtil {
 			return null;
 		}
 		String msg = null;
+		String userName = CommonUtils.getStringValue(loginDetails.getName());
 		if(currentRecord.getId() == null) {
-			msg = loginDetails.getName() + " has created a new record '" + currentRecord.getTitleField().getValue() + "'";
+			msg = userName + " has created a new record '" + CommonUtils.getStringValue(currentRecord.getTitleField().getValue()) + "'";
 			msg = msg + " for the date " + CommonUtils.getDate(currentRecord.getRecordDate());
 		} else if (StringUtils.equals(currentRecord.getStatus(), ERPConstants.USER_STATUS_DELETED)) {
-			msg = loginDetails.getName() + " deleted the record '" + currentRecord.getTitleField().getName() + "'";
+			msg = userName + " deleted the record '" + CommonUtils.getStringValue(currentRecord.getTitleField().getName()) + "'";
 		} else if (!DateUtils.isSameDay(currentRecord.getRecordDate(), records.getRecordDate())) {
-			msg = loginDetails.getName() + " changed the record date from " + CommonUtils.getDate(records.getRecordDate()) + " to "
-					+ CommonUtils.getDate(currentRecord.getRecordDate()) + " of the record '" + currentRecord.getTitleField().getName() + "'";
+			msg = userName + " changed the record date from " + CommonUtils.getDate(records.getRecordDate()) + " to "
+					+ CommonUtils.getDate(currentRecord.getRecordDate()) + " of the record '" + CommonUtils.getStringValue(currentRecord.getTitleField().getName()) + "'";
 		}
 		if (StringUtils.isBlank(msg)) {
 			return null;
@@ -183,11 +185,11 @@ public class ProjectLogUtil {
 			return;
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(loginDetails.getName()).append(" has added values - ");
+		builder.append(CommonUtils.getStringValue(loginDetails.getName())).append(" has added values - ");
 		ERPProjectRecords records = addedValues.get(0).getRecord();
 		ERPProjects projects = records.getProject();
 		prepareValuesList(addedValues, builder);
-		builder.append(" to the record ").append("'").append(currentRecord.getTitleField().getName()).append("'").append(" of the project ").append("'").append(projects.getTitle()).append("'");
+		builder.append(" to the record ").append("'").append(CommonUtils.getStringValue(currentRecord.getTitleField().getName())).append("'").append(" of the project ").append("'").append(CommonUtils.getStringValue(projects.getTitle())).append("'");
 		ERPProjectLog addedValuesLog = createNewLog(loginDetails, builder.toString(), projects, ACTION_NEW_ITEM);
 		addedValuesLog.setRecord(records);
 		session.persist(addedValuesLog);
@@ -196,7 +198,7 @@ public class ProjectLogUtil {
 	private static void prepareValuesList(List<ERPProjectRecordValues> addedValues, StringBuilder builder) {
 		StringBuilder valueList = new StringBuilder();
 		for (ERPProjectRecordValues value : addedValues) {
-			valueList.append("'").append(CommonUtils.getStringValue(value.getField().getName())).append("'").append(" as ").append("'").append(value.getValue()).append("'").append(",");
+			valueList.append("'").append(CommonUtils.getStringValue(value.getField().getName())).append("'").append(" as ").append("'").append(CommonUtils.getStringValue(value.getValue())).append("'").append(",");
 		}
 		builder.append(StringUtils.removeEnd(valueList.toString(), ","));
 	}
@@ -206,14 +208,35 @@ public class ProjectLogUtil {
 			return;
 		}
 		StringBuilder builder = new StringBuilder();
-		builder.append(loginDetails.getName()).append(" has changed values - ");
+		builder.append(CommonUtils.getStringValue(loginDetails.getName())).append(" has changed values - ");
 		prepareValuesList(changedValues, builder);
 		ERPProjectRecords records = changedValues.get(0).getRecord();
 		ERPProjects project = records.getProject();
-		builder.append(" of the record ").append("'").append(currentRecord.getTitleField().getName()).append("'").append(" of the project ").append("'").append(project.getTitle()).append("'");
+		builder.append(" of the record ").append("'").append(CommonUtils.getStringValue(currentRecord.getTitleField().getName())).append("'").append(" of the project ").append("'").append(CommonUtils.getStringValue(project.getTitle())).append("'");
 		ERPProjectLog addedValuesLog = createNewLog(loginDetails, builder.toString(), project, ACTION_NEW_ITEM);
 		addedValuesLog.setRecord(records);
 		session.persist(addedValuesLog);
 	}
+	
+	public static void fileCreateLog(Session session, ERPLoginDetails loginDetails, ERPProjectFiles file) {
+		if(file == null || file.getRecord() == null || file.getRecord().getProject() == null) {
+			return;
+		}
+		String msg = loginDetails.getName() + " uploaded the file '" + CommonUtils.getStringValue(file.getFileName()) + "'";
+		ERPProjectLog log = createNewLog(loginDetails, msg, file.getRecord().getProject(), ACTION_NEW_ITEM);
+		log.setRecord(file.getRecord());
+		session.persist(log);
+	}
+	
+	public static void fileDeleteLog(Session session, ERPLoginDetails loginDetails, ERPProjectFiles file) {
+		if(file == null || file.getRecord() == null || file.getRecord().getProject() == null) {
+			return;
+		}
+		String msg = loginDetails.getName() + " deleted the file '" + CommonUtils.getStringValue(file.getFileName()) + "'";
+		ERPProjectLog log = createNewLog(loginDetails, msg, file.getRecord().getProject(), ACTION_NEW_ITEM);
+		log.setRecord(file.getRecord());
+		session.persist(log);
+	}
+
 
 }

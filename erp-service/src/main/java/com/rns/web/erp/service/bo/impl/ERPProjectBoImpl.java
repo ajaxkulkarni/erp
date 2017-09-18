@@ -554,9 +554,11 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					if(file.getId() != null) {
 						ERPProjectFiles files = erpProjectDAO.getRecordFile(file.getId(), session);
 						files.setStatus(USER_STATUS_DELETED);
+						ProjectLogUtil.fileDeleteLog(session, loginDetails, files);
 					} else if(file.getFileData() != null) {
 						ERPProjectFiles files = ERPBusinessConverter.getERPProjectFiles(loginDetails, records, file);
 						session.persist(files);
+						ProjectLogUtil.fileCreateLog(session, loginDetails, files);
 					}
 				}
 			} 
