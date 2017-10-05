@@ -27,6 +27,7 @@ public class ERPProjectUsers {
 	private Date lastUpdated;
 	private ERPProjects project;
 	private ERPLoginDetails user;
+	private String accessRights;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -88,6 +89,14 @@ public class ERPProjectUsers {
 	}
 	public void setUser(ERPLoginDetails user) {
 		this.user = user;
+	}
+	
+	@Column(name = "access_rights")
+	public String getAccessRights() {
+		return accessRights;
+	}
+	public void setAccessRights(String accessRights) {
+		this.accessRights = accessRights;
 	}
 	
 }

@@ -37,6 +37,7 @@ public class ERPUser implements Comparable<ERPUser> {
 	private ERPProject currentProject;
 	private List<ERPProject> projects;
 	private ERPRecord currentRecord;
+	private ERPAccessRights rights;
 	
 	public Integer getId() {
 		return id;
@@ -249,6 +250,12 @@ public class ERPUser implements Comparable<ERPUser> {
 	}
 	public void setCurrentRecord(ERPRecord currentRecord) {
 		this.currentRecord = currentRecord;
+	}
+	public ERPAccessRights getRights() {
+		return rights;
+	}
+	public void setRights(ERPAccessRights rights) {
+		this.rights = rights;
 	}
 	
 

@@ -22,6 +22,10 @@ public interface ERPConstants {
 	String LEAVE_STATUS_CANCELLED = "Cancelled";
 	String LEAVE_TYPE_LOP = "Without Pay";
 	String YES = "Y";
+	String ACCESS_RIGHT_COMMENT = "C";
+	String ACCESS_RIGHT_FILE = "F";
+	String ACCESS_RIGHT_RECORD = "R";
+	String ACCESS_RIGHT_PROJECT = "P";
 	
 	String RESPONSE_OK = "OK";
 	String DATE_FORMAT = "yyyy-MM-dd";
@@ -54,5 +58,6 @@ public interface ERPConstants {
 	
 	
 	String[] ADMIN_MAILS = {"ajinkyashiva@gmail.com"};
+
 
 }

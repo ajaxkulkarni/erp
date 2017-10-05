@@ -16,6 +16,7 @@ public class ERPProject {
 	private ERPField titleField;
 	private List<ERPField> fields;
 	private List<ERPRecord> records;
+	private ERPAccessRights accessRights;
 	
 	public Integer getId() {
 		return id;
@@ -85,6 +86,13 @@ public class ERPProject {
 	}
 	public void setRecords(List<ERPRecord> records) {
 		this.records = records;
+	}
+	
+	public ERPAccessRights getAccessRights() {
+		return accessRights;
+	}
+	public void setAccessRights(ERPAccessRights accessRights) {
+		this.accessRights = accessRights;
 	}
 	
 }

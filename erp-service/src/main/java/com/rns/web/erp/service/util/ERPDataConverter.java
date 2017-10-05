@@ -10,6 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
+import com.rns.web.erp.service.bo.domain.ERPAccessRights;
 import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPField;
@@ -43,6 +44,7 @@ import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
 import com.rns.web.erp.service.dao.impl.ERPProjectDAO;
 
 public class ERPDataConverter {
+
 
 	public static ERPUser getERPUser(ERPLoginDetails loginDetails) {
 		if(loginDetails == null) {
@@ -213,7 +215,26 @@ public class ERPDataConverter {
 	public static ERPProject getProject(ERPProjectUsers userProject) {
 		ERPProjects projects = userProject.getProject();
 		ERPProject project = getProjectBasic(projects);
+		ERPAccessRights rights = getAccessRights(userProject);
+		project.setAccessRights(rights);
 		return project;
+	}
+
+	public static ERPAccessRights getAccessRights(ERPProjectUsers userProject) {
+		ERPAccessRights rights = new ERPAccessRights();
+		if(StringUtils.contains(userProject.getAccessRights(), ERPConstants.ACCESS_RIGHT_RECORD)) {
+			rights.setRecordAccess(true);
+		}
+		if(StringUtils.contains(userProject.getAccessRights(), ERPConstants.ACCESS_RIGHT_FILE)) {
+			rights.setFileAccess(true);
+		}
+		if(StringUtils.contains(userProject.getAccessRights(), ERPConstants.ACCESS_RIGHT_COMMENT)) {
+			rights.setCommentAccess(true);
+		}
+		if(StringUtils.contains(userProject.getAccessRights(), ERPConstants.ACCESS_RIGHT_PROJECT)) {
+			rights.setProjectAccess(true);
+		}
+		return rights;
 	}
 
 	public static ERPProject getProjectBasic(ERPProjects projects) {

@@ -168,6 +168,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			for (ERPProjectUsers projectUser : projectUsers) {
 				if (StringUtils.equals(erpUser.getEmail(), projectUser.getUser().getEmail())) {
 					found = true;
+					ERPBusinessConverter.setAccessRights(erpUser, projectUser);
 					break;
 				}
 			}
@@ -233,6 +234,12 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			if(CollectionUtils.isNotEmpty(projectUsers)) {
 				for(ERPProjectUsers projectUser: projectUsers) {
 					ERPUser erpUser = ERPDataConverter.getERPUser(projectUser.getUser());
+					if(erpUser != null) {
+						erpUser.setRights(ERPDataConverter.getAccessRights(projectUser));
+						if(user.getId() != null && erpUser.getId().intValue() == user.getId().intValue()) {
+							project.setAccessRights(erpUser.getRights());
+						}
+					}
 					ERPEmployeeDetails erpEmp = new ERPUserDAO().getEmployeeByEmail(erpUser.getEmail(), session);
 					if(erpEmp != null) {
 						ERPDataConverter.setEmployee(erpEmp, erpUser);

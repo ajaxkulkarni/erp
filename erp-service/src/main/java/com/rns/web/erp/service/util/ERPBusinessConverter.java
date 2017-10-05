@@ -8,6 +8,7 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
+import com.rns.web.erp.service.bo.domain.ERPAccessRights;
 import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPField;
@@ -254,10 +255,32 @@ public class ERPBusinessConverter {
 			projectUser.setProject(projects);
 			projectUser.setStatus(ERPConstants.USER_STATUS_ACTIVE);
 			projectUser.setCreatedDate(new Date());
+			setAccessRights(erpUser, projectUser);
 		} else {
 			return null;
 		}
 		return projectUser;
+	}
+
+
+	public static void setAccessRights(ERPUser erpUser, ERPProjectUsers projectUser) {
+		ERPAccessRights rights = erpUser.getRights();
+		if(rights != null) {
+			StringBuilder accessRights = new StringBuilder();
+			if(rights.isRecordAccess()) {
+				accessRights.append(ERPConstants.ACCESS_RIGHT_RECORD);
+			}
+			if(rights.isFileAccess()) {
+				accessRights.append(ERPConstants.ACCESS_RIGHT_FILE);
+			}
+			if(rights.isCommentAccess()) {
+				accessRights.append(ERPConstants.ACCESS_RIGHT_COMMENT);
+			}
+			if(rights.isProjectAccess()) {
+				accessRights.append(ERPConstants.ACCESS_RIGHT_PROJECT);
+			}
+			projectUser.setAccessRights(accessRights.toString());
+		}
 	}
 
 	
