@@ -123,6 +123,17 @@ public class ERPProjectDAO {
 		query.setInteger("id", id);
 		return query.list();
 	}
+	
+	public Number getRecordFileCount(Integer id, Session session) {
+		Query query = session.createQuery("select count(*) from ERPProjectFiles where record.id=:id AND status!=:deleted");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setInteger("id", id);
+		List list = query.list();
+		if(CollectionUtils.isNotEmpty(list)) {
+			return (Number) list.get(0);
+		}
+		return null;
+	}
 
 	public ERPProjectFiles getRecordFile(Integer id, Session session) {
 		Query query = session.createQuery("from ERPProjectFiles where id=:id AND status!=:deleted");
@@ -151,6 +162,17 @@ public class ERPProjectDAO {
 		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
 		query.setInteger("id", id);
 		return query.list();
+	}
+	
+	public Number getRecordCommentCount(Integer id, Session session) {
+		Query query = session.createQuery("select count(*) from ERPProjectComments where record.id=:id AND status!=:deleted");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setInteger("id", id);
+		List list = query.list();
+		if(CollectionUtils.isNotEmpty(list)) {
+			return (Number) list.get(0);
+		}
+		return null;
 	}
 
 	public List<ERPProjectLog> getRecordLogs(Integer id, Session session) {

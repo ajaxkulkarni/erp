@@ -20,6 +20,8 @@ public class ERPRecord {
 	private List<ERPComment> comments;
 	private List<ERPLog> logs;
 	private ERPUser assignedUser;
+	private Integer fileCount;
+	private Integer commentCount;
 	
 	public Integer getId() {
 		return id;
@@ -116,6 +118,18 @@ public class ERPRecord {
 	}
 	public void setAssignedUser(ERPUser assignedUser) {
 		this.assignedUser = assignedUser;
+	}
+	public Integer getFileCount() {
+		return fileCount;
+	}
+	public void setFileCount(Integer fileCount) {
+		this.fileCount = fileCount;
+	}
+	public Integer getCommentCount() {
+		return commentCount;
+	}
+	public void setCommentCount(Integer commentCount) {
+		this.commentCount = commentCount;
 	}
 	
 }
