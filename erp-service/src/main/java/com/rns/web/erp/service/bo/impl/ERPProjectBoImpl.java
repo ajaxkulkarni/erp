@@ -16,6 +16,7 @@ import org.hibernate.Transaction;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.rns.web.erp.service.bo.api.ERPProjectBo;
+import com.rns.web.erp.service.bo.domain.ERPAccessRights;
 import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPFile;
@@ -235,9 +236,20 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				for(ERPProjectUsers projectUser: projectUsers) {
 					ERPUser erpUser = ERPDataConverter.getERPUser(projectUser.getUser());
 					if(erpUser != null) {
-						erpUser.setRights(ERPDataConverter.getAccessRights(projectUser));
-						if(user.getId() != null && erpUser.getId().intValue() == user.getId().intValue()) {
-							project.setAccessRights(erpUser.getRights());
+						if(projects.getCreatedBy() != null && projects.getCreatedBy().getId().intValue() == projectUser.getUser().getId().intValue()) {
+							//Creator has all rights ..
+							ERPAccessRights rights = new ERPAccessRights();
+							rights.setCommentAccess(true);
+							rights.setFileAccess(true);
+							rights.setRecordAccess(true);
+							rights.setProjectAccess(true);
+							erpUser.setRights(rights);
+							project.setAccessRights(rights);
+						} else {
+							erpUser.setRights(ERPDataConverter.getAccessRights(projectUser));
+							if(user.getId() != null && erpUser.getId().intValue() == user.getId().intValue()) {
+								project.setAccessRights(erpUser.getRights());
+							}
 						}
 					}
 					ERPEmployeeDetails erpEmp = new ERPUserDAO().getEmployeeByEmail(erpUser.getEmail(), session);
