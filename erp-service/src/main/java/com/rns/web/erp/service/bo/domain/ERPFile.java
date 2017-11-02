@@ -15,6 +15,7 @@ public class ERPFile {
 	private BigDecimal fileSize;
 	private Date createdDate;
 	private ERPUser createdBy;
+	private String status;
 	
 	public Integer getId() {
 		return id;
@@ -63,6 +64,12 @@ public class ERPFile {
 	}
 	public void setCreatedBy(ERPUser createdBy) {
 		this.createdBy = createdBy;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 }

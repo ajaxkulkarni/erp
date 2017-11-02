@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import com.rns.web.erp.service.bo.api.ERPProjectBo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
+import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPFile;
 import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
@@ -108,7 +109,7 @@ public class ERPProjectController {
 		LoggingUtil.logObject("Get project Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			ERPProject project = projectBo.getProject(request.getUser(), "REC");
+			ERPProject project = projectBo.getProject(request.getUser(), "REC", null);
 			request.getUser().setCurrentProject(project);
 			response.setUser(request.getUser());
 		} catch (Exception e) {
@@ -214,9 +215,13 @@ public class ERPProjectController {
 				file.setFileType(fileDetail.getType());
 				file.setFilePath(fileDetail.getFileName());
 				erpUser.getCurrentRecord().setFile(file);
-				result = projectBo.updateFile(erpUser);
+				ERPFile responseFile = projectBo.updateFile(erpUser);
+				result = responseFile.getStatus();
+				CommonUtils.setResponse(response, result);
+				erpUser.getCurrentRecord().setFile(responseFile);
+				response.setUser(erpUser);
 			}
-			CommonUtils.setResponse(response, result);
+			
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -235,7 +240,10 @@ public class ERPProjectController {
 		LoggingUtil.logObject("Update file record Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			CommonUtils.setResponse(response, projectBo.updateFile(request.getUser()));
+			ERPFile file = projectBo.updateFile(request.getUser());
+			CommonUtils.setResponse(response, file.getStatus());
+			request.getUser().getCurrentRecord().setFile(file);
+			response.setUser(request.getUser());
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(-999);
@@ -272,7 +280,10 @@ public class ERPProjectController {
 		LoggingUtil.logObject("Update comment Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			CommonUtils.setResponse(response, projectBo.updateComment(request.getUser()));
+			ERPComment responseComment = projectBo.updateComment(request.getUser());
+			CommonUtils.setResponse(response, responseComment.getStatus());
+			request.getUser().getCurrentRecord().setComment(responseComment);
+			response.setUser(request.getUser());
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(-999);

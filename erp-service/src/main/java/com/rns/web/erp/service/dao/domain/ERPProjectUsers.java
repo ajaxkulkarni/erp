@@ -28,6 +28,7 @@ public class ERPProjectUsers {
 	private ERPProjects project;
 	private ERPLoginDetails user;
 	private String accessRights;
+	private String emailSettings;
 	
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -97,6 +98,14 @@ public class ERPProjectUsers {
 	}
 	public void setAccessRights(String accessRights) {
 		this.accessRights = accessRights;
+	}
+	
+	@Column(name = "email_settings")
+	public String getEmailSettings() {
+		return emailSettings;
+	}
+	public void setEmailSettings(String emailSettings) {
+		this.emailSettings = emailSettings;
 	}
 	
 }

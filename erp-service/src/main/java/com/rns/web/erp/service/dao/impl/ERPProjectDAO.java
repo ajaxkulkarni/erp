@@ -100,7 +100,7 @@ public class ERPProjectDAO {
 	}
 
 	public List<ERPProjectRecords> getProjectRecords(Integer id, Session session) {
-		Query query = session.createQuery("from ERPProjectRecords where project.id=:id AND status!=:deleted order by recordDate DESC");
+		Query query = session.createQuery("from ERPProjectRecords where project.id=:id AND status!=:deleted order by recordDate DESC,createdDate DESC");
 		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
 		query.setInteger("id", id);
 		return query.list();

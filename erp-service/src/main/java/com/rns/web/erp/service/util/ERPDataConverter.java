@@ -255,6 +255,7 @@ public class ERPDataConverter {
 		record.setRecordDate(rec.getRecordDate());
 		record.setRecordDateString(CommonUtils.getDate(rec.getRecordDate()));
 		record.setAssignedUser(ERPDataConverter.getERPUser(rec.getAssignedTo()));
+		record.setColor(rec.getColor());
 		ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
 		record.setFileCount(((Long) erpProjectDAO.getRecordFileCount(rec.getId(), session)).intValue());
 		record.setCommentCount(((Long) erpProjectDAO.getRecordCommentCount(rec.getId(), session)).intValue());
@@ -315,4 +316,13 @@ public class ERPDataConverter {
 		return erpLog;
 	}
 	
+	public static ERPAccessRights createAllAccess() {
+		ERPAccessRights rights = new ERPAccessRights();
+		rights.setCommentAccess(true);
+		rights.setFileAccess(true);
+		rights.setRecordAccess(true);
+		rights.setProjectAccess(true);
+		return rights;
+	}
+
 }

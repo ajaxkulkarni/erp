@@ -31,12 +31,22 @@ public interface ERPConstants {
 	String DATE_FORMAT = "yyyy-MM-dd";
 	
 	int MAX_LOG_RECORDS = 20;
+	int LOG_MAX_LENGTH = 999;
 	
 	String MAIL_TYPE_SUBSCRIPTION = "subscriptionMail";
 	String MAIL_TYPE_SUBSCRIPTION_ADMIN = "subscriptionMailAdmin";
 	String MAIL_TYPE_PASSWORD_SENT = "passwordSentMail";
 	String MAIL_TYPE_PASSWORD_CHANGED = "passwordChanged";
 	String MAIL_TYPE_FORGOT_PASSWORD = "forgotPassword";
+	String MAIL_TYPE_RECORD_CHANGED = "recordChanged";
+	
+	String NOTIFICATION_RECORD_UPDATE = "Record update";
+	String NOTIFICATION_RECORD_ADDED = "Record added";
+	String NOTIFICATION_RECORD_DELETED = "Record deleted";
+	String NOTIFICATION_COMMENT_ADDED = "New comment";
+	String NOTIFICATION_COMMENT_DELETED = "Comment deleted";
+	String NOTIFICATION_FILE_ADDED = "File uploaded";
+	String NOTIFICATION_FILE_DELETED = "File deleted";
 	
 	
 	String ERROR_INVALID_USER_DETAILS = "Invalid User Details!";

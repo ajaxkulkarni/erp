@@ -291,5 +291,9 @@ public class CommonUtils {
 		}
 		return null;
 	}
+
+	public static Date getWeekFirstDate() {
+		return null;
+	}
 	
 }

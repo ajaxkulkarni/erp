@@ -22,6 +22,7 @@ public class ERPRecord {
 	private ERPUser assignedUser;
 	private Integer fileCount;
 	private Integer commentCount;
+	private String color;
 	
 	public Integer getId() {
 		return id;
@@ -130,6 +131,12 @@ public class ERPRecord {
 	}
 	public void setCommentCount(Integer commentCount) {
 		this.commentCount = commentCount;
+	}
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
 	}
 	
 }

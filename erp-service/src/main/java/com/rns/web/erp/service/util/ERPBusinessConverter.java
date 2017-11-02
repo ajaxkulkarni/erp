@@ -293,6 +293,7 @@ public class ERPBusinessConverter {
 		records.setProject(project);
 		records.setRecordDate(currentRecord.getRecordDate());
 		records.setStatus(ERPConstants.USER_STATUS_ACTIVE);
+		records.setColor(currentRecord.getColor());
 		return records;
 	}
 	

@@ -20,22 +20,30 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.rns.web.erp.service.bo.domain.ERPLog;
+import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
+import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 
 public class ERPMailUtil implements Runnable, ERPConstants {
 
 	private static final String READ_RECEIPT_MAIL = "talnoterns@gmail.com";
-	private static final String MAIL_ID = "contact@hreasy.in";
-	private static final String MAIL_AUTH = "true";
+	
 	private static final String MAIL_HOST = "mail.hreasy.in";
-	//private static final String MAIL_HOST = "smtp.zoho.com";
-	private static final String MAIL_PORT = "25";
+	private static final String MAIL_ID = "contact@hreasy.in";
 	private static final String MAIL_PASSWORD = "contact2017";
+	
+	private static final String MAIL_AUTH = "true";
+	//private static final String MAIL_HOST = "smtp.zoho.com";
+	private static final String MAIL_PORT = "587";
+	
 
 	private String type;
 	private ERPUser user;
+	private List<String> users;
 	private String messageText;
 	private String mailSubject;
+	private ERPRecord record;
 	
 	public void setUser(ERPUser user) {
 		this.user = user;
@@ -72,7 +80,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 		props.put("mail.smtp.auth", MAIL_AUTH);
 		//props.put("mail.smtp.socketFactory.port", "465"); //PROD
 		//props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); //PROD
-		// props.put("mail.smtp.starttls.enable", "true");
+		//props.put("mail.smtp.starttls.enable", "true");
 		props.put("mail.smtp.host", MAIL_HOST);
 		props.put("mail.smtp.port", MAIL_PORT);
 		
@@ -99,12 +107,32 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 					result = StringUtils.replace(result, "{company}", CommonUtils.getStringValue(user.getCompany().getName()));
 				}
 			}
+			if(record != null && CollectionUtils.isNotEmpty(record.getLogs())) {
+				result = StringUtils.replace(result, "{recordTitle}", record.getTitleField().getValue());
+				result = StringUtils.replace(result, "{recordType}", record.getStatus());
+				if(CollectionUtils.isNotEmpty(record.getLogs())) {
+					String logMessage = "";
+					for(ERPLog log: record.getLogs()) {
+						logMessage = logMessage + "<p>" + log.getLog() + "</p>";
+					}
+					result = StringUtils.replace(result, "{recordLog}", logMessage);
+				} else {
+					result = StringUtils.replace(result, "{recordLog}", "");
+				}
+				if(StringUtils.isNotBlank(mailSubject)) {
+					message.setSubject(mailSubject);
+				}
+			}
 			if (StringUtils.isNotBlank(messageText)) {
 				result = StringUtils.replace(result, "{message}", messageText);
 			}
-			message.setContent(result, "text/html");
+			//message.setContent(result, "text/html");
+			message.setContent(result, "text/html; charset=utf-8");
 			if(StringUtils.contains(type, "Admin")) {
 				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(getEmails(Arrays.asList(ADMIN_MAILS))));
+			} else if(CollectionUtils.isNotEmpty(users)) {
+				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("talnoterns@gmail.com"));
+				message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(getEmails(users)));
 			} else {
 				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
 			}
@@ -170,6 +198,26 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 	}*/
 
 
+	public ERPRecord getRecord() {
+		return record;
+	}
+
+	public void setRecord(ERPRecord record) {
+		this.record = record;
+	}
+
+	public void setUsers(List<String> users) {
+		this.users = users;
+	}
+
+	public String getMailSubject() {
+		return mailSubject;
+	}
+
+	public void setMailSubject(String mailSubject) {
+		this.mailSubject = mailSubject;
+	}
+
 	private static Map<String, String> MAIL_TEMPLATES = Collections.unmodifiableMap(new HashMap<String, String>() {
 		{
 			put(MAIL_TYPE_SUBSCRIPTION, "subscription_mail.html");
@@ -177,6 +225,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			put(MAIL_TYPE_PASSWORD_SENT, "password_sent_mail.html");
 			put(MAIL_TYPE_PASSWORD_CHANGED, "password_changed_mail.html");
 			put(MAIL_TYPE_FORGOT_PASSWORD, "forgot_password.html");
+			put(MAIL_TYPE_RECORD_CHANGED, "record_update.html");
 		}
 	});
 
@@ -187,6 +236,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			put(MAIL_TYPE_PASSWORD_SENT, "Your account is now active!");
 			put(MAIL_TYPE_PASSWORD_CHANGED, "Your password is changed!");
 			put(MAIL_TYPE_FORGOT_PASSWORD, "Temporary password for HREasy login");
+			put(MAIL_TYPE_RECORD_CHANGED, "Project Name | Record name");
 		}
 	});
 

@@ -27,6 +27,7 @@ public class ERPProjectRecords {
 	private ERPLoginDetails createdBy;
 	private ERPProjects project;
 	private ERPLoginDetails assignedTo;
+	private String color;
 	
 	
 	
@@ -93,6 +94,14 @@ public class ERPProjectRecords {
 	}
 	public void setAssignedTo(ERPLoginDetails assignedTo) {
 		this.assignedTo = assignedTo;
+	}
+	
+	@Column(name = "color")
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
 	}
 	
 }
