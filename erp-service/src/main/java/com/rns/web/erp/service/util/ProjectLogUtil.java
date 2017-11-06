@@ -296,11 +296,11 @@ public class ProjectLogUtil implements ERPConstants {
 			if(StringUtils.isBlank(user.getEmailSettings())) {
 				continue;
 			}
-			if(StringUtils.contains(PROJECT_MAIL_ALL_RECORDS, user.getEmailSettings())) {
+			if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_ALL_RECORDS)) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
-			} else if(StringUtils.contains(PROJECT_MAIL_ASSIGNED_RECORDS, user.getEmailSettings()) && userId == record.getAssignedTo().getId().intValue()) {
+			} else if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_ASSIGNED_RECORDS) && userId == record.getAssignedTo().getId().intValue()) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
-			} else if(StringUtils.contains(PROJECT_MAIL_CREATED_RECORDS, user.getEmailSettings()) && userId == record.getCreatedBy().getId().intValue()) {
+			} else if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_CREATED_RECORDS) && userId == record.getCreatedBy().getId().intValue()) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
 			}
 			
