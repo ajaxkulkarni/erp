@@ -293,7 +293,27 @@ public class CommonUtils {
 	}
 
 	public static Date getWeekFirstDate() {
-		return null;
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+		return c.getTime();
+	}
+	
+	public static Date getWeekLastDate() {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+		return c.getTime();
+	}
+	
+	public static Date getMonthFirstDate() {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.DAY_OF_MONTH, 1);
+		return c.getTime();
+	}
+	
+	public static Date getMonthLastDate() {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
+		return c.getTime();
 	}
 	
 }

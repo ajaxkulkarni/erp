@@ -214,6 +214,9 @@ public class ERPDataConverter {
 	
 	public static ERPProject getProject(ERPProjectUsers userProject) {
 		ERPProjects projects = userProject.getProject();
+		if(StringUtils.equals(projects.getStatus(), ERPConstants.USER_STATUS_DELETED)) {
+			return null;
+		}
 		ERPProject project = getProjectBasic(projects);
 		ERPAccessRights rights = getAccessRights(userProject);
 		project.setAccessRights(rights);

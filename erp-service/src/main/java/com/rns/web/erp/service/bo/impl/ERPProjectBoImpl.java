@@ -20,6 +20,7 @@ import com.rns.web.erp.service.bo.domain.ERPComment;
 import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPFile;
 import com.rns.web.erp.service.bo.domain.ERPLog;
+import com.rns.web.erp.service.bo.domain.ERPMailConfig;
 import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
@@ -79,24 +80,25 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				if (projects == null) {
 					result = ERROR_PROJECT_NOT_FOUND;
 				} else {
-					projects.setTitle(currentProject.getTitle());
-					projects.setDescription(currentProject.getDescription());
-					if(StringUtils.isNotEmpty(currentProject.getStatus())) {
+					if(StringUtils.equals(USER_STATUS_DELETED, currentProject.getStatus())) {
+						//Delete request
 						projects.setStatus(currentProject.getStatus());
-					}
-					projects.setStatus(USER_STATUS_ACTIVE);
-
-					List<ERPProjectUsers> projectUsers = new ERPProjectDAO().getProjectUsers(currentProject.getId(),
-							session);
-					if (CollectionUtils.isEmpty(projectUsers)) {
-						// Add all users
-						addAllUsers(currentProject, session, projects);
-						ProjectLogUtil.addProjectUsersLog(currentProject.getUsers(), projects, session, loginDetails);
 					} else {
-						// Delete users
-						ProjectLogUtil.projectUsersDeletedLog(deleteUnwantedUsers(currentProject, projectUsers, session), loginDetails, session);
-						// Add new users
-						ProjectLogUtil.projectUsersAddedLog(addNewUsers(currentProject, session, projects, projectUsers), loginDetails, session);
+						projects.setTitle(currentProject.getTitle());
+						projects.setDescription(currentProject.getDescription());
+						projects.setStatus(USER_STATUS_ACTIVE);
+						List<ERPProjectUsers> projectUsers = new ERPProjectDAO().getProjectUsers(currentProject.getId(),
+								session);
+						if (CollectionUtils.isEmpty(projectUsers)) {
+							// Add all users
+							addAllUsers(currentProject, session, projects);
+							ProjectLogUtil.addProjectUsersLog(currentProject.getUsers(), projects, session, loginDetails);
+						} else {
+							// Delete users
+							ProjectLogUtil.projectUsersDeletedLog(deleteUnwantedUsers(currentProject, projectUsers, session), loginDetails, session);
+							// Add new users
+							ProjectLogUtil.projectUsersAddedLog(addNewUsers(currentProject, session, projects, projectUsers), loginDetails, session);
+						}
 					}
 					
 				}
@@ -207,7 +209,9 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			if(CollectionUtils.isNotEmpty(projectUsers)) {
 				for(ERPProjectUsers userProject: projectUsers) {
 					ERPProject project = ERPDataConverter.getProject(userProject);
-					userProjects.add(project);
+					if(project != null) {
+						userProjects.add(project);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -282,10 +286,9 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				if(StringUtils.equals(timeRange, "ALL")) {		
 					records = erpProjectDAO.getProjectRecords(projects.getId(), session);
 				} else if (StringUtils.equals("WEEK", timeRange)) {
-					Date weekStart = CommonUtils.getWeekFirstDate();
-					records = erpProjectDAO.getProjectRecords(projects.getId(), session);
+					records = erpProjectDAO.getProjectRecords(projects.getId(),CommonUtils.getWeekFirstDate(), CommonUtils.getWeekLastDate(), session);
 				} else {
-					records = erpProjectDAO.getProjectRecords(projects.getId(), session);
+					records = erpProjectDAO.getProjectRecords(projects.getId(),CommonUtils.getMonthFirstDate(), CommonUtils.getMonthLastDate(), session);
 				}
 				if(CollectionUtils.isNotEmpty(records)) {
 					for(ERPProjectRecords rec: records) {
@@ -757,6 +760,87 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 		}
 		return comment;
 
+	}
+
+	public String updateMailSettings(ERPUser user) {
+		if (user == null || user.getCurrentProject() == null || user.getCurrentProject().getMailConfig() == null) {
+			return ERROR_INVALID_USER_DETAILS;
+		}
+		ERPProject currentProject = user.getCurrentProject();
+		String result = RESPONSE_OK;
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPLoginDetails loginDetails = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
+			if (currentProject.getId() != null) {
+				ERPProjects projects = new ERPProjectDAO().getProjectById(currentProject.getId(), session);
+				if (projects == null) {
+					result = ERROR_PROJECT_NOT_FOUND;
+				} else {
+					ERPProjectUsers users = new ERPProjectDAO().getProjectUser(projects.getId(), loginDetails.getId(), session);
+					if(users != null) {
+						StringBuilder builder = new StringBuilder();
+						if(currentProject.getMailConfig().isAssignedToMails()) {
+							builder.append(PROJECT_MAIL_ASSIGNED_RECORDS);
+						}
+						if(currentProject.getMailConfig().isCreatedByMails()) {
+							builder.append(PROJECT_MAIL_CREATED_RECORDS);
+						}
+						if(currentProject.getMailConfig().isAllMails()) {
+							builder.append(PROJECT_MAIL_ALL_RECORDS);
+						}
+						users.setEmailSettings(builder.toString());
+					}
+					
+				} 
+			} 
+			tx.commit();
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			result = ERROR_IN_PROCESSING;
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return result;
+	}
+
+	public ERPUser getMailSettings(ERPUser user) {
+		if (user == null || user.getCurrentProject() == null) {
+			return null;
+		}
+		ERPProject currentProject = user.getCurrentProject();
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPLoginDetails loginDetails = new ERPUserDAO().getLoginDetails(user.getEmail(), session);
+			if (currentProject.getId() != null) {
+				ERPProjects projects = new ERPProjectDAO().getProjectById(currentProject.getId(), session);
+				if (projects != null) {
+					ERPMailConfig config = new ERPMailConfig();
+					ERPProjectUsers users = new ERPProjectDAO().getProjectUser(projects.getId(), loginDetails.getId(), session);
+					if(users != null) {
+						if(StringUtils.contains(users.getEmailSettings(), PROJECT_MAIL_ALL_RECORDS)) {
+							config.setAllMails(true);
+						}
+						if(StringUtils.contains(users.getEmailSettings(), PROJECT_MAIL_ASSIGNED_RECORDS)) {
+							config.setAssignedToMails(true);
+						}
+						if(StringUtils.contains(users.getEmailSettings(), PROJECT_MAIL_CREATED_RECORDS)) {
+							config.setCreatedByMails(true);
+						}
+					}
+					currentProject.setMailConfig(config);
+				} 
+			} 
+			tx.commit();
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return user;
 	}
 
 

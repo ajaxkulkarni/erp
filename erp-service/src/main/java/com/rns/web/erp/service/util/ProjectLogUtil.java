@@ -24,11 +24,8 @@ import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
 import com.rns.web.erp.service.dao.domain.ERPProjects;
 import com.rns.web.erp.service.dao.impl.ERPProjectDAO;
 
-public class ProjectLogUtil {
+public class ProjectLogUtil implements ERPConstants {
 
-	private static final String ACTION_DELETE_ITEM = "DeleteItem";
-	private static final String ACTION_NEW_ITEM = "NewItem";
-	private static final String ACTION_CHANGE_ITEM = "ChangeItem";
 
 	public static void projectCreateLog(Session session, ERPLoginDetails loginDetails, ERPProjects projects) {
 		String msg = loginDetails.getName() + " created the project '" + CommonUtils.getStringValue(projects.getTitle()) + "'";
@@ -299,11 +296,11 @@ public class ProjectLogUtil {
 			if(StringUtils.isBlank(user.getEmailSettings())) {
 				continue;
 			}
-			if(StringUtils.contains("X", user.getEmailSettings())) {
+			if(StringUtils.contains(PROJECT_MAIL_ALL_RECORDS, user.getEmailSettings())) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
-			} else if(StringUtils.contains("A", user.getEmailSettings()) && userId == record.getAssignedTo().getId().intValue()) {
+			} else if(StringUtils.contains(PROJECT_MAIL_ASSIGNED_RECORDS, user.getEmailSettings()) && userId == record.getAssignedTo().getId().intValue()) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
-			} else if(StringUtils.contains("C", user.getEmailSettings()) && userId == record.getCreatedBy().getId().intValue()) {
+			} else if(StringUtils.contains(PROJECT_MAIL_CREATED_RECORDS, user.getEmailSettings()) && userId == record.getCreatedBy().getId().intValue()) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
 			}
 			

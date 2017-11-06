@@ -17,6 +17,7 @@ public class ERPProject {
 	private List<ERPField> fields;
 	private List<ERPRecord> records;
 	private ERPAccessRights accessRights;
+	private ERPMailConfig mailConfig;
 	
 	public Integer getId() {
 		return id;
@@ -93,6 +94,12 @@ public class ERPProject {
 	}
 	public void setAccessRights(ERPAccessRights accessRights) {
 		this.accessRights = accessRights;
+	}
+	public ERPMailConfig getMailConfig() {
+		return mailConfig;
+	}
+	public void setMailConfig(ERPMailConfig mailConfig) {
+		this.mailConfig = mailConfig;
 	}
 	
 }

@@ -21,4 +21,6 @@ public interface ERPProjectBo {
 	ERPFile updateFile(ERPUser user);
 	InputStream getFile(ERPFile file);
 	ERPComment updateComment(ERPUser user);
+	String updateMailSettings(ERPUser user);
+	ERPUser getMailSettings(ERPUser user);
 }

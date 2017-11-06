@@ -27,6 +27,14 @@ public interface ERPConstants {
 	String ACCESS_RIGHT_RECORD = "R";
 	String ACCESS_RIGHT_PROJECT = "P";
 	
+	String PROJECT_MAIL_CREATED_RECORDS = "C";
+	String PROJECT_MAIL_ASSIGNED_RECORDS = "A";
+	String PROJECT_MAIL_ALL_RECORDS = "X";
+	
+	String ACTION_DELETE_ITEM = "DeleteItem";
+	String ACTION_NEW_ITEM = "NewItem";
+	String ACTION_CHANGE_ITEM = "ChangeItem";
+	
 	String RESPONSE_OK = "OK";
 	String DATE_FORMAT = "yyyy-MM-dd";
 	

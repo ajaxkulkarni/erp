@@ -1,5 +1,6 @@
 package com.rns.web.erp.service.dao.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -180,6 +181,27 @@ public class ERPProjectDAO {
 		query.setInteger("id", id);
 		query.setMaxResults(ERPConstants.MAX_LOG_RECORDS);
 		return query.list();
+	}
+
+	public List<ERPProjectRecords> getProjectRecords(Integer id, Date firstDate, Date lastDate, Session session) {
+		Query query = session.createQuery("from ERPProjectRecords where project.id=:id AND status!=:deleted AND recordDate>=:startDate AND recordDate<=:endDate order by recordDate DESC,createdDate DESC");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setInteger("id", id);
+		query.setDate("startDate", firstDate);
+		query.setDate("endDate", lastDate);
+		return query.list();
+	}
+
+	public ERPProjectUsers getProjectUser(Integer id, Integer userId, Session session) {
+		Query query = session.createQuery("from ERPProjectUsers where project.id=:id AND user.id=:userId AND status!=:deleted");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setInteger("id", id);
+		query.setInteger("userId", userId);
+		List<ERPProjectUsers> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
 	}
 
 }

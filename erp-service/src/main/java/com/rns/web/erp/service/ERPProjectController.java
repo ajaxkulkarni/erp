@@ -109,7 +109,7 @@ public class ERPProjectController {
 		LoggingUtil.logObject("Get project Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			ERPProject project = projectBo.getProject(request.getUser(), "REC", null);
+			ERPProject project = projectBo.getProject(request.getUser(), "REC", request.getRequestType());
 			request.getUser().setCurrentProject(project);
 			response.setUser(request.getUser());
 		} catch (Exception e) {
@@ -290,6 +290,43 @@ public class ERPProjectController {
 			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
 		}
 		LoggingUtil.logObject("Update comment Response :", response);
+		return response;
+	}
+	
+	@POST
+	@Path("/updateMailSettings")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse updateMailSettings(ERPServiceRequest request) {
+		LoggingUtil.logObject("Update mail settings Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			
+			CommonUtils.setResponse(response, projectBo.updateMailSettings(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Update mail settings Response :", response);
+		return response;
+	}
+	
+	@POST
+	@Path("/getMailSettings")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse getMailSettings(ERPServiceRequest request) {
+		LoggingUtil.logObject("Get mail settings Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			response.setUser(projectBo.getMailSettings(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Get mail settings response", response);
 		return response;
 	}
 }
