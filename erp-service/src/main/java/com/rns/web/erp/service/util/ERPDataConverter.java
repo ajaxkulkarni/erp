@@ -262,6 +262,7 @@ public class ERPDataConverter {
 		ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
 		record.setFileCount(((Long) erpProjectDAO.getRecordFileCount(rec.getId(), session)).intValue());
 		record.setCommentCount(((Long) erpProjectDAO.getRecordCommentCount(rec.getId(), session)).intValue());
+		record.setFollowUp(rec.getFollowUp() != null ? true : false);
 		for(ERPProjectFields fields: projectFields) {
 			ERPProjectRecordValues values = erpProjectDAO.getRecordValueByField(fields.getId(),rec.getId(), session);
 			ERPField field = new ERPField();

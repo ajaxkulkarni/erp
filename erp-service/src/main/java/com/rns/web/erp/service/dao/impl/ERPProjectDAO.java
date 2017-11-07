@@ -204,4 +204,11 @@ public class ERPProjectDAO {
 		return list.get(0);
 	}
 
+	public List<ERPProjectRecords> getFollowUpRecords(Session session, Date date) {
+		Query query = session.createQuery("from ERPProjectRecords where followUp=:date AND status!=:deleted order by recordDate DESC,createdDate DESC");
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setDate("date", date);
+		return query.list();
+	}
+
 }

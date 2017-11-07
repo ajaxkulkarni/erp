@@ -194,6 +194,15 @@ public class ERPUser implements Comparable<ERPUser> {
 		}
 		return -1;
 	}
+	
+	@Override
+	public int hashCode() {
+		if(id == null) {
+			return super.hashCode();
+		}
+		return id;
+	}
+	
 	public List<ERPUserExperience> getExperiences() {
 		return experiences;
 	}

@@ -28,7 +28,7 @@ public class ERPProjectRecords {
 	private ERPProjects project;
 	private ERPLoginDetails assignedTo;
 	private String color;
-	
+	private Date followUp;
 	
 	
 	@Id
@@ -102,6 +102,14 @@ public class ERPProjectRecords {
 	}
 	public void setColor(String color) {
 		this.color = color;
+	}
+	
+	@Column(name = "follow_up")
+	public Date getFollowUp() {
+		return followUp;
+	}
+	public void setFollowUp(Date followUp) {
+		this.followUp = followUp;
 	}
 	
 }

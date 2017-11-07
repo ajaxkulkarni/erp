@@ -2,11 +2,13 @@ package com.rns.web.erp.service.util;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -44,6 +46,11 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 	private String messageText;
 	private String mailSubject;
 	private ERPRecord record;
+	private List<ERPRecord> records;
+	
+	public void setRecords(List<ERPRecord> records) {
+		this.records = records;
+	}
 	
 	public void setUser(ERPUser user) {
 		this.user = user;
@@ -106,6 +113,21 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 				if(user.getCompany() != null) {
 					result = StringUtils.replace(result, "{company}", CommonUtils.getStringValue(user.getCompany().getName()));
 				}
+			}
+			if (CollectionUtils.isNotEmpty(records)) {
+				StringBuilder builder = new StringBuilder();
+				int count = 1;
+				for (ERPRecord rec : records) {
+					builder.append("<tr>")
+					.append("<td>").append(count++).append("</td>")
+					.append("<td>").append(rec.getTitleField().getValue()).append("</td>")
+					.append("<td>").append(rec.getProjectName()).append("</td>")
+					.append("<td>").append(rec.getAssignedUser() != null ? rec.getAssignedUser().getName() : "").append("</td>")
+					.append("</tr>");
+				}
+				result = StringUtils.replace(result, "{body}", builder.toString());
+			} else {
+				result = StringUtils.replace(result, "{body}", "");
 			}
 			if(record != null && CollectionUtils.isNotEmpty(record.getLogs())) {
 				result = StringUtils.replace(result, "{recordTitle}", record.getTitleField().getValue());
@@ -226,6 +248,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			put(MAIL_TYPE_PASSWORD_CHANGED, "password_changed_mail.html");
 			put(MAIL_TYPE_FORGOT_PASSWORD, "forgot_password.html");
 			put(MAIL_TYPE_RECORD_CHANGED, "record_update.html");
+			put(MAIL_TYPE_FOLLOW_UP, "follow_up_mail.html");
 		}
 	});
 
@@ -237,6 +260,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			put(MAIL_TYPE_PASSWORD_CHANGED, "Your password is changed!");
 			put(MAIL_TYPE_FORGOT_PASSWORD, "Temporary password for HREasy login");
 			put(MAIL_TYPE_RECORD_CHANGED, "Project Name | Record name");
+			put(MAIL_TYPE_FOLLOW_UP, "HR Easy | Follow up");
 		}
 	});
 

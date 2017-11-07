@@ -47,6 +47,7 @@ public interface ERPConstants {
 	String MAIL_TYPE_PASSWORD_CHANGED = "passwordChanged";
 	String MAIL_TYPE_FORGOT_PASSWORD = "forgotPassword";
 	String MAIL_TYPE_RECORD_CHANGED = "recordChanged";
+	String MAIL_TYPE_FOLLOW_UP = "followUpMail";
 	
 	String NOTIFICATION_RECORD_UPDATE = "Record update";
 	String NOTIFICATION_RECORD_ADDED = "Record added";

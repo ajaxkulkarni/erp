@@ -294,6 +294,11 @@ public class ERPBusinessConverter {
 		records.setRecordDate(currentRecord.getRecordDate());
 		records.setStatus(ERPConstants.USER_STATUS_ACTIVE);
 		records.setColor(currentRecord.getColor());
+		if(currentRecord.isFollowUp()) {
+			records.setFollowUp(records.getRecordDate());
+		} else {
+			records.setFollowUp(null);
+		}
 		return records;
 	}
 	

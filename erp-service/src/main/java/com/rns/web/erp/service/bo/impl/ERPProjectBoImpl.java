@@ -496,6 +496,11 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					records.setStatus(currentRecord.getStatus());
 					records.setRecordDate(currentRecord.getRecordDate());
 					records.setColor(currentRecord.getColor());
+					if(currentRecord.isFollowUp()) {
+						records.setFollowUp(records.getRecordDate());
+					} else {
+						records.setFollowUp(null);
+					}
 					if(records.getAssignedTo() == null || (currentRecord.getAssignedUser() != null && records.getAssignedTo().getId().intValue() != currentRecord.getAssignedUser().getId().intValue())) {
 						isRecordAssigned = true;
 					}

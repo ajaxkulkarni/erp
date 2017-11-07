@@ -23,6 +23,8 @@ public class ERPRecord {
 	private Integer fileCount;
 	private Integer commentCount;
 	private String color;
+	private String projectName;
+	private boolean followUp;
 	
 	public Integer getId() {
 		return id;
@@ -137,6 +139,18 @@ public class ERPRecord {
 	}
 	public void setColor(String color) {
 		this.color = color;
+	}
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	public boolean isFollowUp() {
+		return followUp;
+	}
+	public void setFollowUp(boolean followUp) {
+		this.followUp = followUp;
 	}
 	
 }

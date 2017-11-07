@@ -12,4 +12,6 @@ public interface ERPAdminBo {
 	List<ERPUser> getUsersByStatus(String status);
 	void saveSalarySlips();
 	
+	void followUpRecords();
+	
 }

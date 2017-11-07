@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,13 +21,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.rns.web.erp.service.bo.api.ERPAdminBo;
 import com.rns.web.erp.service.bo.domain.ERPFilter;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
+import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPCompanyLeavePolicy;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeDetails;
 import com.rns.web.erp.service.dao.domain.ERPEmployeeLeaveBalance;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
+import com.rns.web.erp.service.dao.domain.ERPProjectFields;
+import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.impl.ERPAdminDAO;
+import com.rns.web.erp.service.dao.impl.ERPProjectDAO;
 import com.rns.web.erp.service.dao.impl.ERPUserDAO;
 import com.rns.web.erp.service.util.CommonUtils;
 import com.rns.web.erp.service.util.ERPConstants;
@@ -189,6 +196,62 @@ public class ERPAdminBoImpl implements ERPAdminBo, ERPConstants {
 			CommonUtils.closeSession(session);
 		}
 	}
+
+	@Scheduled(cron = "0 30 9 * * *")
+	public void followUpRecords() {
+		LoggingUtil.logMessage("########### START OF FOLLOW UP PROCESS ##############");
+		Session session = null;
+		Map<ERPUser, List<ERPRecord>> mailRecords = new HashMap<ERPUser, List<ERPRecord>>();
+		try {
+			session = this.sessionFactory.openSession();
+			List<ERPProjectRecords> followUpRecords = new ERPProjectDAO().getFollowUpRecords(session, new Date());
+			if(CollectionUtils.isNotEmpty(followUpRecords)) {
+				for(ERPProjectRecords records: followUpRecords) {
+					List<ERPProjectFields> projectFields = new ERPProjectDAO().getProjectFields(records.getProject().getId(), session);
+					ERPRecord record = ERPDataConverter.getRecord(session, projectFields, records);
+					record.setProjectName(records.getProject().getTitle());
+					if(record != null) {
+						if(record.getAssignedUser() != null) {
+							addUserEmail(mailRecords, record, record.getAssignedUser());
+						}
+						if(record.getCreatedUser() != null) {
+							addUserEmail(mailRecords, record, record.getCreatedUser());
+						}
+					}
+				}
+			}
+			if(CollectionUtils.isNotEmpty(mailRecords.values())) {
+				for(Entry<ERPUser, List<ERPRecord>> e: mailRecords.entrySet()) {
+					if(CollectionUtils.isNotEmpty(e.getValue())) {
+						ERPMailUtil mailUtil = new ERPMailUtil(MAIL_TYPE_FOLLOW_UP);
+						mailUtil.setUser(e.getKey());
+						mailUtil.setRecords(e.getValue());
+						executor.execute(mailUtil);
+					}
+				}
+			}
+			LoggingUtil.logMessage("########### END OF FOLLOW UP PROCESS ##############");
+		} catch (Exception e) {
+			LoggingUtil.logError("########### ERROR OCCURRED IN FOLLOW UPs ##############");
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+	}
+
+	private void addUserEmail(Map<ERPUser, List<ERPRecord>> mailRecords, ERPRecord record, ERPUser user) {
+		if(user != null) {
+			List<ERPRecord> userRecords = null;
+			if(mailRecords.get(user) != null) {
+				userRecords = mailRecords.get(user);
+			} else {
+				userRecords = new ArrayList<ERPRecord>();
+			}
+			userRecords.add(record);
+			mailRecords.put(user, userRecords);
+		}
+	}
+
 	
 	
 }
