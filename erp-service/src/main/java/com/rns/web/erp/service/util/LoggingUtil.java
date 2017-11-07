@@ -11,7 +11,8 @@ public class LoggingUtil {
 	
 	private static Logger reportLogger = Logger.getLogger(LoggingUtil.class);
 	
-	private static Logger errorLogger = Logger.getLogger(LoggingUtil.class);
+	private static Logger errorLogger = Logger.getLogger("errorLogger");
+	
 	
 	//private static Logger emailLogger = Logger.getLogger("email");
 	

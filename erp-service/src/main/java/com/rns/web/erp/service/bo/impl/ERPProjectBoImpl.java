@@ -130,7 +130,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			
 			tx.commit();
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 			result = ERROR_IN_PROCESSING;
 		} finally {
 			CommonUtils.closeSession(session);
@@ -215,7 +215,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				}
 			}
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} finally {
 			CommonUtils.closeSession(session);
 		}
@@ -299,7 +299,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			}
 			
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} finally {
 			CommonUtils.closeSession(session);
 		}
@@ -331,7 +331,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				users.add(erpUser);
 			}
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} finally {
 			CommonUtils.closeSession(session);
 		}
@@ -368,7 +368,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 
 			tx.commit();
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 			result = ERROR_IN_PROCESSING;
 		} finally {
 			CommonUtils.closeSession(session);
@@ -579,7 +579,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			tx.commit();
 			
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 			result = ERROR_IN_PROCESSING;
 		} finally {
 			CommonUtils.closeSession(session);
@@ -625,7 +625,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			} 
 			tx.commit();
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 			file.setStatus(ERROR_IN_PROCESSING);
 		} finally {
 			CommonUtils.closeSession(session);
@@ -682,7 +682,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				}
 			}
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} finally {
 			CommonUtils.closeSession(session);
 		}
@@ -705,7 +705,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				is = new FileInputStream(files.getFilePath());
 			}
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} finally {
 			CommonUtils.closeSession(session);
 		}
@@ -753,7 +753,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			}
 			tx.commit();
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 			comment.setStatus(ERROR_IN_PROCESSING);
 		} finally {
 			CommonUtils.closeSession(session);
@@ -797,7 +797,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			} 
 			tx.commit();
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 			result = ERROR_IN_PROCESSING;
 		} finally {
 			CommonUtils.closeSession(session);
@@ -836,7 +836,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 			} 
 			tx.commit();
 		} catch (Exception e) {
-			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} finally {
 			CommonUtils.closeSession(session);
 		}
