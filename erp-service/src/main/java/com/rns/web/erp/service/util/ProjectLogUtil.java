@@ -298,9 +298,9 @@ public class ProjectLogUtil implements ERPConstants {
 			}
 			if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_ALL_RECORDS)) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
-			} else if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_ASSIGNED_RECORDS) && userId == record.getAssignedTo().getId().intValue()) {
+			} else if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_ASSIGNED_RECORDS) && record.getAssignedTo() != null &&  userId == record.getAssignedTo().getId().intValue()) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
-			} else if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_CREATED_RECORDS) && userId == record.getCreatedBy().getId().intValue()) {
+			} else if(StringUtils.contains(user.getEmailSettings(), PROJECT_MAIL_CREATED_RECORDS) && record.getCreatedBy() != null && userId == record.getCreatedBy().getId().intValue()) {
 				checkAssigned(record, isRecordAssigned, emails, assignedUser, user, userId, type);
 			}
 			
@@ -346,7 +346,7 @@ public class ProjectLogUtil implements ERPConstants {
 
 	private static void checkAssigned(ERPProjectRecords record, boolean isRecordAssigned, List<String> emails, List<String> assignedUser, ERPProjectUsers user,
 			int userId, CharSequence type) {
-		if(isRecordAssigned && userId == record.getAssignedTo().getId().intValue() 
+		if(isRecordAssigned && record.getAssignedTo() != null &&  userId == record.getAssignedTo().getId().intValue() 
 				&& (StringUtils.equals(ERPConstants.NOTIFICATION_RECORD_ADDED, type) || StringUtils.equals(ERPConstants.NOTIFICATION_RECORD_UPDATE, type))) {
 			assignedUser.add(user.getUser().getEmail());
 		} else {
