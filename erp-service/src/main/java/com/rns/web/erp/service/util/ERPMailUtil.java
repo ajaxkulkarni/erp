@@ -132,6 +132,7 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			if(record != null && CollectionUtils.isNotEmpty(record.getLogs())) {
 				result = StringUtils.replace(result, "{recordTitle}", record.getTitleField().getValue());
 				result = StringUtils.replace(result, "{recordType}", record.getStatus());
+				result = StringUtils.replace(result, "{projectId}", CommonUtils.getStringValue(record.getProjectId()));
 				if(CollectionUtils.isNotEmpty(record.getLogs())) {
 					String logMessage = "";
 					for(ERPLog log: record.getLogs()) {

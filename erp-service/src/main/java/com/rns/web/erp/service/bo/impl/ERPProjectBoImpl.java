@@ -493,18 +493,11 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					result = ERROR_RECORD_NOT_FOUND;
 				} else {
 					ERPProjectLog recordChangeLog = ProjectLogUtil.createRecordChangeLog(records, currentRecord, loginDetails);
-					records.setStatus(currentRecord.getStatus());
-					records.setRecordDate(currentRecord.getRecordDate());
-					records.setColor(currentRecord.getColor());
-					if(currentRecord.isFollowUp()) {
-						records.setFollowUp(records.getRecordDate());
-					} else {
-						records.setFollowUp(null);
-					}
+					ERPBusinessConverter.setRecordBasics(currentRecord, records);
+					
 					if(records.getAssignedTo() == null || (currentRecord.getAssignedUser() != null && records.getAssignedTo().getId().intValue() != currentRecord.getAssignedUser().getId().intValue())) {
 						isRecordAssigned = true;
 					}
-					records.setAssignedTo(ERPBusinessConverter.getLoginDetails(currentRecord.getAssignedUser()));
 					
 					if(StringUtils.equals(currentRecord.getStatus(), USER_STATUS_DELETED)) {
 						type = NOTIFICATION_RECORD_DELETED;
@@ -546,7 +539,6 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 				records = ERPBusinessConverter.getRecords(user, currentRecord, loginDetails);
 				ERPProjects project = new ERPProjectDAO().getProjectById(user.getCurrentProject().getId(), session);
 				records.setProject(project);
-				records.setAssignedTo(ERPBusinessConverter.getLoginDetails(currentRecord.getAssignedUser()));
 				if(records.getAssignedTo() != null) {
 					isRecordAssigned = true;
 				}
@@ -592,6 +584,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 		return result;
 
 	}
+
 
 	public ERPFile updateFile(ERPUser user) {
 		if (user == null || StringUtils.isEmpty(user.getEmail()) || user.getCurrentRecord() == null || user.getCurrentRecord().getFile() == null) {

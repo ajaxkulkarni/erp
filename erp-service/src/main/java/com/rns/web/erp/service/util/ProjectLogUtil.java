@@ -321,6 +321,8 @@ public class ProjectLogUtil implements ERPConstants {
 		} else if (StringUtils.equals(ERPConstants.NOTIFICATION_FILE_DELETED, type)) {
 			subject = subject + currentRecord.getTitleField().getValue() + " - file deleted by " + login.getName();
 		} 
+		
+		currentRecord.setProjectId(record.getProject().getId());
 		if(CollectionUtils.isNotEmpty(emails) && currentRecord != null) {
 			ERPMailUtil mailUtil = new ERPMailUtil(ERPConstants.MAIL_TYPE_RECORD_CHANGED);
 			currentRecord.setStatus(type);

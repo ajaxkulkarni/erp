@@ -291,15 +291,20 @@ public class ERPBusinessConverter {
 		ERPProjects project = new ERPProjects();
 		project.setId(user.getCurrentProject().getId());
 		records.setProject(project);
-		records.setRecordDate(currentRecord.getRecordDate());
-		records.setStatus(ERPConstants.USER_STATUS_ACTIVE);
+		setRecordBasics(currentRecord, records);
+		return records;
+	}
+	
+	public static void setRecordBasics(ERPRecord currentRecord, ERPProjectRecords records) {
+		records.setStatus(currentRecord.getStatus());
+		records.setRecordDate(CommonUtils.convertDate(currentRecord.getRecordDateString()));
 		records.setColor(currentRecord.getColor());
 		if(currentRecord.isFollowUp()) {
 			records.setFollowUp(records.getRecordDate());
 		} else {
 			records.setFollowUp(null);
 		}
-		return records;
+		records.setAssignedTo(ERPBusinessConverter.getLoginDetails(currentRecord.getAssignedUser()));
 	}
 	
 	public static ERPProjectRecordValues getRecordValues(ERPLoginDetails loginDetails, ERPProjectRecords records, ERPField value) {

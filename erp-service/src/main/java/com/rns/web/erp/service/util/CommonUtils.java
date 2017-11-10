@@ -27,6 +27,7 @@ import com.rns.web.erp.service.domain.ERPServiceResponse;
 
 public class CommonUtils {
 	
+	
 	public static void closeSession(Session session) {
 		if(session == null || !session.isOpen())  {
 			return;
@@ -37,7 +38,15 @@ public class CommonUtils {
 
 	public static String convertDate(Date date) {
 		try {
-			return new SimpleDateFormat("yyyy-MM-dd").format(date);
+			return new SimpleDateFormat(ERPConstants.DATE_FORMAT).format(date);
+		} catch (Exception e) {
+		}
+		return null;
+	}
+	
+	public static Date convertDate(String date) {
+		try {
+			return new SimpleDateFormat(ERPConstants.DATE_FORMAT).parse(date);
 		} catch (Exception e) {
 		}
 		return null;
