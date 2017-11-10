@@ -316,7 +316,7 @@ public class ERPBusinessConverter {
 		values.setField(field);
 		values.setUpdatedBy(loginDetails);
 		values.setUpdatedDate(new Date());
-		values.setValue(value.getValue());
+		values.setValue(CommonUtils.trimValue(value.getValue()));
 		return values;
 	}
 	

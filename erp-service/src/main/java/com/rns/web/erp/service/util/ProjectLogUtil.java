@@ -127,9 +127,10 @@ public class ProjectLogUtil implements ERPConstants {
 		log.setCreatedBy(loginDetails);
 		log.setProject(project);
 		log.setCreatedDate(new Date());
-		log.setLog(StringUtils.substring(msg, 0, ERPConstants.LOG_MAX_LENGTH));
+		log.setLog(CommonUtils.trimValue(msg));
 		return log;
 	}
+
 
 	private static void prepareFieldList(List<ERPProjectFields> deletedFields, StringBuilder builder) {
 		StringBuilder fieldsList = new StringBuilder();

@@ -427,6 +427,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					fields.setCreatedDate(new Date());
 					fields.setStatus(USER_STATUS_ACTIVE);
 					fields.setProject(projects);
+					fields.setValues(StringUtils.removeEnd(StringUtils.trimToEmpty(pf.getValues()), ","));
 					session.persist(fields);
 					addedFields.append(fields.getName()).append(",");
 				}
@@ -511,7 +512,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 					if(titleField != null) {
 						ERPProjectRecordValues titleValue = erpProjectDAO.getRecordValueById(titleField.getRecordId(), session);
 						if(titleValue != null && !StringUtils.equals(titleValue.getValue(), titleField.getValue())) {
-							titleValue.setValue(titleField.getValue());
+							titleValue.setValue(CommonUtils.trimValue(titleField.getValue()));
 							changedValues.add(titleValue);
 						}
 					}
@@ -522,7 +523,7 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 								if(values != null && StringUtils.isNotBlank(value.getValue()) && !StringUtils.equals(values.getValue(), value.getValue())) {
 									values.setUpdatedBy(loginDetails);
 									values.setUpdatedDate(new Date());
-									values.setValue(value.getValue());
+									values.setValue(CommonUtils.trimValue(value.getValue()));
 									changedValues.add(values);
 								}
 							} else {

@@ -35,6 +35,11 @@ public class CommonUtils {
 		session.close();
 		//System.out.println("Session closed!");
 	}
+	
+	public static String trimValue(String msg) {
+		return StringUtils.substring(msg, 0, ERPConstants.LOG_MAX_LENGTH);
+	}
+	
 
 	public static String convertDate(Date date) {
 		try {
