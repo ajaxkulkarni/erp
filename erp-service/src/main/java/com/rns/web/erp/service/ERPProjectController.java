@@ -1,8 +1,11 @@
 package com.rns.web.erp.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -24,7 +29,9 @@ import org.springframework.stereotype.Component;
 import com.rns.web.erp.service.bo.api.ERPProjectBo;
 import com.rns.web.erp.service.bo.api.ERPUserBo;
 import com.rns.web.erp.service.bo.domain.ERPComment;
+import com.rns.web.erp.service.bo.domain.ERPCompany;
 import com.rns.web.erp.service.bo.domain.ERPFile;
+import com.rns.web.erp.service.bo.domain.ERPFilter;
 import com.rns.web.erp.service.bo.domain.ERPProject;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
@@ -32,6 +39,7 @@ import com.rns.web.erp.service.domain.ERPServiceRequest;
 import com.rns.web.erp.service.domain.ERPServiceResponse;
 import com.rns.web.erp.service.util.CommonUtils;
 import com.rns.web.erp.service.util.ERPConstants;
+import com.rns.web.erp.service.util.ERPExcelUtil;
 import com.rns.web.erp.service.util.LoggingUtil;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -329,4 +337,27 @@ public class ERPProjectController {
 		LoggingUtil.logObject("Get mail settings response", response);
 		return response;
 	}
+	
+	@POST
+	@Path("/downloadProjectData")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces("application/vnd.ms-excel")
+	public Response downloadLeavesMaster(ERPProject project) {
+		LoggingUtil.logMessage("Download project request for :" + project.getId());
+		try {
+			HSSFWorkbook wb = ERPExcelUtil.getProjectDetails(project);
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			wb.write(os);
+			InputStream is = new ByteArrayInputStream(os.toByteArray());
+			ResponseBuilder response = Response.ok(is);
+			response.header("Content-Disposition","attachment; filename=" + project.getTitle() + ".xls");  
+			return response.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//LoggingUtil.logObject("Download resume Response :", response);
+		return Response.serverError().build();
+
+	}
+
 }

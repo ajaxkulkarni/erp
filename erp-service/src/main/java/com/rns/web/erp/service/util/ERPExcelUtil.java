@@ -12,8 +12,11 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 
+import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
 import com.rns.web.erp.service.bo.domain.ERPLeaveCategory;
+import com.rns.web.erp.service.bo.domain.ERPProject;
+import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPSalaryInfo;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 
@@ -276,6 +279,66 @@ public class ERPExcelUtil {
 			aRow.createCell(colCount++).setCellValue(new SimpleDateFormat("yyyy-MM-dd").format(leave.getAppliedDate()));
 			aRow.createCell(colCount++).setCellValue(leave.getStatus());
 			aRow.createCell(colCount++).setCellValue(leave.getWithoutPay());
+		}
+		return workbook;
+	}
+	
+	public static HSSFWorkbook getProjectDetails(ERPProject project) {
+		if(project == null || CollectionUtils.isEmpty(project.getFields())) {
+			return null;
+		}
+		
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		HSSFSheet sheet = workbook.createSheet(project.getTitle());
+		sheet.setDefaultColumnWidth(30);
+
+		// create style for header cells
+		CellStyle style = workbook.createCellStyle();
+		Font font = workbook.createFont();
+		font.setFontName("Arial");
+		style.setFillForegroundColor(FOREGROUND_COLOR);
+		style.setFillPattern(CELL_FILL);
+		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		font.setColor(HSSFColor.WHITE.index);
+		style.setFont(font);
+
+		// create header row
+		HSSFRow header = sheet.createRow(0);
+		
+		int colIndex = 0;
+
+		header.createCell(colIndex).setCellValue("Sr. No");
+		header.getCell(colIndex++).setCellStyle(style);
+		
+		if(project.getTitleField() != null) {
+			header.createCell(colIndex).setCellValue(project.getTitleField().getName());
+			header.getCell(colIndex++).setCellStyle(style);
+		}
+		
+		if(CollectionUtils.isNotEmpty(project.getFields())) {
+			for(ERPField field: project.getFields()) {
+				header.createCell(colIndex).setCellValue(field.getName());
+				header.getCell(colIndex++).setCellStyle(style);
+			}
+		}
+		
+		
+		int rowCount = 1;
+		
+		if(CollectionUtils.isEmpty(project.getRecords())) {
+			return workbook;
+		}
+
+		for (ERPRecord record : project.getRecords()) {
+			int colCount = 0;
+			HSSFRow aRow = sheet.createRow(rowCount);
+			aRow.createCell(colCount++).setCellValue(rowCount++);
+			aRow.createCell(colCount++).setCellValue(record.getTitleField().getValue());
+			if(CollectionUtils.isNotEmpty(record.getValues())) {
+				for(ERPField field: record.getValues()) {
+					aRow.createCell(colCount++).setCellValue(field.getValue());
+				}
+			}
 		}
 		return workbook;
 	}
