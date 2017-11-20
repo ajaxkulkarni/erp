@@ -8,6 +8,7 @@ public class ERPServiceRequest {
 	private ERPUser user;
 	private ERPLeave leave;
 	private String requestType;
+	private String timeRange;
 
 	public ERPUser getUser() {
 		return user;
@@ -31,6 +32,14 @@ public class ERPServiceRequest {
 
 	public void setRequestType(String requestType) {
 		this.requestType = requestType;
+	}
+
+	public String getTimeRange() {
+		return timeRange;
+	}
+
+	public void setTimeRange(String timeRange) {
+		this.timeRange = timeRange;
 	}
 
 	

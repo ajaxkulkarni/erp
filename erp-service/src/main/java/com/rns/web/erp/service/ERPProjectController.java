@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -117,8 +118,20 @@ public class ERPProjectController {
 		LoggingUtil.logObject("Get project Request :", request);
 		ERPServiceResponse response = CommonUtils.initResponse();
 		try {
-			ERPProject project = projectBo.getProject(request.getUser(), "REC", request.getRequestType());
-			request.getUser().setCurrentProject(project);
+			if(StringUtils.equals("Assigned", request.getRequestType())) {
+				ERPProject project = new ERPProject();
+				project.setId(0);
+				project.setRecords(projectBo.getUserAssignedRecords(request.getUser(), request.getTimeRange()));
+				request.getUser().setCurrentProject(project);
+			} else if (StringUtils.equals("Archived", request.getRequestType())) {
+				ERPProject project = new ERPProject();
+				project.setId(0);
+				project.setRecords(projectBo.getArchivedRecords(request.getUser(), request.getTimeRange()));
+				request.getUser().setCurrentProject(project);
+			} else {
+				ERPProject project = projectBo.getProject(request.getUser(), "REC", request.getTimeRange());
+				request.getUser().setCurrentProject(project);
+			}
 			response.setUser(request.getUser());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -359,5 +372,5 @@ public class ERPProjectController {
 		return Response.serverError().build();
 
 	}
-
+	
 }

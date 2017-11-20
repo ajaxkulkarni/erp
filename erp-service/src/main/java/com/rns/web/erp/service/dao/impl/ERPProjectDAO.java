@@ -211,4 +211,35 @@ public class ERPProjectDAO {
 		return query.list();
 	}
 
+	public List<ERPProjectRecords> getUserRecords(Integer id, Date firstDate, Date lastDate, Session session) {
+		String queryString = "from ERPProjectRecords where assignedTo=:id AND status!=:deleted";
+		if(firstDate != null && lastDate != null) {
+			queryString = queryString + " AND recordDate>=:startDate AND recordDate<=:endDate";
+		}
+		queryString = queryString +  " order by recordDate DESC,createdDate DESC";
+		Query query = session.createQuery(queryString);
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		query.setInteger("id", id);
+		if(firstDate != null && lastDate != null) {
+			query.setDate("startDate", firstDate);
+			query.setDate("endDate", lastDate);
+		}
+		return query.list();
+	}
+
+	public List<ERPProjectRecords> getArchivedRecords(Date firstDate, Date lastDate, Session session) {
+		String queryString = "from ERPProjectRecords where status=:deleted";
+		if(firstDate != null && lastDate != null) {
+			queryString = queryString + " AND recordDate>=:startDate AND recordDate<=:endDate";
+		}
+		queryString = queryString +  " order by recordDate DESC,createdDate DESC";
+		Query query = session.createQuery(queryString);
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		if(firstDate != null && lastDate != null) {
+			query.setDate("startDate", firstDate);
+			query.setDate("endDate", lastDate);
+		}
+		return query.list();
+	}
+
 }

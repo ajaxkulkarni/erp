@@ -341,7 +341,7 @@ public class ProjectLogUtil implements ERPConstants {
 			mailUtil.setUsers(assignedUser);
 			mailUtil.setMailSubject(subject);
 			if(isRecordAssigned) {
-				mailUtil.setMailSubject(record.getProject().getTitle() + "|" + currentRecord.getTitleField().getValue() + " - record assigned to you by " + login.getName());
+				mailUtil.setMailSubject(record.getProject().getTitle() + " | " + currentRecord.getTitleField().getValue() + " - record assigned to you by " + login.getName());
 			}
 			executor.execute(mailUtil);
 		}

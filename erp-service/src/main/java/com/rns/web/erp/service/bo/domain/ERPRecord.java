@@ -26,6 +26,7 @@ public class ERPRecord {
 	private String projectName;
 	private Integer projectId;
 	private boolean followUp;
+	private ERPAccessRights rights;
 	
 	public Integer getId() {
 		return id;
@@ -158,6 +159,12 @@ public class ERPRecord {
 	}
 	public void setProjectId(Integer projectId) {
 		this.projectId = projectId;
+	}
+	public ERPAccessRights getRights() {
+		return rights;
+	}
+	public void setRights(ERPAccessRights rights) {
+		this.rights = rights;
 	}
 	
 }

@@ -23,4 +23,6 @@ public interface ERPProjectBo {
 	ERPComment updateComment(ERPUser user);
 	String updateMailSettings(ERPUser user);
 	ERPUser getMailSettings(ERPUser user);
+	List<ERPRecord> getUserAssignedRecords(ERPUser user, String timeRange);
+	List<ERPRecord> getArchivedRecords(ERPUser user, String timeRange);
 }

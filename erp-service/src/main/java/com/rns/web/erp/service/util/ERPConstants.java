@@ -31,6 +31,9 @@ public interface ERPConstants {
 	String PROJECT_MAIL_ASSIGNED_RECORDS = "A";
 	String PROJECT_MAIL_ALL_RECORDS = "X";
 	
+	String TIME_RANGE_WEEK = "WEEK";
+	String TIME_RANGE_ALL = "ALL";
+	
 	String ACTION_DELETE_ITEM = "DeleteItem";
 	String ACTION_NEW_ITEM = "NewItem";
 	String ACTION_CHANGE_ITEM = "ChangeItem";
