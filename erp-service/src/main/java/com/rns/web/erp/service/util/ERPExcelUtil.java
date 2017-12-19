@@ -11,6 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.util.WorkbookUtil;
 
 import com.rns.web.erp.service.bo.domain.ERPField;
 import com.rns.web.erp.service.bo.domain.ERPLeave;
@@ -289,7 +290,7 @@ public class ERPExcelUtil {
 		}
 		
 		HSSFWorkbook workbook = new HSSFWorkbook();
-		HSSFSheet sheet = workbook.createSheet(project.getTitle());
+		HSSFSheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(project.getTitle()));
 		sheet.setDefaultColumnWidth(30);
 
 		// create style for header cells
