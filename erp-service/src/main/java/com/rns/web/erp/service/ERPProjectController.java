@@ -194,6 +194,24 @@ public class ERPProjectController {
 	}
 	
 	@POST
+	@Path("/restoreRecord")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse restoreRecord(ERPServiceRequest request) {
+		LoggingUtil.logObject("Restore record Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			CommonUtils.setResponse(response, projectBo.restoreRecord(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Restore record Response :", response);
+		return response;
+	}
+	
+	@POST
 	@Path("/getRecord")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)

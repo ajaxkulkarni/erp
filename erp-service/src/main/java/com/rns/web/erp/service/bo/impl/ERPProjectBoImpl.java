@@ -922,4 +922,31 @@ public class ERPProjectBoImpl implements ERPProjectBo, ERPConstants {
 		return archivedRecords;
 	}
 
+	public String restoreRecord(ERPUser user) {
+		if (user == null || StringUtils.isEmpty(user.getEmail()) || user.getCurrentRecord() == null) {
+			return ERROR_INVALID_USER_DETAILS;
+		}
+		ERPRecord currentRecord = user.getCurrentRecord();
+		String result = RESPONSE_OK;
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPProjectDAO erpProjectDAO = new ERPProjectDAO();
+			if (currentRecord.getId() != null) {
+				ERPProjectRecords records = erpProjectDAO.getArchivedRecordById(currentRecord.getId(), session);
+				if(records != null) {
+					records.setStatus(USER_STATUS_ACTIVE);
+				}
+			}
+			tx.commit();
+		} catch (Exception e) {
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
+			result = ERROR_IN_PROCESSING;
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return result;
+	}
+
 }

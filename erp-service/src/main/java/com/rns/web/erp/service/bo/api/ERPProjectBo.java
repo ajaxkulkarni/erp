@@ -17,6 +17,7 @@ public interface ERPProjectBo {
 	ERPProject getProject(ERPUser user, String requestType, String timeRange);
 	List<ERPUser> getAllCompanyLogins(ERPUser user);
 	String updateRecord(ERPUser record);
+	String restoreRecord(ERPUser user);
 	ERPRecord getRecord(ERPUser user);
 	ERPFile updateFile(ERPUser user);
 	InputStream getFile(ERPFile file);

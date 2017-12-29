@@ -89,6 +89,17 @@ public class ERPProjectDAO {
 		}
 		return records.get(0);
 	}
+	
+	public ERPProjectRecords getArchivedRecordById(Integer id, Session session) {
+		Query query = session.createQuery("from ERPProjectRecords where id=:id AND status=:deleted");
+		query.setInteger("id", id);
+		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
+		List<ERPProjectRecords> records = query.list();
+		if (CollectionUtils.isEmpty(records)) {
+			return null;
+		}
+		return records.get(0);
+	}
 
 	public ERPProjectRecordValues getRecordValueById(Integer id, Session session) {
 		Query query = session.createQuery("from ERPProjectRecordValues where id=:id");
