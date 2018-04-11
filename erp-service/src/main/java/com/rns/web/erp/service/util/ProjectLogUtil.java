@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.rns.web.erp.service.bo.domain.ERPLog;
+import com.rns.web.erp.service.bo.domain.ERPNotification;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
 import com.rns.web.erp.service.bo.domain.ERPUser;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
@@ -22,10 +23,14 @@ import com.rns.web.erp.service.dao.domain.ERPProjectRecordValues;
 import com.rns.web.erp.service.dao.domain.ERPProjectRecords;
 import com.rns.web.erp.service.dao.domain.ERPProjectUsers;
 import com.rns.web.erp.service.dao.domain.ERPProjects;
+import com.rns.web.erp.service.dao.domain.ERPUserFcmTokens;
 import com.rns.web.erp.service.dao.impl.ERPProjectDAO;
+import com.rns.web.erp.service.dao.impl.ERPUserDAO;
 
 public class ProjectLogUtil implements ERPConstants {
 
+
+	private static final String TITLE_SEPARATOR = "|";
 
 	public static void projectCreateLog(Session session, ERPLoginDetails loginDetails, ERPProjects projects) {
 		String msg = loginDetails.getName() + " created the project '" + CommonUtils.getStringValue(projects.getTitle()) + "'";
@@ -306,7 +311,10 @@ public class ProjectLogUtil implements ERPConstants {
 			}
 			
 		}
-		String subject = record.getProject().getTitle() + "|";
+		String subject = record.getProject().getTitle() + TITLE_SEPARATOR;
+		ERPNotification notification = new ERPNotification();
+		notification.setTitle(record.getProject().getTitle());
+		
 		if(StringUtils.equals(ERPConstants.NOTIFICATION_RECORD_UPDATE, type)) {
 			subject = subject + currentRecord.getTitleField().getValue() + " - record updated by " + login.getName();
 		} else if (StringUtils.equals(ERPConstants.NOTIFICATION_RECORD_ADDED, type)) {
@@ -322,6 +330,7 @@ public class ProjectLogUtil implements ERPConstants {
 		} else if (StringUtils.equals(ERPConstants.NOTIFICATION_FILE_DELETED, type)) {
 			subject = subject + currentRecord.getTitleField().getValue() + " - file deleted by " + login.getName();
 		} 
+		notification.setMessage(StringUtils.removeStart(subject, record.getProject().getTitle() + TITLE_SEPARATOR));
 		
 		currentRecord.setProjectId(record.getProject().getId());
 		if(CollectionUtils.isNotEmpty(emails) && currentRecord != null) {
@@ -332,6 +341,7 @@ public class ProjectLogUtil implements ERPConstants {
 			mailUtil.setUsers(emails);
 			mailUtil.setMailSubject(subject);
 			executor.execute(mailUtil);
+			ERPNotificationUtil.sendNotifications(notification, emails, session);
 		}
 		if(CollectionUtils.isNotEmpty(assignedUser) && currentRecord != null) {
 			ERPMailUtil mailUtil = new ERPMailUtil(ERPConstants.MAIL_TYPE_RECORD_CHANGED);
@@ -342,8 +352,10 @@ public class ProjectLogUtil implements ERPConstants {
 			mailUtil.setMailSubject(subject);
 			if(isRecordAssigned) {
 				mailUtil.setMailSubject(record.getProject().getTitle() + " | " + currentRecord.getTitleField().getValue() + " - record assigned to you by " + login.getName());
+				notification.setMessage(currentRecord.getTitleField().getValue() + " - record assigned to you by " + login.getName());
 			}
 			executor.execute(mailUtil);
+			ERPNotificationUtil.sendNotifications(notification, assignedUser, session);
 		}
 	}
 

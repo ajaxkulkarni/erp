@@ -291,4 +291,10 @@ public class ERPUserDAO {
 		return list.get(0);
 	}
 
+	public List<ERPUserFcmTokens> getFcmTokens(List<String> emails, Session session) {
+		Query query = session.createQuery("from ERPUserFcmTokens where email IN (:emails)");
+		query.setParameterList("emails", emails);
+		return query.list();
+	}
+
 }
