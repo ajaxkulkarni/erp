@@ -33,4 +33,5 @@ public interface ERPUserBo {
 	String forgotPassword(ERPUser user);
 	String updateEmployeeLeaveBalance(ERPUser user);
 	InputStream getEmployeeDocument(ERPUser user);
+	String updateUserFcmToken(ERPUser user);
 }

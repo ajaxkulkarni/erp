@@ -612,5 +612,23 @@ public class ERPUserController {
 		return response;
 	}
 	
+	@POST
+	@Path("/updateFcmToken")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ERPServiceResponse updateFcmToken(ERPServiceRequest request) {
+		LoggingUtil.logObject("Fcm token Request :", request);
+		ERPServiceResponse response = CommonUtils.initResponse();
+		try {
+			CommonUtils.setResponse(response, userBo.updateUserFcmToken(request.getUser()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(-999);
+			response.setResponseText(ERPConstants.ERROR_IN_PROCESSING);
+		}
+		LoggingUtil.logObject("Fcm token Response :", response);
+		return response;
+	}
+	
 	
 }

@@ -17,6 +17,7 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
+import com.rns.web.erp.service.dao.domain.ERPUserFcmTokens;
 import com.rns.web.erp.service.util.ERPConstants;
 
 public class ERPUserDAO {
@@ -268,6 +269,22 @@ public class ERPUserDAO {
 		query.setString("deleted", ERPConstants.USER_STATUS_DELETED);
 		query.setString("regId", regId);
 		List<ERPEmployeeDetails> list = query.list();
+		if(CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+
+	public List<ERPUserFcmTokens> getFcmTokens(Integer id, Session session) {
+		Query query = session.createQuery("from ERPUserFcmTokens where login.id=:id");
+		query.setInteger("id", id);
+		return query.list();
+	}
+
+	public ERPUserFcmTokens getFcmToken(String fcmToken, Session session) {
+		Query query = session.createQuery("from ERPUserFcmTokens where fcmToken=:token");
+		query.setString("token", fcmToken);
+		List<ERPUserFcmTokens> list = query.list();
 		if(CollectionUtils.isEmpty(list)) {
 			return null;
 		}

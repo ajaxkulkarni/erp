@@ -33,6 +33,7 @@ import com.rns.web.erp.service.dao.domain.ERPEmployeeSalaryStructure;
 import com.rns.web.erp.service.dao.domain.ERPLeaveType;
 import com.rns.web.erp.service.dao.domain.ERPLoginDetails;
 import com.rns.web.erp.service.dao.domain.ERPSalaryStructure;
+import com.rns.web.erp.service.dao.domain.ERPUserFcmTokens;
 import com.rns.web.erp.service.dao.impl.ERPUserDAO;
 import com.rns.web.erp.service.util.CommonUtils;
 import com.rns.web.erp.service.util.ERPBusinessConverter;
@@ -1051,6 +1052,36 @@ public class ERPUserBoImpl implements ERPUserBo, ERPConstants {
 			CommonUtils.closeSession(session);
 		}
 		return is;
+	}
+
+	public String updateUserFcmToken(ERPUser user) {
+		if(user == null || StringUtils.isBlank(user.getEmail())) {
+			return ERROR_INVALID_USER_DETAILS;
+		}
+		LoggingUtil.logMessage("Updating FCM token for - " + user.getEmail() + " .. token .. " + user.getFcmToken());
+		Session session = null;
+		try {
+			session = this.sessionFactory.openSession();
+			Transaction tx = session.beginTransaction();
+			ERPUserDAO erpUserDAO = new ERPUserDAO();
+			ERPLoginDetails login = erpUserDAO.getLoginDetails(user.getEmail(), session);
+			if(login != null) {
+				ERPUserFcmTokens existing = erpUserDAO.getFcmToken(user.getFcmToken(), session);
+				if(existing == null) {
+					ERPUserFcmTokens token = new ERPUserFcmTokens();
+					token.setFcmToken(user.getFcmToken());
+					token.setCreatedDate(new Date());
+					token.setLogin(login);
+					session.persist(token);
+				}
+			}
+			tx.commit();
+		} catch (Exception e) {
+			LoggingUtil.logMessage(ExceptionUtils.getStackTrace(e));
+		} finally {
+			CommonUtils.closeSession(session);
+		}
+		return RESPONSE_OK;
 	}
 	
 }

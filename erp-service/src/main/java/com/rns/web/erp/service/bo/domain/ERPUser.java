@@ -43,6 +43,7 @@ public class ERPUser implements Comparable<ERPUser> {
 	private List<ERPProject> projects;
 	private ERPRecord currentRecord;
 	private ERPAccessRights rights;
+	private String fcmToken;
 	
 	public Integer getId() {
 		return id;
@@ -270,6 +271,12 @@ public class ERPUser implements Comparable<ERPUser> {
 	}
 	public void setRights(ERPAccessRights rights) {
 		this.rights = rights;
+	}
+	public String getFcmToken() {
+		return fcmToken;
+	}
+	public void setFcmToken(String fcmToken) {
+		this.fcmToken = fcmToken;
 	}
 	
 
