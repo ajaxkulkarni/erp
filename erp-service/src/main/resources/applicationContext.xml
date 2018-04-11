@@ -40,20 +40,21 @@
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<!-- <property name="url" value="jdbc:mysql://localhost:3306/hreasy_data" />
-		<property name="username" value="hreasy_user" />
-		<property name="password" value="123456" /> -->
-		<property name="url" value="jdbc:mysql://localhost:3306/erp" />
+		<property name="url" value="jdbc:mysql://localhost:3306/hreasy_data" />
 		<property name="username" value="root" />
-		<property name="password" value="" />
+		<property name="password" value="WickedSmile@123456" />
+		<!-- <property name="url" value="jdbc:mysql://localhost:3306/erp" />
+		<property name="username" value="root" />
+		<property name="password" value="" /> -->
 		<property name="testOnReturn" value="true" />
 		<property name="testOnBorrow" value="true" />
 		<property name="testWhileIdle" value="true" />
 		<property name="validationQuery" value="SELECT 1" />
-		<property name="initialSize" value="8"/>
-  		<property name="maxActive" value="20"/>
-  		<property name="maxIdle" value="20"/>
+		<property name="initialSize" value="20"/>
+  		<property name="maxActive" value="50"/>
+  		<property name="maxIdle" value="40"/>
   		<property name="minIdle" value="0"/>
+  		<!-- <property name="maxWaitMillis" value="50000"/> -->
 	</bean>
 
 	<!-- Hibernate 4 SessionFactory Bean definition -->
@@ -81,6 +82,7 @@
 				<value>com.rns.web.erp.service.dao.domain.ERPProjectFiles</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPProjectComments</value>
 				<value>com.rns.web.erp.service.dao.domain.ERPProjectLog</value>
+				<value>com.rns.web.erp.service.dao.domain.ERPUserFcmTokens</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
