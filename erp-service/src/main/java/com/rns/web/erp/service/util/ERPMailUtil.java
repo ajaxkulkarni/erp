@@ -21,6 +21,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.rns.web.erp.service.bo.domain.ERPLog;
 import com.rns.web.erp.service.bo.domain.ERPRecord;
@@ -75,9 +76,9 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			Transport.send(message);
 
 		} catch (MessagingException e) {
-			e.printStackTrace();
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		}
 	}
 
@@ -162,11 +163,11 @@ public class ERPMailUtil implements Runnable, ERPConstants {
 			return result;
 
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} catch (MessagingException e) {
-			e.printStackTrace();
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			LoggingUtil.logError(ExceptionUtils.getStackTrace(e));
 		}
 
 		return "";
